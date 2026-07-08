@@ -195,15 +195,29 @@
 
             <div>
 
-                <label>Categoría</label>
+    <label>Categoría</label>
 
-                <input
-                    type="text"
-                    name="categoria"
-                    value="{{ old('categoria', $jugador->categoria ?? '') }}"
-                    class="w-full mt-2 border rounded-lg p-3">
+    <select
+        name="categoria"
+        class="w-full mt-2 border rounded-lg p-3">
 
-            </div>
+        <option value="">-- Seleccione una categoría --</option>
+
+        @foreach($categorias as $categoria)
+
+            <option
+                value="{{ $categoria->nombre }}"
+                {{ old('categoria', $jugador->categoria ?? '') == $categoria->nombre ? 'selected' : '' }}>
+
+                {{ $categoria->nombre }}
+
+            </option>
+
+        @endforeach
+
+    </select>
+
+</div>
 
             <div>
 

@@ -4,19 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Club extends Model
+class Categoria extends Model
 {
     protected $fillable = [
+        'club_id',
         'nombre',
-        'slug',
-        'email',
-        'telefono',
-        'ciudad',
-        'departamento',
-        'pais',
-        'direccion',
-        'logo',
-        'descripcion',
         'activo',
     ];
     public function equipos()

@@ -32,12 +32,15 @@
                 👥 Jugadores
             </a>
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
-                ⚽ Equipos
+            <a href="{{ route('equipos.index') }}"
+              class="block px-5 py-3 hover:bg-slate-800">
+
+            ⚽ Equipos
+
             </a>
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
-                📂 Categorías
+            <a href="{{ route('categorias.index') }}" class="block px-5 py-3 hover:bg-slate-800">
+             📂 Categorías
             </a>
 
             <a href="#" class="block px-5 py-3 hover:bg-slate-800">

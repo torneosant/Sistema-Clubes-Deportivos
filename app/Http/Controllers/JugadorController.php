@@ -6,6 +6,7 @@
         use Illuminate\Http\Request;
         use Illuminate\Support\Facades\Storage; 
         use Illuminate\Validation\Rule;
+        use App\Models\Categoria;
 
         class JugadorController extends Controller
         {
@@ -46,11 +47,14 @@ $totalCategorias = Jugador::whereNotNull('categoria')
     'totalCategorias'
 ));
 }
-            public function create()
-            {
-        
-            return view('jugadores.create');
-        }
+          public function create()
+{
+    $categorias = Categoria::where('activo', true)
+        ->orderBy('nombre')
+        ->get();
+
+    return view('jugadores.create', compact('categorias'));
+}
 
             public function store(Request $request)
         {
@@ -103,9 +107,16 @@ $totalCategorias = Jugador::whereNotNull('categoria')
             }
 
         public function edit(Jugador $jugador)
-        {
-            return view('jugadores.edit', compact('jugador'));
-        }
+{
+    $categorias = Categoria::where('activo', true)
+        ->orderBy('nombre')
+        ->get();
+
+    return view('jugadores.edit', compact(
+        'jugador',
+        'categorias'
+    ));
+}
 
         public function update(Request $request, Jugador $jugador)
         {
