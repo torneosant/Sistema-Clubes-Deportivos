@@ -13,7 +13,7 @@ class EquipoController extends Controller
     {
         $buscar = trim($request->buscar);
 
-        $equipos = Equipo::with('categoria')
+        $equipos = Equipo::with('categorias')
             ->when($buscar, function ($query) use ($buscar) {
                 $query->where('nombre', 'like', "%{$buscar}%");
             })
@@ -25,28 +25,33 @@ class EquipoController extends Controller
 
         $totalActivos = Equipo::where('activo', true)->count();
 
-        return view('equipos.index', compact(
-            'equipos',
-            'buscar',
-            'totalEquipos',
-            'totalActivos'
-        ));
+       return view('equipos.index', compact(
+    'equipos',
+    'buscar',
+    'totalEquipos',
+    'totalActivos'
+));
     }
 
     public function create()
     {
-        $categorias = Categoria::where('activo', true)
-            ->orderBy('nombre')
-            ->get();
+        $categorias = Categoria::where('activo',1)
+    ->orderBy('nombre')
+    ->get();
 
-        return view('equipos.create', compact('categorias'));
+return view(
+    'equipos.create',
+    compact('categorias')
+);
     }
+       
 
     public function store(Request $request)
     {
         $datos = $request->validate([
             'nombre' => 'required|max:150',
-            'categoria_id' => 'required|exists:categorias,id',
+            'categorias' => 'required|array',
+                'categorias.*' => 'exists:categorias,id',
             'color_principal' => 'nullable|max:50',
             'color_secundario' => 'nullable|max:50',
             'descripcion' => 'nullable',
@@ -64,30 +69,41 @@ class EquipoController extends Controller
 
         $datos['activo'] = true;
 
-        Equipo::create($datos);
+        $equipo = Equipo::create($datos);
 
-        return redirect()
-            ->route('equipos.index')
-            ->with('success', 'Equipo creado correctamente.');
+$equipo->categorias()->sync(
+    $request->categorias ?? []
+);
+
+return redirect()
+    ->route('equipos.index')
+    ->with('success', 'Equipo creado correctamente.');
+
+$equipo->categorias()->sync(
+    $request->categorias ?? []
+);
     }
 
     public function edit(Equipo $equipo)
-    {
-        $categorias = Categoria::where('activo', true)
-            ->orderBy('nombre')
-            ->get();
+{
+    $categorias = Categoria::where('activo', true)
+        ->orderBy('nombre')
+        ->get();
 
-        return view('equipos.edit', compact(
-            'equipo',
-            'categorias'
-        ));
-    }
+    $equipo->load('categorias');
+
+return view('equipos.edit', compact(
+    'equipo',
+    'categorias'
+));
+}
 
     public function update(Request $request, Equipo $equipo)
     {
         $datos = $request->validate([
             'nombre' => 'required|max:150',
-            'categoria_id' => 'required|exists:categorias,id',
+            'categorias' => 'required|array',
+            'categorias.*' => 'exists:categorias,id',
             'color_principal' => 'nullable|max:50',
             'color_secundario' => 'nullable|max:50',
             'descripcion' => 'nullable',
@@ -108,6 +124,16 @@ class EquipoController extends Controller
         }
 
         $equipo->update($datos);
+
+     if ($request->has('categorias')) {
+
+    $equipo->categorias()->sync($request->categorias);
+
+} else {
+
+    $equipo->categorias()->detach();
+
+}
 
         return redirect()
             ->route('equipos.index')
@@ -143,4 +169,22 @@ class EquipoController extends Controller
             'Equipo eliminado correctamente.'
         );
     }
+public function porCategoria(Categoria $categoria)
+{
+    return response()->json(
+
+        Equipo::whereHas('categorias', function ($q) use ($categoria) {
+
+            $q->where('categorias.id', $categoria->id);
+
+        })
+        ->where('activo', true)
+        ->orderBy('nombre')
+        ->get([
+            'id',
+            'nombre'
+        ])
+
+    );
 }
+    }

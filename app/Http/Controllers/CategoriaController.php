@@ -93,4 +93,15 @@ public function destroy(Categoria $categoria)
         ->with('success', 'Categoría eliminada correctamente.');
 }
 
+public function porEquipo(\App\Models\Equipo $equipo)
+{
+    return response()->json(
+
+        $equipo->categorias()
+            ->orderBy('nombre')
+            ->get(['categorias.id','categorias.nombre'])
+
+    );
+}
+
 }

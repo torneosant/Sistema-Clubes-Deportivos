@@ -10,22 +10,19 @@
 </div>
 @endif
 
-<div class="flex justify-between items-center mb-6">
+<div class="mb-8">
 
-    <h2 class="text-2xl font-bold">Listado de Equipos</h2>
+    <h1 class="text-3xl font-bold text-slate-800">
+        ⚽ Listado de Equipos
+    </h2>
 
-    <a href="{{ route('equipos.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-
-        + Nuevo Equipo
-
-    </a>
-
+    <p class="text-gray-500 mt-2"> Administra los equipos de tu club.
+    </p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
 
         <p class="text-gray-500 text-sm">
             Total Equipos
@@ -37,7 +34,7 @@
 
     </div>
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
 
         <p class="text-gray-500 text-sm">
             Equipos Activos
@@ -50,7 +47,14 @@
     </div>
 
 </div>
+<div class="flex flex-wrap gap-3 mb-6">
+<a href="{{ route('equipos.create') }}"
+       class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
 
+        ➕ Nuevo Equipo
+
+    </a>
+    </div>
 <div class="bg-white rounded-lg shadow p-4 mb-4">
 
 <form method="GET" action="{{ route('equipos.index') }}">
@@ -155,7 +159,19 @@ class="w-12 h-12 rounded-full object-cover border shadow">
 
 <td class="p-3">
 
-{{ $equipo->categoria->nombre ?? '-' }}
+    @forelse($equipo->categorias as $categoria)
+
+        <span class="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm mb-1">
+
+            {{ $categoria->nombre }}
+
+        </span>
+
+    @empty
+
+        -
+
+    @endforelse
 
 </td>
 

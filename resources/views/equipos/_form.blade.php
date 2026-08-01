@@ -15,34 +15,41 @@
 
     </div>
 
-    <div>
+    <div class="md:col-span-2">
 
-        <label class="font-semibold">
-            Categoría
-        </label>
+    <label class="font-semibold mb-3 block">
+        Categorías del equipo
+    </label>
 
-        <select
-            name="categoria_id"
-            class="w-full mt-2 border rounded-lg p-3"
-            required>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
 
-            <option value="">Seleccione...</option>
+        @foreach($categorias as $categoria)
 
-            @foreach($categorias as $categoria)
+            <label class="flex items-center gap-2 border rounded-lg p-2">
 
-                <option
+                <input
+                    type="checkbox"
+                    name="categorias[]"
                     value="{{ $categoria->id }}"
-                    @selected(old('categoria_id', $equipo->categoria_id ?? '') == $categoria->id)>
 
-                    {{ $categoria->nombre }}
+                    @checked(
+                        isset($equipo)
+                        ? $equipo->categorias->contains($categoria->id)
+                        : in_array($categoria->id, old('categorias',[]))
+                    )
 
-                </option>
+                >
 
-            @endforeach
+                {{ $categoria->nombre }}
 
-        </select>
+            </label>
+
+        @endforeach
 
     </div>
+
+</div>
+
 
     <div>
 

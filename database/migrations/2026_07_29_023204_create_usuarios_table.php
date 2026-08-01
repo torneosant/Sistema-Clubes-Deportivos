@@ -6,21 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('jugadors', function (Blueprint $table) {
-
-            $table->unique('numero_documento');
-
+        Schema::create('usuarios', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('jugadors', function (Blueprint $table) {
-
-            $table->dropUnique(['numero_documento']);
-
-        });
+        Schema::dropIfExists('usuarios');
     }
 };

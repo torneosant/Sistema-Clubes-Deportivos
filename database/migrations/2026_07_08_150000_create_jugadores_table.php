@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jugadors', function (Blueprint $table) {
+        Schema::create('jugadores', function (Blueprint $table) {
 
             $table->id();
 
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('apellidos');
 
             $table->string('tipo_documento')->nullable();
-            $table->string('numero_documento')->nullable();
+            $table->string('numero_documento')->nullable()->unique();
 
             $table->date('fecha_nacimiento')->nullable();
 
@@ -36,17 +36,26 @@ return new class extends Migration
             $table->string('ciudad')->nullable();
 
             // Deportiva
-            $table->string('categoria')->nullable();
-            $table->string('equipo')->nullable();
-            $table->string('posicion')->nullable();
+            $table->foreignId('categoria_id')
+      ->nullable()
+      ->constrained('categorias')
+      ->nullOnDelete();
 
-            $table->decimal('estatura', 4, 2)->nullable();
+$table->foreignId('equipo_id')
+      ->nullable()
+      ->constrained('equipos')
+      ->nullOnDelete();
+            $table->string('posicion')->nullable();
+            $table->string('pierna_habil')->nullable();
+
+            $table->unsignedSmallInteger('estatura')->nullable();
             $table->decimal('peso', 5, 2)->nullable();
 
             // Médica
             $table->string('eps')->nullable();
             $table->string('tipo_sangre')->nullable();
             $table->text('alergias')->nullable();
+            $table->text('observaciones_medicas')->nullable();
 
             // Acudiente
             $table->string('acudiente')->nullable();
@@ -58,6 +67,12 @@ return new class extends Migration
 
             // Estado
             $table->boolean('activo')->default(true);
+            $table->enum('estado', [
+            'Activo',
+            'Lesionado',
+            'Suspendido',
+            'Retirado'
+])->default('Activo');
 
             $table->timestamps();
         });
@@ -68,6 +83,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jugadors');
+        Schema::dropIfExists('jugadores');
     }
 };

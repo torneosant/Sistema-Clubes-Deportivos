@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Club;
+use App\Models\Categoria;
+use App\Models\Equipo;
+use App\Models\HistorialMedico;
 
 class Jugador extends Model
 {
+    protected $table = 'jugadores';
     protected $fillable = [
 
         'club_id',
@@ -26,8 +30,8 @@ class Jugador extends Model
         'direccion',
         'ciudad',
 
-        'categoria',
-        'equipo',
+        'categoria_id', 
+        'equipo_id',
         'posicion',
         'pierna_habil',
 
@@ -54,8 +58,46 @@ class Jugador extends Model
         'fecha_nacimiento' => 'date',
         'activo' => 'boolean',
     ];
-    public function club()
+
+
+    public function historialesMedicos()
+{
+    return $this->hasMany(HistorialMedico::class);
+}
+
+  public function club()
 {
     return $this->belongsTo(Club::class);
 }
+
+public function categoria()
+{
+    return $this->belongsTo(Categoria::class);
+}
+
+public function equipo()
+{
+    return $this->belongsTo(Equipo::class);
+}
+
+public function partidos()
+{
+    return $this->hasMany(PartidoJugador::class);
+}
+
+public function asistencias()
+{
+    return $this->hasMany(Asistencia::class);
+}
+
+public function estadisticasPartidos()
+{
+    return $this->hasMany(PartidoJugador::class);
+}
+
+public function user()
+{
+    return $this->hasOne(User::class);
+}
+
 }

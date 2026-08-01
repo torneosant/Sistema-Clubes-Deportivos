@@ -1,0 +1,13 @@
+resources/views/jugadores/
+
+show.blade.php
+
+partials/
+
+informacion.blade.php
+medico.blade.php
+pagos.blade.php
+estadisticas.blade.php
+asistencias.blade.php
+documentos.blade.php
+observaciones.blade.php

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Rol;
+use App\Models\Jugador;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -16,6 +18,20 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $fillable = [
+    'name',
+    'email',
+    'password',
+    'rol_id',
+    'jugador_id',
+    'activo',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -29,4 +45,23 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+  public function rol()
+{
+    return $this->belongsTo(Rol::class);
+}
+
+public function jugador()
+{
+    return $this->belongsTo(Jugador::class);
+}
+
+public function tienePermiso($slug)
+{
+    if (!$this->rol) {
+        return false;
+    }
+
+    return $this->rol->permisos->contains('slug', $slug);
+}
 }

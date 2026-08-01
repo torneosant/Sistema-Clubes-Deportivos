@@ -23,4 +23,8 @@ class Club extends Model
 {
     return $this->hasMany(Equipo::class);
 }
+public function partidos()
+{
+    return $this->hasMany(Partido::class);
+}
 }

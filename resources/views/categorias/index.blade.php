@@ -10,24 +10,24 @@
 </div>
 @endif
 
-<div class="flex justify-between items-center mb-6">
+<div class="mb-8">
 
-    <h2 class="text-2xl font-bold">Listado de Categorías</h2>
+    <h1 class="text-3xl font-bold text-slate-800">📂 Listado de Categorías
 
-    <a href="{{ route('categorias.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+    </h2>
+     <p class="text-gray-500 mt-2"> Administra las categorias de tu club.
+    </p>
 
-        + Nueva Categoría
-
-    </a>
-
+    
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500">
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
 
-        <p class="text-gray-500 text-sm">Total Categorías</p>
+        <p class="text-gray-500 text-sm">
+         Total Categorías
+         </p>
 
         <h2 class="text-3xl font-bold text-blue-600">
 
@@ -37,9 +37,11 @@
 
     </div>
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
 
-        <p class="text-gray-500 text-sm">Categorías Activas</p>
+        <p class="text-gray-500 text-sm">
+            Categorías Activas
+        </p>
 
         <h2 class="text-3xl font-bold text-green-600">
 
@@ -48,6 +50,16 @@
         </h2>
 
     </div>
+</div>    
+
+<div class="flex flex-wrap gap-3 mb-6">
+
+        <a href="{{ route('categorias.create') }}"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
+
+        ➕ Nuevo Categoria 
+
+    </a>
 
 </div>
 <div class="bg-white rounded-lg shadow p-4 mb-4">

@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
+import './calendario';
 
 console.log('APP JS CARGADO');
 
@@ -57,4 +58,5 @@ window.confirmarEstado = function (boton) {
     });
 
     return false;
+
 };

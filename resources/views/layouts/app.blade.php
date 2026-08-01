@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Gestión Clubes</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -20,38 +21,207 @@
 
         <nav class="mt-5">
 
-            <a href="/dashboard" class="block px-5 py-3 hover:bg-slate-800">
-                🏠 Dashboard
-            </a>
+            @if(auth()->user()->tienePermiso('dashboard'))
 
-            <a href="/club" class="block px-5 py-3 hover:bg-slate-800">
-                🏟️ Mi Club
-            </a>
+<a href="/dashboard" class="block px-5 py-3 hover:bg-slate-800">
+🏠 Dashboard
+</a>
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
-                👥 Jugadores
-            </a>
+@endif
 
-            <a href="{{ route('equipos.index') }}"
-              class="block px-5 py-3 hover:bg-slate-800">
+            @if(auth()->user()->tienePermiso('club'))
 
-            ⚽ Equipos
+<a href="/club" class="block px-5 py-3 hover:bg-slate-800">
+🏟️ Mi Club
+</a>
 
-            </a>
+@endif
 
-            <a href="{{ route('categorias.index') }}" class="block px-5 py-3 hover:bg-slate-800">
-             📂 Categorías
-            </a>
+            @if(auth()->user()->tienePermiso('equipos'))
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
-                👨‍🏫 Entrenadores
-            </a>
+<a href="{{ route('equipos.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
-                💰 Pagos
-            </a>
+⚽ Equipos
 
-            <a href="#" class="block px-5 py-3 hover:bg-slate-800">
+</a>
+
+@endif
+
+            @if(auth()->user()->tienePermiso('categorias'))
+
+<a href="{{ route('categorias.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+📂 Categorías
+
+</a>
+
+@endif
+
+
+
+          
+@if(auth()->user()->tienePermiso('jugadores'))
+
+<a href="{{ route('jugadores.index') }}"
+   class="block px-5 py-3 hover:bg-slate-800">
+
+    👥 Jugadores
+
+</a>
+
+@endif
+
+            @if(auth()->user()->tienePermiso('entrenadores'))
+
+<a href="{{ route('entrenadores.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+👨‍🏫 Entrenadores
+
+</a>
+
+@endif
+
+          @if(auth()->user()->tienePermiso('entrenamientos'))
+
+<a href="{{ route('entrenamientos.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+🏃 Entrenamientos
+
+</a>
+
+@endif
+
+           @if(auth()->user()->tienePermiso('partidos'))
+
+<a href="{{ route('partidos.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+⚽ Partidos
+
+</a>
+
+@endif
+
+           @if(auth()->user()->tienePermiso('calendario'))
+
+<a href="{{ route('calendario.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+📅 Calendario
+
+</a>
+
+@endif
+
+           @if(auth()->user()->tienePermiso('contabilidad'))
+
+<a href="{{ route('contabilidad.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+💰 Contabilidad
+
+</a>
+
+@endif
+
+
+           @if(auth()->user()->tienePermiso('conceptos_contables'))
+
+<a href="{{ route('conceptos-contables.index') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+📂 Conceptos
+
+</a>
+
+@endif
+
+
+             @if(auth()->user()->tienePermiso('historial-medico'))
+
+<a href="{{ route('historial-medico.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+❤️ Médico
+
+</a>
+
+@endif
+     
+@if(auth()->user()->tienePermiso('configuracion'))
+
+<a href="{{ route('configuracion.general') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+⚙️ Configuración
+
+</a>
+
+
+
+
+<a href="{{ route('configuracion.general') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+🏢 General
+
+</a>
+
+
+
+<a href="{{ route('configuracion.redes') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+🌐 Redes Sociales
+
+</a>
+
+
+
+
+<a href="{{ route('configuracion.deportivo') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+⚽ Deportivo
+
+</a>
+
+
+
+
+<a href="{{ route('configuracion.sistema') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+⚙️ Sistema
+
+</a>
+@endif
+
+@if(auth()->user()->tienePermiso('usuarios'))
+<a href="{{ route('usuarios.index') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+👥 Usuarios
+
+</a>
+@endif
+
+
+<a href="{{ route('roles.index') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+🔐 Roles
+
+</a>
+
+
+
+
+
                 📊 Reportes
             </a>
 
@@ -88,7 +258,7 @@
 
             @yield('contenido')
 
-        </div>
+        </div>  
 
     </main>
 
@@ -106,6 +276,18 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 @endif
 
+<script>
+function confirmarEliminar(boton) {
+    if (confirm('¿Está seguro de eliminar este registro?')) {
+        boton.closest('form').submit();
+    }
+}
+</script>
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@yield('scripts')
 
 </body>
 </html>
