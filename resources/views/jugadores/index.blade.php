@@ -25,8 +25,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
-
+    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
         <p class="text-gray-500 text-sm">
             Total Jugadores
         </p>
@@ -86,7 +85,7 @@
 <div class="flex flex-wrap gap-3 mb-6">
 
     <a href="{{ route('jugadores.create') }}"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
 
         ➕ Nuevo Jugador
 
@@ -94,14 +93,14 @@
 
 
     <a href="{{ route('jugadores.exportExcel') }}"
-        class="bg-  green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
+        class="bg-  green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
 
         📊 Exportar Excel
 
     </a>
 
 <a href="{{ route('jugadores.pdf') }}"
-   class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
+   class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
 
     📄 Exportar PDF
 
@@ -109,7 +108,7 @@
 
 <a href="{{ route('jugadores.print') }}"
    target="_blank"
-   class="bg-gray-700 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg shadow">
+   class="bg-gray-700 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
 
     🖨️ Imprimir
 
@@ -130,7 +129,7 @@
                     name="buscar"
                     value="{{ $buscar }}"
                     placeholder="🔍 Buscar por nombre, documento o teléfono..."
-                    class="w-full border rounded-lg px-4 py-3">
+                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
 
             </div>
 
@@ -139,7 +138,7 @@
 
                 <select
                     name="categoria"
-                    class="w-full border rounded-lg px-4 py-3">
+                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
 
                     <option value="">Todas las categorías</option>
 
@@ -164,7 +163,7 @@
 
                 <select
                     name="equipo"
-                    class="w-full border rounded-lg px-4 py-3">
+                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
 
                     <option value="">Todos los equipos</option>
 
@@ -189,7 +188,7 @@
 
                 <select
                     name="estado"
-                    class="w-full border rounded-lg px-4 py-3">
+                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
 
                     <option value="">Todos</option>
                     <option value="1" {{ $estado == '1' ? 'selected' : '' }}>Activos</option>
@@ -226,20 +225,20 @@
 </div>
 <div class="bg-white rounded-xl shadow overflow-hidden">
 
-    <table class="w-full">
+   <table class="min-w-full bg-white rounded-xl overflow-hidden shadow">
 
         <thead class="bg-slate-800 text-white">
 
             <tr>
 
-                <th class="px-4 py-3 text-left">Foto</th>
-                <th class="px-4 py-3 text-left">Jugador</th>
-                <th class="px-4 py-3 text-center">Documento</th>
-                <th class="px-4 py-3 text-center">Edad</th>
-                <th class="px-4 py-3 text-center">Categoría</th>
-                <th class="px-4 py-3 text-center">Equipo</th>
-                <th class="px-4 py-3 text-center">Estado</th>
-                <th class="px-4 py-3 text-center">Acciones</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Foto</th>
+              <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Jugador</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Documento</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Edad</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Categoría</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Equipo</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Estado</th>
+                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Acciones</th>
 
             </tr>
 
@@ -249,9 +248,9 @@
 
         @forelse($jugadores as $jugador)
 
-            <tr class="border-b hover:bg-gray-50">
+            <tr class="border-b hover:bg-slate-50 transition">
 
-                <td class="px-4 py-3">
+                <td class="px-5 py-4">
 
                     @if($jugador->foto)
 
@@ -271,7 +270,7 @@
 
                 </td>
 
-                <td class="px-4 py-3">
+              <td class="px-5 py-4">
 
                     <div class="font-semibold">
 
@@ -293,25 +292,25 @@
 
                 </td>
 
-                <td class="text-center">
+              <td class="px-5 py-4">
 
                     {{ $jugador->fecha_nacimiento ? \Carbon\Carbon::parse($jugador->fecha_nacimiento)->age.' años' : '-' }}
 
                 </td>
 
-                <td class="text-center">
+                <td class="px-5 py-4">
 
                     {{ $jugador->categoria->nombre ?? '-' }}
 
                 </td>
 
-                <td class="text-center">
+            <td class="px-5 py-4">
 
                     {{ $jugador->equipo->nombre ?? '-' }}
 
                 </td>
 
-                <td class="text-center">
+                <td class="px-5 py-4">
 
     <form action="{{ route('jugadores.estado', $jugador) }}"
           method="POST"
