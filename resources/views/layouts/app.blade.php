@@ -219,6 +219,81 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 </div>
 
+@if(auth()->user()->tienePermiso('documentacion'))
+
+<a href="{{ route('documentos.index') }}"
+class="block px-5 py-3 hover:bg-slate-800">
+
+📚 Centro de Documentación
+
+</a>
+
+@endif
+
+@if(auth()->user()->tienePermiso('tipos_documento'))
+
+<a href="{{ route('tipos-documento.index') }}"
+class="block px-10 py-2 hover:bg-slate-800">
+
+📂 Tipos de documentos
+
+</a>
+
+@endif
+
+@if(auth()->user()->tienePermiso('inventario'))
+
+<li x-data="{ open: false }">
+
+    <button
+        @click="open=!open"
+        class="w-full flex justify-between items-center px-4 py-2 hover:bg-slate-700 rounded-lg">
+
+        <span>📦 Inventario</span>
+
+        <span x-text="open ? '−' : '+'"></span>
+
+    </button>
+
+    <ul
+        x-show="open"
+        x-transition
+        class="ml-5 mt-2 space-y-1">
+
+        @if(auth()->user()->tienePermiso('inventario'))
+        <li>
+            <a href="{{ route('inventario.index') }}"
+               class="block px-3 py-2 hover:bg-slate-700 rounded-lg">
+                Inventario
+            </a>
+        </li>
+        @endif
+
+        @if(auth()->user()->tienePermiso('tipos_articulo'))
+        <li>
+            <a href="{{ route('tipos-articulo.index') }}"
+               class="block px-3 py-2 hover:bg-slate-700 rounded-lg">
+                Tipos de Artículos
+            </a>
+        </li>
+        @endif
+
+        @if(auth()->user()->tienePermiso('asignaciones_inventario'))
+        <li>
+            <a href="{{ route('asignaciones-inventario.index') }}"
+               class="block px-3 py-2 hover:bg-slate-700 rounded-lg">
+                Asignaciones
+            </a>
+        </li>
+        @endif
+
+    </ul>
+
+</li>
+
+@endif
+
+
 
 
                 📊 Reportes
@@ -306,9 +381,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 function confirmarEliminar(boton) {
-    if (confirm('¿Está seguro de eliminar este registro?')) {
-        boton.closest('form').submit();
-    }
+
+    Swal.fire({
+        title: '¿Eliminar registro?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            boton.closest('form').submit();
+        }
+
+    });
+
 }
 </script>
 </script>

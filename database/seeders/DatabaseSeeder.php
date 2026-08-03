@@ -12,4 +12,9 @@ class DatabaseSeeder extends Seeder
         PermisosSeeder::class,
     ]);
 }
+
+$this->call([
+    ConfiguracionInicialSeeder::class,
+]);
+
 }

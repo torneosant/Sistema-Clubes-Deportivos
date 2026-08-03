@@ -4,20 +4,15 @@
 
 @section('contenido')
 
-<div class="mb-8">
-    <h1 class="text-4xl font-bold text-slate-800">
-        Panel de Control
-    </h1>
-
-    <p class="text-gray-500 mt-2">
-        Bienvenido al sistema de Gestión de Clubes Deportivos.
-    </p>
-</div>
+<x-page-header
+    title="🏠 Panel de Control"
+    subtitle="Bienvenido al sistema de Gestión de Clubes."
+/>
 
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
-
+    {{-- Jugadores --}}
+    <x-card>
         <div class="flex items-center justify-between">
 
             <div>
@@ -35,11 +30,10 @@
             </div>
 
         </div>
+    </x-card>
 
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
-
+    {{-- Activos --}}
+    <x-card>
         <div class="flex items-center justify-between">
 
             <div>
@@ -57,11 +51,10 @@
             </div>
 
         </div>
+    </x-card>
 
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
-
+    {{-- Equipos --}}
+    <x-card>
         <div class="flex items-center justify-between">
 
             <div>
@@ -79,11 +72,10 @@
             </div>
 
         </div>
+    </x-card>
 
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
-
+    {{-- Categorías --}}
+    <x-card>
         <div class="flex items-center justify-between">
 
             <div>
@@ -101,8 +93,7 @@
             </div>
 
         </div>
-
-    </div>
+    </x-card>
 
 </div>
 

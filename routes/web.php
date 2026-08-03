@@ -18,6 +18,11 @@ use App\Http\Controllers\HistorialMedicoController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RolController;  
+use App\Http\Controllers\TipoDocumentoController;
+use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\TipoArticuloController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\AsignacionInventarioController;
 
 
 Route::get('/', function () {
@@ -254,6 +259,31 @@ Route::patch(
     [UsuarioController::class, 'cambiarEstado']
 )->name('usuarios.estado'); 
 
+Route::resource('tipos-documento', TipoDocumentoController::class)
+    ->middleware(['auth','permiso:documentacion']);
+
+Route::resource('documentos', DocumentoController::class)
+    ->except(['edit','update'])
+    ->middleware(['auth','permiso:documentacion']);
+
+    Route::resource('tipos-articulo', TipoArticuloController::class)
+    ->middleware('permiso:tipos_articulo');
+
+Route::resource('inventario', InventarioController::class)
+    ->middleware('permiso:inventario');
+
+Route::resource('asignaciones-inventario', AsignacionInventarioController::class)
+    ->middleware('permiso:asignaciones_inventario');
+
+    Route::post(
+    'asignaciones-inventario/{asignaciones_inventario}/devolver',
+    [AsignacionInventarioController::class,'devolver']
+)->name('asignaciones-inventario.devolver');
+
+Route::get(
+    'inventario/{inventario}/trazabilidad',
+    [InventarioController::class, 'trazabilidad']
+)->name('inventario.trazabilidad');
 
 
 });

@@ -27,7 +27,11 @@ class PermisosSeeder extends Seeder
             ['nombre'=>'Usuarios','slug'=>'usuarios'],
             ['nombre'=>'Roles','slug'=>'roles'],
             ['nombre'=>'Reportes','slug'=>'reportes'],
-
+               ['nombre'=>'documentacion','slug'=>'documentacion'],
+                  ['nombre'=>'tipos_documento','slug'=>'tipos_documento'],
+         ['nombre'=>'Inventario','slug'=>'inventario'],
+         ['nombre'=>'Tipos de Artículos','slug'=>'tipos_articulo'],
+         ['nombre'=>'Asignaciones de Inventario','slug'=>'asignaciones_inventario'],
         ];
 
         foreach ($permisos as $permiso) {
