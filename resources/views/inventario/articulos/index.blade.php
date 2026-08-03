@@ -11,7 +11,25 @@ subtitle="Administra el inventario del club."/>
 
 
 
-<div class="flex justify-end mb-5">
+<div class="flex justify-between mb-5">
+
+    <div class="flex gap-2">
+
+        <a href="{{ route('inventario.excel') }}"
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
+
+            📤 Excel
+
+        </a>
+
+        <a href="#"
+           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl">
+
+            📄 PDF
+
+        </a>
+
+    </div>
 
     <a href="{{ route('inventario.create') }}"
        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl">
@@ -32,7 +50,7 @@ subtitle="Administra el inventario del club."/>
 
             <th class="text-left py-3">Artículo</th>
             <th>Tipo</th>
-            <th>Stock</th>
+            <th class="text-center">Stock</th>
             <th>Estado</th>
             <th>Ubicación</th>
             <th width="220">Acciones</th>
@@ -51,24 +69,32 @@ subtitle="Administra el inventario del club."/>
 
             <td>{{ $articulo->tipoArticulo->nombre }}</td>
 
-            <td>
+<td class="text-center">
 
-<div>
-    <strong>Total:</strong>
-    {{ $articulo->cantidad }}
-</div>
+    <div class="flex justify-center items-center gap-2">
 
-<div class="text-orange-600">
-    <strong>Asignado:</strong>
-    {{ $articulo->asignado }}
-</div>
+        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold">
+            📦 {{ $articulo->cantidad }}
+        </span>
 
-<div class="text-green-600">
-    <strong>Disponible:</strong>
-    {{ $articulo->disponible }}
-</div>
+        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+            🔴 {{ $articulo->asignado }}
+        </span>
+
+        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+            🟢 {{ $articulo->disponible }}
+        </span>
+
+    </div>
+
+    <div class="flex justify-center gap-6 text-xs text-gray-500 mt-1">
+        <span>Total</span>
+        <span>Asignados</span>
+        <span>Disponibles</span>
+    </div>
 
 </td>
+
 
             <td>{{ $articulo->estado }}</td>
 

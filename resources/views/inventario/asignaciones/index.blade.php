@@ -19,6 +19,13 @@ subtitle="Controla dónde se encuentra cada implemento."/>
 
 </div>
 
+<a href="{{ route('asignaciones-inventario.excel') }}"
+   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
+
+    📤 Excel
+
+</a>
+
 <x-card>
 
 <table class="w-full">
@@ -115,6 +122,21 @@ subtitle="Controla dónde se encuentra cada implemento."/>
                 </x-button>
 
             @endif
+
+            <form
+    id="devolver-{{ $asignacion->id }}"
+    action="{{ route('asignaciones-inventario.devolver',$asignacion) }}"
+    method="POST"
+    style="display:none;">
+
+    @csrf
+
+    <input
+        type="hidden"
+        name="cantidad"
+        id="cantidad-{{ $asignacion->id }}">
+
+</form>
 
             
 

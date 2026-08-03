@@ -22,18 +22,21 @@ class Inventario extends Model
     {
         return $this->belongsTo(TipoArticulo::class);
     }
-public function asignaciones()
-{
-    return $this->hasMany(AsignacionInventario::class);
+
+    public function asignaciones()
+    {
+        return $this->hasMany(AsignacionInventario::class);
+    }
+
+    public function getAsignadoAttribute()
+    {
+        return $this->asignaciones->sum(function ($a) {
+            return $a->cantidad - $a->cantidad_devuelta;
+        });
+    }
+
+    public function getDisponibleAttribute()
+    {
+        return $this->cantidad - $this->asignado;
+    }
 }
-
-public function getDisponibleAttribute()
-{
-    $prestados = $this->asignaciones()
-        ->where('estado', 'Activa')
-        ->sum('cantidad');
-
-    return $this->cantidad - $prestados;
-}
-
-}   

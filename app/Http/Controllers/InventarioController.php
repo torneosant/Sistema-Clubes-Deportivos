@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Inventario;
 use App\Models\TipoArticulo;    
 use App\Models\MovimientoInventario;
+use App\Exports\InventarioExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InventarioController extends Controller
 {
@@ -119,17 +121,46 @@ public function destroy(Inventario $inventario)
         ->with('success', 'Artículo eliminado correctamente.');
 }
 
-public function trazabilidad(Inventario $inventario)
+public function trazabilidad(Request $request, Inventario $inventario)
 {
-    $movimientos = MovimientoInventario::where('inventario_id', $inventario->id)
+    $query = MovimientoInventario::where('inventario_id', $inventario->id);
+
+    if ($request->filled('desde')) {
+        $query->whereDate('fecha', '>=', $request->desde);
+    }
+
+    if ($request->filled('hasta')) {
+        $query->whereDate('fecha', '<=', $request->hasta);
+    }
+
+    if ($request->filled('responsable')) {
+        $query->where('responsable', $request->responsable);
+    }
+
+    $movimientos = $query
         ->orderBy('fecha', 'desc')
         ->orderBy('id', 'desc')
         ->get();
 
+    $responsables = MovimientoInventario::where('inventario_id', $inventario->id)
+        ->select('responsable')
+        ->distinct()
+        ->orderBy('responsable')
+        ->pluck('responsable');
+
     return view('inventario.trazabilidad', compact(
         'inventario',
-        'movimientos'
+        'movimientos',
+        'responsables'
     ));
+}
+
+public function excel()
+{
+    return Excel::download(
+        new InventarioExport,
+        'inventario.xlsx'
+    );
 }
 
 }

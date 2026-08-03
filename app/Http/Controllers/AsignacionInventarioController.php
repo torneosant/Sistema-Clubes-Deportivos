@@ -7,6 +7,8 @@ use App\Models\AsignacionInventario;
 use Illuminate\Http\Request;
 use App\Models\Entrenador;
 use App\Models\MovimientoInventario;
+use App\Exports\AsignacionInventarioExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AsignacionInventarioController extends Controller
 {
@@ -233,6 +235,12 @@ public function destroy(AsignacionInventario $asignaciones_inventario)
         ->with('success', 'Asignación eliminada correctamente.');
 }
 
-
+public function excel()
+{
+    return Excel::download(
+        new AsignacionInventarioExport,
+        'asignaciones_inventario.xlsx'
+    );
+}
 
 }

@@ -285,6 +285,15 @@ Route::get(
     [InventarioController::class, 'trazabilidad']
 )->name('inventario.trazabilidad');
 
+Route::get(
+    'inventario-excel',
+    [InventarioController::class,'excel']
+)->name('inventario.excel');
+
+Route::get(
+    'asignaciones-inventario-excel',
+    [AsignacionInventarioController::class,'excel']
+)->name('asignaciones-inventario.excel');
 
 });
 
