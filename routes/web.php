@@ -295,6 +295,9 @@ Route::get(
     [AsignacionInventarioController::class,'excel']
 )->name('asignaciones-inventario.excel');
 
+Route::resource('modulos', App\Http\Controllers\ModuloController::class);
+
+
 });
 
 require __DIR__.'/auth.php';
