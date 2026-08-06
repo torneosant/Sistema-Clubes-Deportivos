@@ -62,6 +62,10 @@ public function tienePermiso($slug)
         return false;
     }
 
-    return $this->rol->permisos->contains('slug', $slug);
+    $this->rol->loadMissing('permisos');
+
+    return $this->rol->permisos()
+        ->where('slug', $slug)
+        ->exists();
 }
 }

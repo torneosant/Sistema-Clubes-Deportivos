@@ -21,7 +21,7 @@
 
         <nav class="mt-5">
 
-            @if(auth()->user()->tienePermiso('dashboard'))
+            @if(auth()->user()->tienePermiso('dashboard.ver'))
 
 <a href="/dashboard" class="block px-5 py-3 hover:bg-slate-800">
 🏠 Dashboard
@@ -29,7 +29,7 @@
 
 @endif
 
-            @if(auth()->user()->tienePermiso('club'))
+            @if(auth()->user()->tienePermiso('club.ver'))
 
 <a href="/club" class="block px-5 py-3 hover:bg-slate-800">
 🏟️ Mi Club
@@ -37,7 +37,7 @@
 
 @endif
 
-            @if(auth()->user()->tienePermiso('equipos'))
+            @if(auth()->user()->tienePermiso('equipos.ver'))
 
 <a href="{{ route('equipos.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -48,7 +48,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-            @if(auth()->user()->tienePermiso('categorias'))
+            @if(auth()->user()->tienePermiso('categorias.ver'))
 
 <a href="{{ route('categorias.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -62,7 +62,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 
           
-@if(auth()->user()->tienePermiso('jugadores'))
+@if(auth()->user()->tienePermiso('jugadores.ver'))
 
 <a href="{{ route('jugadores.index') }}"
    class="block px-5 py-3 hover:bg-slate-800">
@@ -73,7 +73,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-            @if(auth()->user()->tienePermiso('entrenadores'))
+            @if(auth()->user()->tienePermiso('entrenadores.ver'))
 
 <a href="{{ route('entrenadores.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -84,7 +84,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-          @if(auth()->user()->tienePermiso('entrenamientos'))
+          @if(auth()->user()->tienePermiso('entrenamientos.ver'))
 
 <a href="{{ route('entrenamientos.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -95,7 +95,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-           @if(auth()->user()->tienePermiso('partidos'))
+           @if(auth()->user()->tienePermiso('partidos.ver'))
 
 <a href="{{ route('partidos.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -106,7 +106,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-           @if(auth()->user()->tienePermiso('calendario'))
+           @if(auth()->user()->tienePermiso('calendario.ver'))
 
 <a href="{{ route('calendario.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -119,7 +119,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
    <div x-data="{ openConta: true }">
 
-@if(auth()->user()->tienePermiso('contabilidad'))
+@if(auth()->user()->tienePermiso('contabilidad.ver'))
 
 <button
     @click="openConta=!openConta"
@@ -150,7 +150,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 </div>
 
 
-           @if(auth()->user()->tienePermiso('conceptos_contables'))
+           @if(auth()->user()->tienePermiso('conceptos_contablesver'))
 
 <a href="{{ route('conceptos-contables.index') }}"
 class="block px-10 py-2 hover:bg-slate-800">
@@ -162,7 +162,7 @@ class="block px-10 py-2 hover:bg-slate-800">
 @endif
 
 
-             @if(auth()->user()->tienePermiso('historial-medico'))
+             @if(auth()->user()->tienePermiso('historial-medico.ver'))
 
 <a href="{{ route('historial-medico.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -175,7 +175,7 @@ class="block px-5 py-3 hover:bg-slate-800">
      
 <div x-data="{ openConfig: true }">
 
-@if(auth()->user()->tienePermiso('configuracion'))
+@if(auth()->user()->tienePermiso('configuracion.ver'))
 
 <button
     @click="openConfig=!openConfig"
@@ -219,7 +219,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 </div>
 
-@if(auth()->user()->tienePermiso('documentacion'))
+@if(auth()->user()->tienePermiso('documentacion.ver'))
 
 <a href="{{ route('documentos.index') }}"
 class="block px-5 py-3 hover:bg-slate-800">
@@ -230,7 +230,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-@if(auth()->user()->tienePermiso('tipos_documento'))
+@if(auth()->user()->tienePermiso('tipos_documento.ver'))
 
 <a href="{{ route('tipos-documento.index') }}"
 class="block px-10 py-2 hover:bg-slate-800">
@@ -241,7 +241,7 @@ class="block px-10 py-2 hover:bg-slate-800">
 
 @endif
 
-@if(auth()->user()->tienePermiso('inventario'))
+@if(auth()->user()->tienePermiso('inventario.ver'))
 
 <li x-data="{ open: false }">
 
@@ -260,7 +260,7 @@ class="block px-10 py-2 hover:bg-slate-800">
         x-transition
         class="ml-5 mt-2 space-y-1">
 
-        @if(auth()->user()->tienePermiso('inventario'))
+        @if(auth()->user()->tienePermiso('inventario.ver'))
         <li>
             <a href="{{ route('inventario.index') }}"
                class="block px-3 py-2 hover:bg-slate-700 rounded-lg">
@@ -269,7 +269,7 @@ class="block px-10 py-2 hover:bg-slate-800">
         </li>
         @endif
 
-        @if(auth()->user()->tienePermiso('tipos_articulo'))
+        @if(auth()->user()->tienePermiso('tipos_articulo.ver'))
         <li>
             <a href="{{ route('tipos-articulo.index') }}"
                class="block px-3 py-2 hover:bg-slate-700 rounded-lg">
@@ -278,7 +278,7 @@ class="block px-10 py-2 hover:bg-slate-800">
         </li>
         @endif
 
-        @if(auth()->user()->tienePermiso('asignaciones_inventario'))
+        @if(auth()->user()->tienePermiso('asignaciones_inventario.ver'))
         <li>
             <a href="{{ route('asignaciones-inventario.index') }}"
                class="block px-3 py-2 hover:bg-slate-700 rounded-lg">

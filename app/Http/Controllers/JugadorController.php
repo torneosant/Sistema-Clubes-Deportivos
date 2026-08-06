@@ -13,11 +13,27 @@
         use Barryvdh\DomPDF\Facade\Pdf;
         use App\Models\Contabilidad;
         use App\Models\PartidoJugador;
+        use App\Imports\JugadoresImport;
+        use App\Exports\JugadoresPlantillaExport;
+        use App\Models\Club;
+        use App\Models\Documento;
+        use App\Models\TipoDocumento;
 
         class JugadorController extends Controller
         {
         public function index(Request $request)
 {
+
+        // Si es Deportista, mostrar únicamente su ficha
+if (auth()->user()->rol->nombre == 'Deportista') {
+
+    return redirect()->route(
+        'jugadores.show',
+        auth()->user()->jugador_id
+    );
+
+}
+
     $buscar = trim($request->get('buscar', ''));
 
     $categoria = $request->categoria;
@@ -69,6 +85,8 @@
 
     $totalCategorias = Categoria::count();
 
+    $club = Club::first();
+
     return view('jugadores.index', compact(
     'jugadores',
     'buscar',
@@ -79,7 +97,8 @@
     'equipos',
     'totalJugadores',
     'totalActivos',
-    'totalCategorias'
+    'totalCategorias',
+    'club',
 ));
 }
   public function create()
@@ -144,6 +163,16 @@
 
 public function show(Jugador $jugador)
 {
+
+    // Si es Deportista solo puede ver su propia ficha
+if (
+    auth()->user()->rol->nombre === 'Deportista' &&
+    auth()->user()->jugador_id != $jugador->id
+) {
+    abort(403, 'No tiene permiso para ver este jugador.');
+}
+
+
     $jugador->load([
     'equipo',
     'categoria',
@@ -206,6 +235,16 @@ $detallePartidos = PartidoJugador::with('partido')
     ->orderByDesc('partido_id')
     ->get();
 
+$documentos = $jugador->documentos()
+    ->with('tipoDocumento')
+    ->latest()
+    ->get();
+
+$tipos = TipoDocumento::where('activo', true)
+    ->orderBy('nombre')
+    ->get();
+
+
     return view('jugadores.show', [
         'jugador'      => $jugador,
         'historiales'  => $jugador->historialesMedicos,
@@ -228,6 +267,8 @@ $detallePartidos = PartidoJugador::with('partido')
 'rojas' => $rojas,
 'figuras' => $figuras,
 'detallePartidos' => $detallePartidos,
+'documentos' => $documentos,
+'tipos' => $tipos,
     ]);
 }
  public function edit(Jugador $jugador)
@@ -342,4 +383,31 @@ public function pdf()
 
     return $pdf->download('Jugadores_'.date('Y-m-d').'.pdf');
 }
+
+public function importar(Request $request)
+{
+    $request->validate([
+        'archivo' => 'required|mimes:xlsx,xls',
+        'club_id' => 'required'
+    ]);
+
+    Excel::import(
+        new JugadoresImport($request->club_id),
+        $request->file('archivo')
+    );
+
+    return back()->with(
+        'success',
+        'Jugadores importados correctamente.'
+    );
+}
+public function plantillaExcel()
+{
+    return Excel::download(
+        new JugadoresPlantillaExport(),
+        'Plantilla_Jugadores.xlsx'
+    );
+}
+
+
         }

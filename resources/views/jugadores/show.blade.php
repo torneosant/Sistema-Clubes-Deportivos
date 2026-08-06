@@ -276,12 +276,15 @@
             ❤️ Historial Médico
         </h2>
 
+        @if(auth()->user()->tienePermiso('historial_medico.crear'))
         <a href="{{ route('historial-medico.create',$jugador) }}"
            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
 
             + Nuevo registro
 
         </a>
+
+        @endif
 
     </div>
 
@@ -762,8 +765,176 @@
 
 </div>
 
-            <div id="panel-documentos" class="panel-jugador hidden"></div>
+<div id="panel-documentos" class="panel-jugador hidden">
 
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+
+        <form action="{{ route('jugadores.documentos.store',$jugador) }}"
+              method="POST"
+              enctype="multipart/form-data">
+
+            @csrf
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1">
+                        Tipo documento
+                    </label>
+
+                    <select name="tipo_documento_id"
+                            class="w-full border rounded-lg p-2"
+                            required>
+
+                        <option value="">Seleccione...</option>
+
+                        @foreach($tipos as $tipo)
+
+                            <option value="{{ $tipo->id }}">
+                                {{ $tipo->nombre }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1">
+                        Título
+                    </label>
+
+                    <input type="text"
+                           name="titulo"
+                           class="w-full border rounded-lg p-2"
+                           required>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-1">
+                        Descripción
+                    </label>
+
+                    <textarea
+                        name="descripcion"
+                        class="w-full border rounded-lg p-2"></textarea>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-1">
+                        Archivo
+                    </label>
+
+                    <input type="file"
+                           name="archivo"
+                           class="w-full border rounded-lg p-2"
+                           required>
+                </div>
+
+            </div>
+
+            <button class="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
+
+                Guardar Documento
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+
+        <table class="min-w-full">
+
+            <thead class="bg-gray-100">
+
+                <tr>
+
+                    <th class="p-3 text-left">Tipo</th>
+                    <th class="p-3 text-left">Título</th>
+                    <th class="p-3 text-left">Fecha</th>
+                    <th class="p-3 text-center">Archivo</th>
+                    <th class="p-3 text-center">Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            @forelse($documentos as $doc)
+
+                <tr class="border-t">
+
+                    <td class="p-3">
+                        {{ $doc->tipoDocumento->nombre }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ $doc->titulo }}
+                    </td>
+
+                    <td class="p-3">
+                        {{ $doc->fecha }}
+                    </td>
+
+                    <td class="text-center">
+
+                        <a href="{{ asset('storage/'.$doc->archivo) }}"
+                           target="_blank"
+                           class="text-blue-600">
+
+                            Descargar
+
+                        </a>
+
+                    </td>
+
+                    <td class="text-center">
+
+                        <form action="{{ route('jugadores.documentos.destroy',$doc) }}"
+                              method="POST">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                onclick="return confirm('¿Eliminar documento?')"
+                                class="text-red-600">
+
+                                Eliminar
+
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center p-5 text-gray-500">
+
+                        No hay documentos registrados.
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
             <div id="panel-observaciones" class="panel-jugador hidden"></div>
 
         </div>
