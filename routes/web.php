@@ -24,6 +24,8 @@ use App\Http\Controllers\TipoArticuloController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\AsignacionInventarioController;
 use App\Http\Controllers\DocumentoJugadorController;
+use App\Http\Controllers\NoticiaController;
+
 
 
 Route::get('/', function () {
@@ -276,6 +278,17 @@ Route::get(
 )
     ->middleware('permiso:asistencias.ver')
     ->name('asistencias.imprimir');
+
+
+// Noticias
+// ===========================
+
+Route::resource('noticias', NoticiaController::class)
+    ->parameters([
+        'noticias' => 'noticia'
+    ])
+    ->middleware('permiso:noticias');
+
 
 
 

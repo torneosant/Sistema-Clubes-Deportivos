@@ -32,7 +32,11 @@ class PermisosSeeder extends Seeder
          ['nombre'=>'Inventario','slug'=>'inventario'],
          ['nombre'=>'Tipos de Artículos','slug'=>'tipos_articulo'],
          ['nombre'=>'Asignaciones de Inventario','slug'=>'asignaciones_inventario'],
-        ];
+       ['nombre'=>'Noticias - Ver','slug'=>'noticias.ver'],
+['nombre'=>'Noticias - Crear','slug'=>'noticias.crear'],
+['nombre'=>'Noticias - Editar','slug'=>'noticias.editar'],
+['nombre'=>'Noticias - Eliminar','slug'=>'noticias.eliminar'],
+         ];
 
         foreach ($permisos as $permiso) {
 

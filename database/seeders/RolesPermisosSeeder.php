@@ -68,7 +68,12 @@ class RolesPermisosSeeder extends Seeder
 
                                 'inventario.ver',
 
-                                'calendario.ver'
+                                'calendario.ver',
+
+                                'noticias.ver',
+'noticias.crear',
+'noticias.editar',
+'noticias.eliminar',
 
                             ]);
 
