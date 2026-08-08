@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Rol;
 use App\Models\Jugador;
+use App\Models\Club;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -25,8 +26,9 @@ class User extends Authenticatable
     'password',
     'rol_id',
     'jugador_id',
+    'club_id',
     'activo',
-    ];
+];
 
     protected $hidden = [
         'password',
@@ -49,6 +51,11 @@ class User extends Authenticatable
   public function rol()
 {
     return $this->belongsTo(Rol::class);
+}
+
+public function club()
+{
+    return $this->belongsTo(Club::class);
 }
 
 public function jugador()

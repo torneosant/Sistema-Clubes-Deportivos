@@ -25,15 +25,31 @@ use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\AsignacionInventarioController;
 use App\Http\Controllers\DocumentoJugadorController;
 use App\Http\Controllers\NoticiaController;
+use App\Http\Controllers\RegistroClubController;
+use App\Http\Controllers\PerfilController;
 
 
 
+
+// Página inicial pública
 Route::get('/', function () {
     return view('inicio');
-});
+})->name('inicio');
+
+// Registro público de clubes
+Route::get('/registro-club', [RegistroClubController::class, 'create'])
+    ->middleware('guest')
+    ->name('registro.club');
+
+Route::post('/registro-club', [RegistroClubController::class, 'store'])
+    ->middleware('guest')
+    ->name('registro.club.store');
+
+
 
 Route::middleware(['auth'])->group(function () {
 
+    
     // ===========================
     // Dashboard
     // ===========================
@@ -554,6 +570,20 @@ Route::get(
 
 Route::resource('modulos', App\Http\Controllers\ModuloController::class)
     ->middleware('permiso:modulos');
+
+    // Perfil del usuario
+Route::get('/perfil', [PerfilController::class, 'index'])
+    ->middleware('auth')
+    ->name('perfil');
+
+// Cambiar contraseña
+Route::get('/perfil/cambiar-contrasena', [PerfilController::class, 'password'])
+    ->middleware('auth')
+    ->name('perfil.password');
+
+Route::put('/perfil/cambiar-contrasena', [PerfilController::class, 'updatePassword'])
+    ->middleware('auth')
+    ->name('perfil.password.update');
 
 
 
