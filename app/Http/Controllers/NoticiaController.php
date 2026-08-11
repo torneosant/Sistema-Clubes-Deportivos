@@ -12,7 +12,7 @@ class NoticiaController extends Controller
      */
     public function index()
     {
-        $clubId = 1;
+         $clubId = auth()->user()->club_id;
 
         $noticias = Noticia::where('club_id', $clubId)
             ->orderByDesc('fecha_publicacion')
@@ -50,7 +50,7 @@ class NoticiaController extends Controller
         }
 
         Noticia::create([
-            'club_id' => 1,
+             'club_id' => auth()->user()->club_id,
             'titulo' => $request->titulo,
             'contenido' => $request->contenido,
             'imagen' => $rutaImagen,
@@ -68,9 +68,9 @@ class NoticiaController extends Controller
      */
     public function show(Noticia $noticia)
     {
-        if ($noticia->club_id != 1) {
-            abort(403);
-        }
+       if ($noticia->club_id != auth()->user()->club_id) {
+    abort(403);
+}
 
         return view('noticias.show', compact('noticia'));
     }
@@ -80,9 +80,9 @@ class NoticiaController extends Controller
      */
     public function edit(Noticia $noticia)
     {
-        if ($noticia->club_id != 1) {
-            abort(403);
-        }
+        if ($noticia->club_id != auth()->user()->club_id) {
+    abort(403);
+}
 
         return view('noticias.edit', compact('noticia'));
     }
@@ -92,9 +92,9 @@ class NoticiaController extends Controller
      */
     public function update(Request $request, Noticia $noticia)
     {
-        if ($noticia->club_id != 1) {
-            abort(403);
-        }
+       if ($noticia->club_id != auth()->user()->club_id) {
+    abort(403);
+}
 
         $request->validate([
             'titulo' => 'required|string|max:255',
@@ -127,9 +127,9 @@ class NoticiaController extends Controller
      */
     public function destroy(Noticia $noticia)
     {
-        if ($noticia->club_id != 1) {
-            abort(403);
-        }
+        if ($noticia->club_id != auth()->user()->club_id) {
+    abort(403);
+}
 
         $noticia->delete();
 

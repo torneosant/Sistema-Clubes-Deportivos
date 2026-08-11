@@ -29,17 +29,20 @@ class JugadoresImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             }
 
             // Evitar duplicados
-            if (Jugador::where('numero_documento', trim($row['documento']))->exists()) {
-                continue;
-            }
+            if (Jugador::where('club_id', $this->clubId)
+    ->where('numero_documento', trim($row['documento']))
+    ->exists()) {
+    continue;
+}
 
             // Buscar categoría (opcional)
             $categoria = null;
 
             if (!empty($row['categoria'])) {
 
-                $categoria = Categoria::where('nombre', trim($row['categoria']))
-                    ->first();
+                $$categoria = Categoria::where('club_id', $this->clubId)
+    ->where('nombre', trim($row['categoria']))
+    ->first();
 
             }
 
@@ -48,8 +51,9 @@ class JugadoresImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
             if (!empty($row['equipo'])) {
 
-                $equipo = Equipo::where('nombre', trim($row['equipo']))
-                    ->first();
+                $equipo = Equipo::where('club_id', $this->clubId)
+    ->where('nombre', trim($row['equipo']))
+    ->first();
 
             }
 

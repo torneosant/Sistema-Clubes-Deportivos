@@ -13,9 +13,12 @@ class PartidoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+public function index()
 {
-    $partidos = Partido::with(['equipo', 'categoria'])
+    $clubId = auth()->user()->club_id;
+
+    $partidos = Partido::where('club_id', $clubId)
+        ->with(['equipo', 'categoria'])
         ->orderByDesc('fecha')
         ->orderByDesc('hora')
         ->get();
@@ -66,7 +69,7 @@ class PartidoController extends Controller
 
     ]);
 
-    $datos['club_id'] = 1;
+    $datos['club_id'] = auth()->user()->club_id;
 
     Partido::create($datos);
 
@@ -143,10 +146,16 @@ public function update(Request $request, Partido $partido)
      * Remove the specified resource from storage.
      */
     public function destroy(Partido $partido)
-    {
-        //
-    }
+{
+    $partido->delete();
+
+    return redirect()
+        ->route('partidos.index')
+        ->with('success', 'Partido eliminado correctamente.');
+}
     
+
+
 public function resultado(Partido $partido)
 {
     return view('partidos.resultado', compact('partido'));

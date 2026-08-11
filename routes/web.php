@@ -202,12 +202,6 @@ Route::get(
     ->middleware('permiso:entrenadores.ver')
     ->name('entrenadores.exportExcel');
 
-Route::get(
-    'entrenadores/print',
-    [EntrenadorController::class, 'print']
-)
-    ->middleware('permiso:entrenadores.ver')
-    ->name('entrenadores.print');
 
 Route::get(
     'entrenadores/pdf',

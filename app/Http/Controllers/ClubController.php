@@ -10,9 +10,9 @@ class ClubController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+  public function index()
 {
-    $club = Club::first();
+    $club = Club::findOrFail(auth()->user()->club_id);
 
     return view('club.index', compact('club'));
 }

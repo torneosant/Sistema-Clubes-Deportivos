@@ -81,6 +81,22 @@
         ✏️ Editar Resultado
     </a>
 
+<form action="{{ route('partidos.destroy', $partido) }}"
+      method="POST"
+      class="inline formulario-eliminar">
+
+    @csrf
+    @method('DELETE')
+
+    <button type="submit"
+            class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded">
+        🗑️
+    </button>
+
+</form>
+
+
+
     <a href="{{ route('partidos.estadisticas',$partido) }}"
        class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">
         📊 Estadísticas

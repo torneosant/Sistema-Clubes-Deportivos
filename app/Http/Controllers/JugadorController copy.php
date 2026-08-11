@@ -130,7 +130,7 @@
 
     }
 
-            $datos['club_id'] = 1;
+           $datos['club_id'] = auth()->user()->club_id;
             $datos['activo'] = true;
             
             Jugador::create($datos);

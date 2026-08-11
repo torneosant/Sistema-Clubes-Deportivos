@@ -15,35 +15,36 @@ class EntrenamientoController extends Controller
      */
 public function index()
 {
-    $entrenamientos = Entrenamiento::with([
-    'equipo',
-    'entrenador',
-    'categorias'
+    $clubId = auth()->user()->club_id;
 
-    ])
-    
-    ->orderBy('fecha','desc')
-    ->paginate(10);
+    $entrenamientos = Entrenamiento::where('club_id', $clubId)
+        ->with([
+            'equipo',
+            'entrenador',
+            'categorias'
+        ])
+        ->orderBy('fecha', 'desc')
+        ->paginate(10);
 
-    return view('entrenamientos.index', compact(
-        'entrenamientos'
-    ));
+    return view('entrenamientos.index', compact('entrenamientos'));
 }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-   public function create()
+public function create()
 {
-    $equipos = Equipo::where('activo',1)
+    $clubId = auth()->user()->club_id;
+
+    $equipos = Equipo::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
-    $entrenadores = Entrenador::where('activo',1)
+    $entrenadores = Entrenador::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombres')
         ->get();
 
-    $categorias = Categoria::where('activo',1)
+    $categorias = Categoria::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
@@ -53,7 +54,6 @@ public function index()
         'categorias'
     ));
 }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -86,7 +86,7 @@ $datos['fecha_fin'] = $request->fecha_fin;
 
 
 
-    $datos['club_id'] = 1;
+    $datos['club_id'] = auth()->user()->club_id;
 
     $entrenamiento = Entrenamiento::create($datos);
 

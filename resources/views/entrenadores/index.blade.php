@@ -92,13 +92,7 @@
 
 </a>
 
-<a href="{{ route('entrenadores.print') }}"
-   target="_blank"
-   class="bg-gray-700 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg shadow">
 
-    🖨️ Imprimir
-
-</a>
 
 </div>
 <div class="bg-white rounded-xl shadow p-6 mb-8">

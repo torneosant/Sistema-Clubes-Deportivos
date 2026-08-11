@@ -9,34 +9,37 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 class JugadoresExport implements FromCollection, WithHeadings
 {
     public function collection()
-    {
-        return Jugador::with(['categoria', 'equipo'])
-            ->orderBy('nombres')
-            ->get()
-            ->map(function ($jugador) {
+{
+    $clubId = auth()->user()->club_id;
 
-                return [
+    return Jugador::where('club_id', $clubId)
+        ->with(['categoria', 'equipo'])
+        ->orderBy('nombres')
+        ->get()
+        ->map(function ($jugador) {
 
-                    'Documento' => $jugador->numero_documento,
+            return [
 
-                    'Nombres' => $jugador->nombres,
+                'Documento' => $jugador->numero_documento,
 
-                    'Apellidos' => $jugador->apellidos,
+                'Nombres' => $jugador->nombres,
 
-                    'Categoría' => $jugador->categoria?->nombre,
+                'Apellidos' => $jugador->apellidos,
 
-                    'Equipo' => $jugador->equipo?->nombre,
+                'Categoría' => $jugador->categoria?->nombre,
 
-                    'Posición' => $jugador->posicion,
+                'Equipo' => $jugador->equipo?->nombre,
 
-                    'Teléfono' => $jugador->telefono,
+                'Posición' => $jugador->posicion,
 
-                    'Estado' => $jugador->activo ? 'Activo' : 'Inactivo',
+                'Teléfono' => $jugador->telefono,
 
-                ];
+                'Estado' => $jugador->activo ? 'Activo' : 'Inactivo',
 
-            });
-    }
+            ];
+
+        });
+}
 
     public function headings(): array
     {

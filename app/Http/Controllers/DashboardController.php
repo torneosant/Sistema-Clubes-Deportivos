@@ -14,16 +14,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalJugadores = Jugador::count();
-        $totalEquipos = Equipo::count();
-        $totalCategorias = Categoria::count();
-        $totalActivos = Jugador::where('activo', true)->count();
+        $clubId = auth()->user()->club_id;
+
+        // Totales del club
+        $totalJugadores = Jugador::where('club_id', $clubId)->count();
+
+        $totalEquipos = Equipo::where('club_id', $clubId)->count();
+
+        $totalCategorias = Categoria::where('club_id', $clubId)->count();
+
+        $totalActivos = Jugador::where('club_id', $clubId)
+            ->where('activo', true)
+            ->count();
 
         // Próximos entrenamientos
         $entrenamientos = Entrenamiento::with([
             'equipo',
             'entrenador'
         ])
+        ->where('club_id', $clubId)
         ->whereDate('fecha', '>=', now())
         ->orderBy('fecha')
         ->orderBy('hora_inicio')
@@ -35,6 +44,7 @@ class DashboardController extends Controller
             'equipo',
             'categoria'
         ])
+        ->where('club_id', $clubId)
         ->whereDate('fecha', '>=', now())
         ->orderBy('fecha')
         ->orderBy('hora')
@@ -45,7 +55,8 @@ class DashboardController extends Controller
         $mesActual = now()->month;
         $mesSiguiente = now()->copy()->addMonth()->month;
 
-        $cumpleanios = Jugador::whereNotNull('fecha_nacimiento')
+        $cumpleanios = Jugador::where('club_id', $clubId)
+            ->whereNotNull('fecha_nacimiento')
             ->where('activo', true)
             ->get()
             ->filter(function ($jugador) use ($mesActual, $mesSiguiente) {
@@ -67,7 +78,7 @@ class DashboardController extends Controller
             ->take(5);
 
         // Noticias publicadas
-        $noticias = Noticia::where('club_id', 1)
+        $noticias = Noticia::where('club_id', $clubId)
             ->where('publicada', true)
             ->orderByDesc('fecha_publicacion')
             ->orderByDesc('id')

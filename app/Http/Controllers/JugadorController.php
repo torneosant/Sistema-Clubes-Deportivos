@@ -24,6 +24,7 @@
         public function index(Request $request)
 {
 
+
         // Si es Deportista, mostrar únicamente su ficha
 if (auth()->user()->rol->nombre == 'Deportista') {
 
@@ -34,13 +35,16 @@ if (auth()->user()->rol->nombre == 'Deportista') {
 
 }
 
+$clubId = auth()->user()->club_id;
+
     $buscar = trim($request->get('buscar', ''));
 
     $categoria = $request->categoria;
     $estado = $request->estado;
     $equipo = $request->equipo;
 
-    $jugadores = Jugador::with(['categoria', 'equipo'])
+    $jugadores = Jugador::where('club_id', $clubId)
+    ->with(['categoria', 'equipo'])
 
         ->when($buscar, function ($query) use ($buscar) {
 
@@ -72,18 +76,22 @@ if (auth()->user()->rol->nombre == 'Deportista') {
         ->paginate(10)
         ->withQueryString();
 
-    $categorias = Categoria::where('activo', true)
+   $categorias = Categoria::where('club_id', $clubId)
+    ->where('activo', true)
         ->orderBy('nombre')
         ->get();
-        $equipos = Equipo::where('activo', true)
+        $equipos = Equipo::where('club_id', $clubId)
+    ->where('activo', true)
     ->orderBy('nombre')
     ->get();
 
-    $totalJugadores = Jugador::count();
+   $totalJugadores = Jugador::where('club_id', $clubId)->count();
 
-    $totalActivos = Jugador::where('activo', true)->count();
+$totalActivos = Jugador::where('club_id', $clubId)
+    ->where('activo', true)
+    ->count();
 
-    $totalCategorias = Categoria::count();
+$totalCategorias = Categoria::where('club_id', $clubId)->count();
 
     $club = Club::first();
 
@@ -103,11 +111,15 @@ if (auth()->user()->rol->nombre == 'Deportista') {
 }
   public function create()
 {
-    $categorias = Categoria::where('activo', true)
+    $clubId = auth()->user()->club_id;
+
+$categorias = Categoria::where('club_id', $clubId)
+    ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
-    $equipos = Equipo::where('activo', true)
+    $equipos = Equipo::where('club_id', $clubId)
+    ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
@@ -151,7 +163,7 @@ if (auth()->user()->rol->nombre == 'Deportista') {
 
     }
 
-            $datos['club_id'] = 1;
+            $datos['club_id'] = auth()->user()->club_id;
             $datos['activo'] = true;
             
             Jugador::create($datos);
@@ -163,6 +175,9 @@ if (auth()->user()->rol->nombre == 'Deportista') {
 
 public function show(Jugador $jugador)
 {
+if ($jugador->club_id != auth()->user()->club_id) {
+    abort(403);
+}
 
     // Si es Deportista solo puede ver su propia ficha
 if (
@@ -273,11 +288,19 @@ $tipos = TipoDocumento::where('activo', true)
 }
  public function edit(Jugador $jugador)
 {
-    $categorias = Categoria::where('activo', true)
+    if ($jugador->club_id != auth()->user()->club_id) {
+        abort(403);
+    }
+
+    $clubId = auth()->user()->club_id;
+
+    $categorias = Categoria::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
-    $equipos = Equipo::where('activo', true)
+    $equipos = Equipo::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
@@ -288,8 +311,11 @@ $tipos = TipoDocumento::where('activo', true)
     ));
 }
 
-            public function update(Request $request, Jugador $jugador)
-            {
+public function update(Request $request, Jugador $jugador)
+{
+                if ($jugador->club_id != auth()->user()->club_id) {
+    abort(403);
+}
                 $datos = $request->validate([
                     'nombres' => 'required|max:255',
                     'apellidos' => 'required|max:255',
@@ -337,8 +363,12 @@ $tipos = TipoDocumento::where('activo', true)
             return redirect()->route('jugadores.index')
                 ->with('success', 'Jugador actualizado correctamente.');
         }
-        public function cambiarEstado(Jugador $jugador)
+ public function cambiarEstado(Jugador $jugador)
 {
+if ($jugador->club_id != auth()->user()->club_id) {
+    abort(403);
+}
+
     $jugador->activo = !$jugador->activo;
     $jugador->save();
 
@@ -350,8 +380,12 @@ $tipos = TipoDocumento::where('activo', true)
     );
 }
 
-        public function destroy(Jugador $jugador)
-        {
+public function destroy(Jugador $jugador)
+ {
+if ($jugador->club_id != auth()->user()->club_id) {
+    abort(403);
+}
+
             $jugador->delete();
 
             return redirect()->route('jugadores.index')
@@ -366,7 +400,10 @@ $tipos = TipoDocumento::where('activo', true)
 }
 public function print()
 {
-    $jugadores = Jugador::with(['categoria', 'equipo'])
+    $clubId = auth()->user()->club_id;
+
+    $jugadores = Jugador::where('club_id', $clubId)
+        ->with(['categoria', 'equipo'])
         ->orderBy('nombres')
         ->get();
 
@@ -375,24 +412,33 @@ public function print()
 
 public function pdf()
 {
-    $jugadores = Jugador::with(['categoria', 'equipo'])
+    $clubId = auth()->user()->club_id;
+
+    $jugadores = Jugador::where('club_id', $clubId)
+        ->with(['categoria', 'equipo'])
         ->orderBy('nombres')
         ->get();
 
-    $pdf = Pdf::loadView('jugadores.print', compact('jugadores'));
+    $pdf = Pdf::loadView(
+        'jugadores.print',
+        compact('jugadores')
+    );
 
-    return $pdf->download('Jugadores_'.date('Y-m-d').'.pdf');
+    return $pdf->download(
+        'Jugadores_'.date('Y-m-d').'.pdf'
+    );
 }
 
 public function importar(Request $request)
 {
     $request->validate([
         'archivo' => 'required|mimes:xlsx,xls',
-        'club_id' => 'required'
     ]);
 
+    $clubId = auth()->user()->club_id;
+
     Excel::import(
-        new JugadoresImport($request->club_id),
+        new JugadoresImport($clubId),
         $request->file('archivo')
     );
 

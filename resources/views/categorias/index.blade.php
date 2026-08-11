@@ -111,6 +111,7 @@
         </thead>
 
         <tbody>
+            
 
         @forelse($categorias as $categoria)
 

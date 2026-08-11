@@ -17,54 +17,61 @@
 
         class EntrenadorController extends Controller
         {
-        public function index(Request $request)
+       public function index(Request $request)
 {
-    $buscar = trim($request->get('buscar', ''));    
+    $clubId = auth()->user()->club_id;
+
+    $buscar = trim($request->get('buscar', ''));
     $estado = $request->estado;
 
-
-    $entrenadores = Entrenador::query()
-
+    $entrenadores = Entrenador::where('club_id', $clubId)
         ->when($buscar, function ($query) use ($buscar) {
 
-            $query->where('nombres', 'like', "%{$buscar}%")
-                  ->orWhere('apellidos', 'like', "%{$buscar}%")
-                  ->orWhere('numero_documento', 'like', "%{$buscar}%")
-                  ->orWhere('telefono', 'like', "%{$buscar}%");
+            $query->where(function ($q) use ($buscar) {
+
+                $q->where('nombres', 'like', "%{$buscar}%")
+                    ->orWhere('apellidos', 'like', "%{$buscar}%")
+                    ->orWhere('numero_documento', 'like', "%{$buscar}%")
+                    ->orWhere('telefono', 'like', "%{$buscar}%");
+
+            });
 
         })
-
         ->when($estado !== null && $estado !== '', function ($query) use ($estado) {
 
             $query->where('activo', $estado);
 
         })
-
         ->orderBy('nombres')
         ->paginate(10)
         ->withQueryString();
 
-   
-    $totalEntrenadores = Entrenador::count();
+    $totalEntrenadores = Entrenador::where('club_id', $clubId)
+        ->count();
 
-    $totalActivos = Entrenador::where('activo', true)->count();
+    $totalActivos = Entrenador::where('club_id', $clubId)
+        ->where('activo', true)
+        ->count();
 
-    
     return view('entrenadores.index', compact(
-    'entrenadores',
-    'buscar',
-    'estado',
-    'totalEntrenadores',
-    'totalActivos'
-));
+        'entrenadores',
+        'buscar',
+        'estado',
+        'totalEntrenadores',
+        'totalActivos'
+    ));
 }
 public function create()
 {
-    $equipos = Equipo::where('activo',1)
+    $clubId = auth()->user()->club_id;
+
+    $equipos = Equipo::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
-    $categorias = Categoria::where('activo',1)
+    $categorias = Categoria::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
@@ -72,15 +79,19 @@ public function create()
         'equipos',
         'categorias'
     ));
-}
-public function store(Request $request)
+}public function store(Request $request)
 {
     $datos = $request->validate(
 
     [
         'nombres'            => 'required|string|max:255',
         'apellidos'          => 'required|string|max:255',
-        'numero_documento'   => 'nullable|max:50|unique:entrenadors,numero_documento',
+        'numero_documento' => [
+    'nullable',
+    'max:50',
+    Rule::unique('entrenadors', 'numero_documento')
+        ->where(fn ($query) => $query->where('club_id', auth()->user()->club_id)),
+],
         'fecha_nacimiento'   => 'nullable|date',
         'telefono'           => 'nullable|max:30',
         'email'              => 'nullable|email|max:255',
@@ -110,7 +121,7 @@ public function store(Request $request)
         $datos['foto'] = $request->file('foto')->store('entrenadores', 'public');
     }
 
-    $datos['club_id'] = 1;
+    $datos['club_id'] = auth()->user()->club_id;
 
     $entrenador = Entrenador::create($datos);
 
@@ -123,18 +134,30 @@ public function store(Request $request)
         ->with('success', 'Entrenador registrado correctamente.');
 }
 
-     public function show(Entrenador $entrenador)
+    public function show(Entrenador $entrenador)
 {
+    if ($entrenador->club_id != auth()->user()->club_id) {
+        abort(403);
+    }
+
     return view('entrenadores.show', compact('entrenador'));
 }
 
  public function edit(Entrenador $entrenador)
 {
-    $equipos = Equipo::where('activo',1)
+    if ($entrenador->club_id != auth()->user()->club_id) {
+        abort(403);
+    }
+
+    $clubId = auth()->user()->club_id;
+
+    $equipos = Equipo::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
-    $categorias = Categoria::where('activo',1)
+    $categorias = Categoria::where('club_id', $clubId)
+        ->where('activo', true)
         ->orderBy('nombre')
         ->get();
 
@@ -145,77 +168,97 @@ public function store(Request $request)
     ));
 }
 
-            public function update(Request $request, Entrenador $Entrenador)
-            {
-                $datos = $request->validate([
-    'nombres' => 'required|max:255',
-    'apellidos' => 'required|max:255',
-    'telefono' => 'nullable|max:30',
-    'email' => 'nullable|email|max:255',
-    'ciudad' => 'nullable|max:100',
-    'direccion' => 'nullable|max:255',
-    'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
-]);            if ($request->hasFile('foto')) {
+            public function update(Request $request, Entrenador $entrenador)
+{
+    if ($entrenador->club_id != auth()->user()->club_id) {
+        abort(403);
+    }
 
-            // Eliminar la foto anterior
-            if ($Entrenador->foto && Storage::disk('public')->exists($jugador->foto)) {
-                Storage::disk('public')->delete($Entrenador->foto);
-            }
+    $datos = $request->validate([
+        'nombres' => 'required|max:255',
+        'apellidos' => 'required|max:255',
+        'numero_documento' => [
+            'nullable',
+            'max:50',
+            Rule::unique('entrenadors', 'numero_documento')
+                ->ignore($entrenador->id)
+                ->where(fn ($query) => $query->where(
+                    'club_id',
+                    auth()->user()->club_id
+                )),
+        ],
+        'telefono' => 'nullable|max:30',
+        'email' => 'nullable|email|max:255',
+        'ciudad' => 'nullable|max:100',
+        'direccion' => 'nullable|max:255',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+    ]);
 
-            // Guardar la nueva
-            $datos['foto'] = $request
-                ->file('foto')
-                ->store('entrenadores', 'public');
+    if ($request->hasFile('foto')) {
+
+        if (
+            $entrenador->foto &&
+            Storage::disk('public')->exists($entrenador->foto)
+        ) {
+            Storage::disk('public')->delete($entrenador->foto);
         }
 
-           $Entrenador->update($datos);
+        $datos['foto'] = $request
+            ->file('foto')
+            ->store('entrenadores', 'public');
+    }
 
-$Entrenador->equipos()->sync(
-    $request->equipos ?? []
-);
+    $entrenador->update($datos);
 
-return redirect()
-    ->route('entrenadores.index')
-    ->with('success', 'Entrenador actualizado correctamente.');        }
-        public function cambiarEstado(Entrenador $Entrenador)
+    // Solo equipos pertenecientes al club actual
+    $clubId = auth()->user()->club_id;
+
+    $equiposPermitidos = Equipo::where('club_id', $clubId)
+        ->pluck('id')
+        ->toArray();
+
+    $equiposSeleccionados = collect($request->equipos ?? [])
+        ->intersect($equiposPermitidos)
+        ->values()
+        ->toArray();
+
+    $entrenador->equipos()->sync($equiposSeleccionados);
+
+    return redirect()
+        ->route('entrenadores.index')
+        ->with('success', 'Entrenador actualizado correctamente.');
+}        
+
+public function destroy(Entrenador $entrenador)
 {
-    $Entrenador->activo = !$Entrenador->activo;
-    $Entrenador->save();
+    if ($entrenador->club_id != auth()->user()->club_id) {
+        abort(403);
+    }
 
-    return back()->with(
-        'success',
-        $Entrenador->activo
-            ? 'Entrenador activado correctamente.'
-            : 'Entrenador inactivado correctamente.'
-    );
+    $entrenador->delete();
+
+    return redirect()
+        ->route('entrenadores.index')
+        ->with('success', 'Entrenador eliminado correctamente.');
 }
 
-        public function destroy(Entrenador $Entrenador)
-        {
-            $Entrenador->delete();
 
-            return redirect()->route('entrenadores.index')
-                ->with('success', 'Entrenador eliminado correctamente.');
-        }
         public function exportExcel()
 {
+    $clubId = auth()->user()->club_id;
+
     return Excel::download(
-        new EntrenadoresExport,
+        new EntrenadoresExport($clubId),
         'entrenadores.xlsx'
     );
-}
-public function print()
-{
-    $entrenadores = Entrenador::orderBy('apellidos')
-        ->orderBy('nombres')
-        ->get();
-
-    return view('entrenadores.print', compact('entrenadores'));
 }
 
 public function pdf()
 {
-    $entrenadores = Entrenador::orderBy('apellidos')
+    $clubId = auth()->user()->club_id;
+
+    $entrenadores = Entrenador::where('club_id', $clubId)
+        ->orderBy('apellidos')
         ->orderBy('nombres')
         ->get();
 

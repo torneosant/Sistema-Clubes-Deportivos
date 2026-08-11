@@ -4,38 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\Categoria;
 use Illuminate\Http\Request;
-
+    
 class CategoriaController extends Controller
 {
-    public function index(Request $request)
-    {
-        $buscar = trim($request->get('buscar', ''));
+ public function index(Request $request)
+{
+    $clubId = auth()->user()->club_id;
 
-        if ($buscar != '') {
+    $buscar = trim($request->get('buscar', ''));
 
-            $categorias = Categoria::where('nombre', 'like', "%{$buscar}%")
-                ->orderBy('nombre')
-                ->paginate(10)
-                ->withQueryString();
+    $categorias = Categoria::where('club_id', $clubId)
+        ->when($buscar != '', function ($query) use ($buscar) {
+            $query->where('nombre', 'like', "%{$buscar}%");
+        })
+        ->orderBy('nombre')
+        ->paginate(10)
+        ->withQueryString();
 
-        } else {
+    $totalCategorias = Categoria::where('club_id', $clubId)
+        ->count();
 
-            $categorias = Categoria::orderBy('nombre')
-                ->paginate(10);
+    $totalActivas = Categoria::where('club_id', $clubId)
+        ->where('activo', true)
+        ->count();
 
-        }
-
-        $totalCategorias = Categoria::count();
-
-        $totalActivas = Categoria::where('activo', true)->count();
-
-        return view('categorias.index', compact(
-            'categorias',
-            'buscar',
-            'totalCategorias',
-            'totalActivas'
-        ));
-    }
+    return view('categorias.index', compact(
+        'categorias',
+        'buscar',
+        'totalCategorias',
+        'totalActivas'
+    ));
+}
 
 public function create()
 {
@@ -48,7 +47,7 @@ public function store(Request $request)
         'nombre' => 'required|max:100'
     ]);
 
-    $datos['club_id'] = 1;
+    $datos['club_id'] = auth()->user()->club_id;
     $datos['activo'] = true;
 
     Categoria::create($datos);
