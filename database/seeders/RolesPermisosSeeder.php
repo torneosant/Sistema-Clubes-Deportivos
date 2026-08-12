@@ -85,15 +85,18 @@ class RolesPermisosSeeder extends Seeder
 
                 case 'Tesorero':
 
-                    $rol->permisos()->sync(
+    $rol->permisos()->sync(
 
-                        Permiso::where('slug','like','contabilidad.%')
-                            ->pluck('id')
-                            ->toArray()
+        Permiso::where(function ($q) {
 
-                    );
+            $q->where('slug', 'like', 'contabilidad.%')
+              ->orWhere('slug', 'like', 'conceptos_contables.%');
 
-                break;
+        })->pluck('id')->toArray()
+
+    );
+
+break;
 
                 case 'Médico':
 

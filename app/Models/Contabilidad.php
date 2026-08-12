@@ -10,23 +10,16 @@ class Contabilidad extends Model
 
     protected $fillable = [
 
-        'fecha',
-
-        'tipo',
-
-        'concepto_contable_id',
-
-        'jugador_id',
-
-        'tercero',  
-
-        'valor',
-
-        'metodo_pago',
-
-        'observaciones',
-
-    ];
+       'club_id',
+    'fecha',
+    'tipo',
+    'concepto_contable_id',
+    'jugador_id',
+    'tercero',
+    'valor',
+    'metodo_pago',
+    'observaciones',
+];
 
     public function concepto()
     {

@@ -9,12 +9,14 @@ use Illuminate\Http\Request;
 
 class ContabilidadController extends Controller
 {
-public function index(Request $request)
+ public function index(Request $request)
 {
+    $clubId = auth()->user()->club_id;
+
     $query = Contabilidad::with([
         'concepto',
         'jugador'
-    ]);
+    ])->where('club_id', $clubId);
 
     if ($request->filled('tipo')) {
         $query->where('tipo', $request->tipo);
@@ -25,25 +27,32 @@ public function index(Request $request)
     }
 
     if ($request->filled('desde')) {
-        $query->whereDate('fecha','>=',$request->desde);
+        $query->whereDate('fecha', '>=', $request->desde);
     }
 
     if ($request->filled('hasta')) {
-        $query->whereDate('fecha','<=',$request->hasta);
+        $query->whereDate('fecha', '<=', $request->hasta);
     }
 
     $movimientos = $query
-    ->orderBy('fecha', 'desc')
-    ->orderBy('id', 'desc')
-    ->get();
+        ->orderBy('fecha', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
 
-    $ingresos = Contabilidad::where('tipo','Ingreso')->sum('valor');
+    $ingresos = Contabilidad::where('club_id', $clubId)
+        ->where('tipo', 'Ingreso')
+        ->sum('valor');
 
-    $gastos = Contabilidad::where('tipo','Egreso')->sum('valor');
+    $gastos = Contabilidad::where('club_id', $clubId)
+        ->where('tipo', 'Egreso')
+        ->sum('valor');
 
     $saldo = $ingresos - $gastos;
 
-    $conceptos = ConceptoContable::orderBy('nombre')->get();
+    $conceptos = ConceptoContable::where('club_id', $clubId)
+        ->where('activo', 1)
+        ->orderBy('nombre')
+        ->get();
 
     return view(
         'contabilidad.index',
@@ -57,11 +66,17 @@ public function index(Request $request)
     );
 }
 
-public function create()
+   public function create()
 {
-    $conceptos = ConceptoContable::orderBy('nombre')->get();
+    $clubId = auth()->user()->club_id;
 
-    $jugadores = Jugador::orderBy('apellidos')
+    $conceptos = ConceptoContable::where('club_id', $clubId)
+        ->where('activo', 1)
+        ->orderBy('nombre')
+        ->get();
+
+    $jugadores = Jugador::where('club_id', $clubId)
+        ->orderBy('apellidos')
         ->orderBy('nombres')
         ->get();
 
@@ -74,42 +89,59 @@ public function create()
     );
 }
 
-public function store(Request $request)
+
+    public function store(Request $request)
 {
+    $clubId = auth()->user()->club_id;
+
     $datos = $request->validate([
+        'fecha' => 'required|date',
+        'tipo' => 'required',
+        'concepto_contable_id' => 'required|exists:concepto_contables,id',
+        'jugador_id' => 'nullable|exists:jugadores,id',
+        'tercero' => 'nullable|string|max:255',
+        'valor' => 'required|numeric|min:1',
+        'metodo_pago' => 'nullable|string|max:100',
+        'observaciones' => 'nullable|string',
+    ]);
 
-    'fecha' => 'required|date',
+    $conceptoValido = ConceptoContable::where('id', $datos['concepto_contable_id'])
+        ->where('club_id', $clubId)
+        ->exists();
 
-    'tipo' => 'required',
+    if (!$conceptoValido) {
+        return back()
+            ->withErrors([
+                'concepto_contable_id' => 'El concepto no pertenece a este club.'
+            ])
+            ->withInput();
+    }
 
-    'concepto_contable_id' => 'required|exists:concepto_contables,id',
-
-    'jugador_id' => 'nullable|exists:jugadores,id',
-
-    'tercero' => 'nullable|string|max:255',
-
-    'valor' => 'required|numeric|min:1',
-
-    'metodo_pago' => 'nullable|string|max:100',
-
-    'observaciones' => 'nullable|string',
-
-]);
+    $datos['club_id'] = $clubId;
 
     Contabilidad::create($datos);
 
     return redirect()
         ->route('contabilidad.index')
-        ->with('success','Movimiento registrado correctamente.');
+        ->with('success', 'Movimiento registrado correctamente.');
 }
 
-
-
-public function edit(Contabilidad $contabilidad)
+    public function edit(Contabilidad $contabilidad)
 {
-    $conceptos = ConceptoContable::orderBy('nombre')->get();
+    abort_unless(
+        $contabilidad->club_id == auth()->user()->club_id,
+        403
+    );
 
-    $jugadores = Jugador::orderBy('apellidos')
+    $clubId = auth()->user()->club_id;
+
+    $conceptos = ConceptoContable::where('club_id', $clubId)
+        ->where('activo', 1)
+        ->orderBy('nombre')
+        ->get();
+
+    $jugadores = Jugador::where('club_id', $clubId)
+        ->orderBy('apellidos')
         ->orderBy('nombres')
         ->get();
 
@@ -123,42 +155,62 @@ public function edit(Contabilidad $contabilidad)
     );
 }
 
-public function update(Request $request, Contabilidad $contabilidad)
+   public function update(Request $request, Contabilidad $contabilidad)
 {
+    $clubId = auth()->user()->club_id;
+
+    // Verificar que el movimiento pertenece al club actual
+    abort_unless(
+        $contabilidad->club_id == $clubId,
+        403
+    );
+
     $datos = $request->validate([
-
         'fecha' => 'required|date',
-
         'tipo' => 'required',
-
         'concepto_contable_id' => 'required|exists:concepto_contables,id',
-
         'jugador_id' => 'nullable|exists:jugadores,id',
-
         'tercero' => 'nullable|string|max:255',
-
         'valor' => 'required|numeric|min:1',
-
         'metodo_pago' => 'nullable|string|max:100',
-
         'observaciones' => 'nullable|string',
-
     ]);
+
+    // Verificar que el concepto pertenece al mismo club
+    $conceptoValido = ConceptoContable::where('id', $datos['concepto_contable_id'])
+        ->where('club_id', $clubId)
+        ->exists();
+
+    if (!$conceptoValido) {
+        return back()
+            ->withErrors([
+                'concepto_contable_id' => 'El concepto no pertenece a este club.'
+            ])
+            ->withInput();
+    }
+
+    // Mantener el movimiento asociado al club
+    $datos['club_id'] = $clubId;
 
     $contabilidad->update($datos);
 
     return redirect()
         ->route('contabilidad.index')
-        ->with('success','Movimiento actualizado correctamente.');
+        ->with('success', 'Movimiento actualizado correctamente.');
 }
 
 
-public function destroy(Contabilidad $contabilidad)
+   public function destroy(Contabilidad $contabilidad)
 {
+    abort_unless(
+        $contabilidad->club_id == auth()->user()->club_id,
+        403
+    );
+
     $contabilidad->delete();
 
     return redirect()
         ->route('contabilidad.index')
-        ->with('success','Movimiento eliminado.');
-}   
+        ->with('success', 'Movimiento eliminado.');
+}
 }

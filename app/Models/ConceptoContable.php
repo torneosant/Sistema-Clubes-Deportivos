@@ -9,15 +9,12 @@ class ConceptoContable extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
+  protected $fillable = [
+    'club_id',
+    'nombre',
+    'tipo',
+    'descripcion',
+    'activo',
+];
 
-        'nombre',
-
-        'tipo',
-
-        'descripcion',
-
-        'activo',
-
-    ];
 }

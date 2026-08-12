@@ -7,12 +7,19 @@ use App\Models\Partido;
 
 class CalendarioController extends Controller
 {
-   public function index()
+ public function index()
 {
+    $clubId = auth()->user()->club_id;
+
     $eventos = [];
 
+
     // ENTRENAMIENTOS
-    foreach (Entrenamiento::with(['equipo','entrenador'])->get() as $e) {
+    foreach (
+    Entrenamiento::where('club_id', $clubId)
+        ->with(['equipo', 'entrenador'])
+        ->get() as $e
+) {
 
         $eventos[] = [
 
@@ -43,7 +50,11 @@ class CalendarioController extends Controller
     }
 
     // PARTIDOS
-    foreach (Partido::with(['equipo','categoria'])->get() as $p) {
+    foreach (
+    Partido::where('club_id', $clubId)
+        ->with(['equipo', 'categoria'])
+        ->get() as $p
+) {
 
         $eventos[] = [
 

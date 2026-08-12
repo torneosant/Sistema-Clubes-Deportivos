@@ -7,13 +7,16 @@ use Illuminate\Http\Request;
 
 
 class ConceptoContableController extends Controller
-{
+{   
     /**
      * Display a listing of the resource.
      */
     public function index()
 {
-    $conceptos = ConceptoContable::orderBy('tipo')
+    $clubId = auth()->user()->club_id;
+
+    $conceptos = ConceptoContable::where('club_id', $clubId)
+        ->orderBy('tipo')
         ->orderBy('nombre')
         ->get();
 
@@ -33,23 +36,22 @@ class ConceptoContableController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
+public function store(Request $request)
 {
-    ConceptoContable::create([
-
-        'nombre' => $request->nombre,
-
-        'tipo' => $request->tipo,
-
-        'descripcion' => $request->descripcion,
-
-        'activo' => $request->has('activo'),
-
+    $datos = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'tipo' => 'required|string|max:50',
+        'descripcion' => 'nullable|string',
     ]);
+
+    $datos['club_id'] = auth()->user()->club_id;
+    $datos['activo'] = $request->has('activo');
+
+    ConceptoContable::create($datos);
 
     return redirect()
         ->route('conceptos-contables.index')
-        ->with('success','Concepto creado correctamente.');
+        ->with('success', 'Concepto creado correctamente.');
 }
 
     /**
