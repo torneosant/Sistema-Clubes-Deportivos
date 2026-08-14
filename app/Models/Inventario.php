@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Inventario extends Model
 {
     protected $fillable = [
+        'club_id',
         'nombre',
         'codigo',
         'tipo_articulo_id',
@@ -17,6 +18,11 @@ class Inventario extends Model
         'observaciones',
         'activo',
     ];
+
+    public function club()
+    {
+        return $this->belongsTo(Club::class);
+    }
 
     public function tipoArticulo()
     {
@@ -30,9 +36,11 @@ class Inventario extends Model
 
     public function getAsignadoAttribute()
     {
-        return $this->asignaciones->sum(function ($a) {
-            return $a->cantidad - $a->cantidad_devuelta;
-        });
+        return $this->asignaciones
+            ->where('estado', 'Activa')
+            ->sum(function ($a) {
+                return $a->cantidad - $a->cantidad_devuelta;
+            });
     }
 
     public function getDisponibleAttribute()

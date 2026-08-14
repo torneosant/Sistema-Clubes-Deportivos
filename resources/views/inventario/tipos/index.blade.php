@@ -29,9 +29,11 @@
 
             <th class="text-left py-3">Nombre</th>
 
+            <th width="180">Origen</th>
+
             <th width="150">Estado</th>
 
-            <th width="180">Acciones</th>
+            <th width="220">Acciones</th>
 
         </tr>
 
@@ -43,7 +45,33 @@
 
         <tr class="border-b hover:bg-gray-50">
 
-            <td>{{ $tipo->nombre }}</td>
+            <td>
+
+                {{ $tipo->nombre }}
+
+            </td>
+
+            <td>
+
+                @if($tipo->club_id === null)
+
+                    <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm">
+
+                        ⚙️ Sistema
+
+                    </span>
+
+                @else
+
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+
+                        🏢 Mi club
+
+                    </span>
+
+                @endif
+
+            </td>
 
             <td>
 
@@ -69,12 +97,45 @@
 
             <td>
 
-                <a href="{{ route('tipos-articulo.edit',$tipo) }}"
-                   class="text-blue-600">
+                @if($tipo->club_id !== null)
 
-                    Editar
+                    <div class="flex items-center gap-2">
 
-                </a>
+                        <a href="{{ route('tipos-articulo.edit',$tipo) }}"
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm">
+
+                            ✏️ Editar
+
+                        </a>
+
+                        <form method="POST"
+                              action="{{ route('tipos-articulo.destroy',$tipo) }}"
+                              onsubmit="return confirm('¿Está seguro de eliminar este tipo de artículo?');">
+
+                            @csrf
+
+                            @method('DELETE')
+
+                            <button type="submit"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm">
+
+                                🗑️ Eliminar
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                @else
+
+                    <span class="text-gray-400 text-sm">
+
+                        🔒 Tipo del sistema
+
+                    </span>
+
+                @endif
 
             </td>
 
@@ -84,7 +145,7 @@
 
         <tr>
 
-            <td colspan="3" class="text-center py-5">
+            <td colspan="4" class="text-center py-5">
 
                 No existen registros.
 
