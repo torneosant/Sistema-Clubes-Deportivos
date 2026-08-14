@@ -269,7 +269,23 @@ class="bg-slate-600 text-white px-3 py-1 rounded">
 
 Jugador
 
-</a>
+</a>    
+<form
+    action="{{ route('historial-medico.destroy', $item) }}"
+    method="POST"
+    class="inline"
+>
+    @csrf
+    @method('DELETE')
+
+    <button
+        type="button"
+        onclick="abrirModalEliminar({{ $item->id }})"
+        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+    >
+        🗑️ Eliminar
+    </button>
+</form>
 
 </td>   
 
@@ -279,10 +295,8 @@ Jugador
 
 <tr>
 
-<td colspan="6" class="text-center p-8 text-gray-500">
-
-No existen registros médicos.
-
+<td colspan="7" class="text-center p-8 text-gray-500">
+    No existen registros médicos.
 </td>
 
 </tr>
@@ -294,5 +308,81 @@ No existen registros médicos.
 </table>
 
 </div>
+
+<!-- Modal eliminar registro médico -->
+<div
+    id="modalEliminar"
+    class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+
+        <div class="bg-red-600 px-6 py-4">
+            <h3 class="text-xl font-bold text-white">
+                🗑️ Eliminar registro médico
+            </h3>
+        </div>
+
+        <div class="p-6">
+
+            <p class="text-gray-700 text-lg">
+                ¿Está seguro de eliminar este registro médico?
+            </p>
+
+            <p class="text-gray-500 text-sm mt-2">
+                Esta acción no se puede deshacer.
+            </p>
+
+            <div class="flex justify-end gap-3 mt-6">
+
+                <button
+                    type="button"
+                    onclick="cerrarModalEliminar()"
+                    class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold"
+                >
+                    Cancelar
+                </button>
+
+                <form
+                    id="formEliminar"
+                    method="POST"
+                >
+                    @csrf
+                    @method('DELETE')
+
+                    <button
+                        type="submit"
+                        class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold"
+                    >
+                        🗑️ Sí, eliminar
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function abrirModalEliminar(id) {
+
+        const modal = document.getElementById('modalEliminar');
+        const formulario = document.getElementById('formEliminar');
+
+        formulario.action = '/historial-medico/' + id;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function cerrarModalEliminar() {
+
+        const modal = document.getElementById('modalEliminar');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+</script>
 
 @endsection
