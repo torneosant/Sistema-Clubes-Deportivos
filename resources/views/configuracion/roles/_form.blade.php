@@ -16,8 +16,8 @@
             </span>
 
             <h2 class="text-2xl font-bold mt-1">
-                {{ $rol->nombre }}
-            </h2>
+    {{ preg_replace('/^\[CLUB:\d+\]\s*/', '', $rol->nombre) }}
+</h2>
         </div>
 
         <hr>

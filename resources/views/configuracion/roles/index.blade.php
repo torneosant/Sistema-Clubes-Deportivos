@@ -76,7 +76,7 @@
 
             <td class="p-4 font-semibold">
 
-                {{ $rol->nombre }}
+               {{ preg_replace('/^\[CLUB:\d+\]\s*/', '', $rol->nombre) }}
 
             </td>
 
