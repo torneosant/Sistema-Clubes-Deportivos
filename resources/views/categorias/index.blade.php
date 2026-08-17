@@ -1,202 +1,222 @@
 @extends('layouts.app')
 
-@section('titulo','Categorías')
+@section('titulo', 'Categorías')
 
 @section('contenido')
 
+<x-page-header
+    title="📂 Listado de Categorías"
+    subtitle="Administra las categorías de tu club."
+>
+    <div class="flex items-center gap-2">
+
+        <x-stat
+            label="Total"
+            :value="$totalCategorias"
+            icon="📂"
+            color="blue"
+        />
+
+        <x-stat
+            label="Activas"
+            :value="$totalActivas"
+            icon="🟢"
+            color="green"
+        />
+
+    </div>
+</x-page-header>
+
+
 @if(session('success'))
-<div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-    {{ session('success') }}
-</div>
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+        {{ session('success') }}
+    </div>
+
 @endif
 
-<div class="mb-8">
 
-    <h1 class="text-3xl font-bold text-slate-800">📂 Listado de Categorías
+{{-- BOTONES --}}
 
-    </h2>
-     <p class="text-gray-500 mt-2"> Administra las categorias de tu club.
-    </p>
+<x-actions>
 
-    
-</div>
+    <a
+        href="{{ route('categorias.create') }}"
+        <x-button color="blue">
+            ➕ Nuevo Categoria
+        </x-button>
+        </a>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+</x-actions>
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
 
-        <p class="text-gray-500 text-sm">
-         Total Categorías
-         </p>
+{{-- FILTROS --}}
 
-        <h2 class="text-3xl font-bold text-blue-600">
+<x-filter
+    :action="route('categorias.index')"
+>
 
-            {{ $totalCategorias }}
+    <x-input
+        name="buscar"
+        value="{{ $buscar }}"
+        placeholder="🔍 Buscar categoría..."
+    />
 
-        </h2>
+    <x-button type="submit" color="blue">
+        🔍 Buscar
+    </x-button>
 
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
-
-        <p class="text-gray-500 text-sm">
-            Categorías Activas
-        </p>
-
-        <h2 class="text-3xl font-bold text-green-600">
-
-            {{ $totalActivas }}
-
-        </h2>
-
-    </div>
-</div>    
-
-<div class="flex flex-wrap gap-3 mb-6">
-
-        <a href="{{ route('categorias.create') }}"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
-
-        ➕ Nuevo Categoria 
-
+    <a
+        href="{{ route('categorias.index') }}"
+        class="inline-flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+    >
+        Limpiar
     </a>
 
-</div>
-<div class="bg-white rounded-lg shadow p-4 mb-4">
+</x-filter>
 
-    <form method="GET" action="{{ route('categorias.index') }}">
 
-        <div class="flex gap-3">
+{{-- TABLA --}}
 
-            <input
-                type="text"
-                name="buscar"
-                value="{{ $buscar }}"
-                placeholder="🔍 Buscar categoría..."
-                class="flex-1 border rounded-lg px-4 py-2">
+<x-table>
 
-            <button
-                type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-6 rounded-lg">
+    <x-table-header>
 
-                Buscar
+        <x-table-header-cell>
+            Categoría
+        </x-table-header-cell>
 
-            </button>
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-            <a href="{{ route('categorias.index') }}"
-               class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg">
+    </x-table-header>
 
-                Limpiar
 
-            </a>
-
-        </div>
-
-    </form>
-
-</div>
-<div class="bg-white rounded-lg shadow">
-
-    <table class="w-full">
-
-        <thead class="bg-gray-100">
-
-            <tr>
-
-                <th class="p-3 text-left">Categoría</th>
-                <th class="p-3 text-center">Acciones</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-            
+    <tbody>
 
         @forelse($categorias as $categoria)
 
-            <tr class="border-t hover:bg-gray-50">
+            <x-table-row>
 
-                <td class="p-3 font-semibold">
+                {{-- CATEGORÍA --}}
 
-                    ⚽ {{ $categoria->nombre }}
+                <x-table-cell>
 
-                </td>
+                    <div class="font-semibold text-slate-800">
+                        ⚽ {{ $categoria->nombre }}
+                    </div>
 
-                <td class="p-3 text-center">
+                </x-table-cell>
 
-    <div class="flex justify-center gap-2">
 
-        <a href="{{ route('categorias.edit', $categoria) }}"
-           class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                {{-- ACCIONES --}}
 
-            ✏️
+                <x-table-cell align="center">
 
-        </a>
+                    <div class="flex justify-center items-center gap-2">
 
-        <form action="{{ route('categorias.estado', $categoria) }}"
-              method="POST"
-              class="inline">
+                        {{-- EDITAR --}}
 
-            @csrf
-            @method('PATCH')
+                        <a
+                            href="{{ route('categorias.edit', $categoria) }}"
+                            class="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-300 shadow-sm hover:shadow-md bg-yellow-500 hover:bg-yellow-600 text-white"
+                            title="Editar"
+                        >
+                            ✏️
+                        </a>
 
-            <button
-    type="button"
-    onclick="confirmarEstado(this)"
-    class="{{ $categoria->activo
-        ? 'bg-green-600 hover:bg-green-700'
-        : 'bg-gray-600 hover:bg-gray-700' }}
-        text-white px-3 py-1 rounded">
 
-    {{ $categoria->activo ? 'Activa' : 'Inactiva' }}
+                        {{-- ESTADO --}}
 
-</button>
-        </form>
+                        <form
+                            action="{{ route('categorias.estado', $categoria) }}"
+                            method="POST"
+                            class="inline"
+                        >
 
-        <form
-            action="{{ route('categorias.destroy', $categoria) }}"
-            method="POST"
-            class="inline formulario-eliminar">
+                            @csrf
+                            @method('PATCH')
 
-            @csrf
-            @method('DELETE')
+                            @if($categoria->activo)
 
-            <button
-                type="submit"
-                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                                <x-button
+                                    type="button"
+                                    color="green"
+                                    icon
+                                    onclick="confirmarEstado(this)"
+                                    title="Desactivar"
+                                >
+                                    🟢
+                                </x-button>
 
-                🗑️
+                            @else
 
-            </button>
+                                <x-button
+                                    type="button"
+                                    color="gray"
+                                    icon
+                                    onclick="confirmarEstado(this)"
+                                    title="Activar"
+                                >
+                                    ⚪
+                                </x-button>
 
-        </form>
+                            @endif
 
-    </div>
+                        </form>
 
-</td>
 
-            </tr>
+                        {{-- ELIMINAR --}}
+
+                        <form
+                            action="{{ route('categorias.destroy', $categoria) }}"
+                            method="POST"
+                            class="inline formulario-eliminar"
+                        >
+
+                            @csrf
+                            @method('DELETE')
+
+                            <x-button
+                                type="submit"
+                                color="red"
+                                icon
+                                title="Eliminar"
+                            >
+                                🗑️
+                            </x-button>
+
+                        </form>
+
+                    </div>
+
+                </x-table-cell>
+
+            </x-table-row>
 
         @empty
 
             <tr>
 
-                <td colspan="3" class="text-center p-6 text-gray-500">
-
+                <td
+                    colspan="2"
+                    class="text-center py-10 text-gray-500"
+                >
                     No hay categorías registradas.
-
                 </td>
 
             </tr>
 
         @endforelse
 
-        </tbody>
+    </tbody>
 
-    </table>
+</x-table>
 
-</div>
+
+{{-- PAGINACIÓN --}}
 
 <div class="mt-6">
 

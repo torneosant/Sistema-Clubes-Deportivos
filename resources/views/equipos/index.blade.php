@@ -1,274 +1,300 @@
 @extends('layouts.app')
 
-@section('titulo','Equipos')
+@section('titulo', 'Equipos')
 
 @section('contenido')
 
+<x-page-header
+    title="⚽ Listado de Equipos"
+    subtitle="Administra los equipos de tu club."
+>
+    <div class="flex items-center gap-2">
+
+        <x-stat
+            label="Total"
+            :value="$totalEquipos"
+            icon="⚽"
+            color="blue"
+        />
+
+        <x-stat
+            label="Activos"
+            :value="$totalActivos"
+            icon="🟢"
+            color="green"
+        />
+
+    </div>
+</x-page-header>
+
+
 @if(session('success'))
-<div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-    {{ session('success') }}
-</div>
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+        {{ session('success') }}
+    </div>
+
 @endif
 
-<div class="mb-8">
 
-    <h1 class="text-3xl font-bold text-slate-800">
-        ⚽ Listado de Equipos
-    </h2>
+{{-- BOTONES --}}
 
-    <p class="text-gray-500 mt-2"> Administra los equipos de tu club.
-    </p>
-</div>
+<x-actions>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
-
-        <p class="text-gray-500 text-sm">
-            Total Equipos
-        </p>
-
-        <h2 class="text-3xl font-bold text-blue-600">
-            {{ $totalEquipos }}
-        </h2>
-
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-600">
-
-        <p class="text-gray-500 text-sm">
-            Equipos Activos
-        </p>
-
-        <h2 class="text-3xl font-bold text-green-600">
-            {{ $totalActivos }}
-        </h2>
-
-    </div>
-
-</div>
-<div class="flex flex-wrap gap-3 mb-6">
-<a href="{{ route('equipos.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
-
-        ➕ Nuevo Equipo
-
+    <a
+        href="{{ route('equipos.create') }}"
+         <x-button color="blue">
+            ➕ Nuevo Equipo
+        </x-button>
     </a>
-    </div>
-<div class="bg-white rounded-lg shadow p-4 mb-4">
 
-<form method="GET" action="{{ route('equipos.index') }}">
+</x-actions>
 
-<div class="flex gap-3">
 
-<input
-type="text"
-name="buscar"
-value="{{ $buscar }}"
-placeholder="Buscar equipo..."
-class="flex-1 border rounded-lg px-4 py-2">
+{{-- FILTROS --}}
 
-<button
-class="bg-blue-600 hover:bg-blue-700 text-white px-6 rounded-lg">
+<x-filter
+    :action="route('equipos.index')"
+>
 
-Buscar
+    <x-input
+        name="buscar"
+        value="{{ $buscar }}"
+        placeholder="🔍 Buscar equipo..."
+    />
 
-</button>
+    <x-button type="submit" color="blue">
+        🔍 Buscar
+    </x-button>
 
-<a
-href="{{ route('equipos.index') }}"
-class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg">
+    <a
+        href="{{ route('equipos.index') }}"
+        class="inline-flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+    >
+        Limpiar
+    </a>
 
-Limpiar
+</x-filter>
 
-</a>
 
-</div>
+{{-- TABLA --}}
 
-</form>
+<x-table>
 
-</div>
+    <x-table-header>
 
-<div class="bg-white rounded-lg shadow">
+        <x-table-header-cell align="center">
+            Escudo
+        </x-table-header-cell>
 
-<table class="w-full">
+        <x-table-header-cell>
+            Equipo
+        </x-table-header-cell>
 
-<thead class="bg-gray-100">
+        <x-table-header-cell>
+            Categoría
+        </x-table-header-cell>
 
-<tr>
+        <x-table-header-cell>
+            Colores
+        </x-table-header-cell>
 
-<th class="p-3 text-center">
-Escudo
-</th>
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-<th class="p-3 text-left">
-Equipo
-</th>
+    </x-table-header>
 
-<th class="p-3 text-left">
-Categoría
-</th>
 
-<th class="p-3 text-left">
-Colores
-</th>
+    <tbody>
 
-<th class="p-3 text-center">
-Acciones
-</th>
+        @forelse($equipos as $equipo)
 
-</tr>
+            <x-table-row>
 
-</thead>
+                {{-- ESCUDO --}}
 
-<tbody>
+                <x-table-cell align="center">
 
-@forelse($equipos as $equipo)
+                    @if($equipo->escudo)
 
-<tr class="border-t hover:bg-gray-50">
+                        <img
+                            src="{{ asset('storage/'.$equipo->escudo) }}"
+                            class="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                        >
 
-<td class="p-3 text-center">
+                    @else
 
-@if($equipo->escudo)
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                            ⚽
+                        </div>
 
-<img
-src="{{ asset('storage/'.$equipo->escudo) }}"
-class="w-12 h-12 rounded-full object-cover border shadow">
+                    @endif
 
-@else
+                </x-table-cell>
 
-<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
 
-⚽
+                {{-- EQUIPO --}}
 
-</div>
+                <x-table-cell>
 
-@endif
+                    <div class="font-semibold text-slate-800">
+                        {{ $equipo->nombre }}
+                    </div>
 
-</td>
+                </x-table-cell>
 
-<td class="p-3">
 
-<div class="font-bold">
+                {{-- CATEGORÍAS --}}
 
-{{ $equipo->nombre }}
+                <x-table-cell>
 
-</div>
+                    @forelse($equipo->categorias as $categoria)
 
-</td>
+                        <span class="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs font-medium mr-1 mb-1">
 
-<td class="p-3">
+                            {{ $categoria->nombre }}
 
-    @forelse($equipo->categorias as $categoria)
+                        </span>
 
-        <span class="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm mb-1">
+                    @empty
 
-            {{ $categoria->nombre }}
+                        <span class="text-gray-400">
+                            -
+                        </span>
 
-        </span>
+                    @endforelse
 
-    @empty
+                </x-table-cell>
 
-        -
 
-    @endforelse
+                {{-- COLORES --}}
 
-</td>
+                <x-table-cell>
 
-<td class="p-3">
+                    <span class="text-slate-700">
 
-{{ $equipo->color_principal }}
+                        {{ $equipo->color_principal }}
 
-@if($equipo->color_secundario)
+                        @if($equipo->color_secundario)
+                            / {{ $equipo->color_secundario }}
+                        @endif
 
-/
+                    </span>
 
-{{ $equipo->color_secundario }}
+                </x-table-cell>
 
-@endif
 
-</td>
+                {{-- ACCIONES --}}
 
-<td class="p-3 text-center">
+                <x-table-cell align="center">
 
-<div class="flex justify-center gap-2">
+                    <div class="flex justify-center items-center gap-2">
 
-<a
-href="{{ route('equipos.edit',$equipo) }}"
-class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
+                        {{-- VER / EDITAR --}}
 
-✏️
+                        <a
+                            href="{{ route('equipos.edit', $equipo) }}"
+                            class="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-300 shadow-sm hover:shadow-md bg-yellow-500 hover:bg-yellow-600 text-white"
+                            title="Editar"
+                        >
+                            ✏️
+                        </a>
 
-</a>
 
-    <form
-    action="{{ route('equipos.estado',$equipo) }}"
-    method="POST">
+                        {{-- ESTADO --}}
 
-    @csrf
-    @method('PATCH')
+                        <form
+                            action="{{ route('equipos.estado', $equipo) }}"
+                            method="POST"
+                            class="inline"
+                        >
 
-    <button
-type="button"
-onclick="return confirmarEstado(this, {{ $equipo->activo ? 'true' : 'false' }})"
-class="{{ $equipo->activo
-? 'bg-green-600 hover:bg-green-700'
-: 'bg-gray-600 hover:bg-gray-700' }}
-text-white px-3 py-1 rounded">
+                            @csrf
+                            @method('PATCH')
 
-{{ $equipo->activo ? 'Activo' : 'Inactivo' }}
+                            @if($equipo->activo)
 
-</button>
+                                <x-button
+                                    type="button"
+                                    color="green"
+                                    icon
+                                    onclick="return confirmarEstado(this, true)"
+                                    title="Desactivar"
+                                >
+                                    🟢
+                                </x-button>
 
-    </form>
+                            @else
 
-<form
-action="{{ route('equipos.destroy',$equipo) }}"
-method="POST"
-class="formulario-eliminar">
+                                <x-button
+                                    type="button"
+                                    color="gray"
+                                    icon
+                                    onclick="return confirmarEstado(this, false)"
+                                    title="Activar"
+                                >
+                                    ⚪
+                                </x-button>
 
-@csrf
-@method('DELETE')
+                            @endif
 
-<button
-class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                        </form>
 
-🗑️
 
-</button>
+                        {{-- ELIMINAR --}}
 
-</form>
+                        <form
+                            action="{{ route('equipos.destroy', $equipo) }}"
+                            method="POST"
+                            class="inline formulario-eliminar"
+                        >
 
-</div>
+                            @csrf
+                            @method('DELETE')
 
-</td>
+                            <x-button
+                                type="submit"
+                                color="red"
+                                icon
+                                title="Eliminar"
+                            >
+                                🗑️
+                            </x-button>
 
-</tr>
+                        </form>
 
-@empty
+                    </div>
 
-<tr>
+                </x-table-cell>
 
-<td colspan="5"
-class="text-center p-6 text-gray-500">
+            </x-table-row>
 
-No hay equipos registrados.
+        @empty
 
-</td>
+            <tr>
 
-</tr>
+                <td
+                    colspan="5"
+                    class="text-center py-10 text-gray-500"
+                >
+                    No hay equipos registrados.
+                </td>
 
-@endforelse
+            </tr>
 
-</tbody>
+        @endforelse
 
-</table>
+    </tbody>
 
-</div>
+</x-table>
+
+
+{{-- PAGINACIÓN --}}
 
 <div class="mt-6">
 
-{{ $equipos->links() }}
+    {{ $equipos->links() }}
 
 </div>
 

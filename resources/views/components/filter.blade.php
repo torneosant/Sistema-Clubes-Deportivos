@@ -1,17 +1,35 @@
 @props([
-    'action' => '',
+    'action',
+    'method' => 'GET',
 ])
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 mb-6">
+<form
+    action="{{ $action }}"
+    method="{{ $method }}"
+    {{ $attributes->merge([
+        'class' => 'w-full'
+    ]) }}
+>
 
-    <form
-        method="GET"
-        action="{{ $action }}"
-        class="flex flex-wrap items-end gap-3"
+    <div
+        class="
+            w-full
+            bg-white
+            border border-slate-200
+            rounded-xl
+            shadow-sm
+            p-4
+
+            flex
+            flex-col
+            lg:flex-row
+            lg:items-end
+            gap-3
+        "
     >
 
         {{ $slot }}
 
-    </form>
+    </div>
 
-</div>
+</form>

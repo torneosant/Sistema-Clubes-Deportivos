@@ -53,7 +53,7 @@
 
 {{-- BOTONES --}}
 
-<div class="flex flex-wrap items-center gap-2 mb-6">
+<x-actions>
 
     <a href="{{ route('jugadores.create') }}">
 
@@ -90,7 +90,7 @@
 
     </a>
 
-</div>
+</x-actions>
 
 
 {{-- FILTROS --}}

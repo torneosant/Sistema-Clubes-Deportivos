@@ -1,197 +1,292 @@
 @extends('layouts.app')
 
-@section('titulo','Entrenamientos')
+@section('titulo', 'Entrenamientos')
 
 @section('contenido')
 
-<div class="mb-6">
+<x-page-header
+    title="🏃 Listado de Entrenamientos"
+    subtitle="Programa y administra los entrenamientos del club."
+/>
 
-    <h2 class="text-3xl font-bold text-gray-800">
-        🏃 Listado de Entrenamientos
-    </h2>
 
-    <p class="text-gray-500 mt-1">
-        Programa y administra los entrenamientos del club.
-    </p>
+{{-- ACCIONES --}}
 
-</div>
+<x-actions>
 
-<a href="{{ route('entrenamientos.create') }}"
-   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow">
+    <div>
+        <x-button
+            type="button"
+            color="blue"
+            onclick="window.location='{{ route('entrenamientos.create') }}'"
+        >
+            ➕ Nuevo Entrenamiento
+        </x-button>
+    </div>
 
-    ➕ Nuevo Entrenamiento
+</x-actions>
 
-</a>
-<div class="bg-white rounded-xl shadow overflow-hidden mt-6">
 
-    <table class="w-full">
+{{-- TABLA --}}
 
-        <thead class="bg-gray-100">
+<x-table>
 
-            <tr>
+    <x-table-header>
 
-                <th class="px-4 py-3 text-center">Fecha</th>
+        <x-table-header-cell align="center">
+            Fecha
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Equipo</th>
+        <x-table-header-cell align="center">
+            Equipo
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Categorías</th>
+        <x-table-header-cell align="center">
+            Categorías
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Entrenador</th>
+        <x-table-header-cell align="center">
+            Entrenador
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Horario</th>
+        <x-table-header-cell align="center">
+            Horario
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Lugar</th>
+        <x-table-header-cell align="center">
+            Lugar
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Estado</th>
+        <x-table-header-cell align="center">
+            Estado
+        </x-table-header-cell>
 
-                <th class="px-4 py-3 text-center">Acciones</th>
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-            </tr>
+    </x-table-header>
 
-        </thead>
 
-        <tbody>
+    <tbody>
 
         @forelse($entrenamientos as $entrenamiento)
 
-            <tr class="border-b hover:bg-gray-50">
+            <x-table-row>
 
-                <td class="text-center py-3">
+                {{-- FECHA --}}
+
+                <x-table-cell align="center">
 
                     {{ \Carbon\Carbon::parse($entrenamiento->fecha)->format('d/m/Y') }}
 
-                </td>
+                </x-table-cell>
 
-                <td class="text-center">
 
-                    {{ $entrenamiento->equipo->nombre }}
+                {{-- EQUIPO --}}
 
-                </td>
+                <x-table-cell align="center">
 
-                <td class="text-center">
+                    {{ $entrenamiento->equipo->nombre ?? '-' }}
 
-    @foreach($entrenamiento->categorias as $categoria)
+                </x-table-cell>
 
-        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full m-1">
 
-            {{ $categoria->nombre }}
+                {{-- CATEGORÍAS --}}
 
-        </span>
+                <x-table-cell align="center">
 
-    @endforeach
+                    @forelse($entrenamiento->categorias as $categoria)
 
-</td>
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full m-1">
 
-                <td class="text-center">
+                            {{ $categoria->nombre }}
 
-                    {{ $entrenamiento->entrenador->nombres }}
-                    {{ $entrenamiento->entrenador->apellidos }}
+                        </span>
 
-                </td>
+                    @empty
 
-                <td class="text-center">
+                        -
 
-                    {{ substr($entrenamiento->hora_inicio,0,5) }}
+                    @endforelse
 
+                </x-table-cell>
+
+
+                {{-- ENTRENADOR --}}
+
+                <x-table-cell align="center">
+
+                    {{ $entrenamiento->entrenador->nombres ?? '' }}
+                    {{ $entrenamiento->entrenador->apellidos ?? '' }}
+
+                    @if(!$entrenamiento->entrenador)
+
+                        -
+
+                    @endif
+
+                </x-table-cell>
+
+
+                {{-- HORARIO --}}
+
+                <x-table-cell align="center">
+
+                    {{ substr($entrenamiento->hora_inicio, 0, 5) }}
                     -
+                    {{ substr($entrenamiento->hora_fin, 0, 5) }}
 
-                    {{ substr($entrenamiento->hora_fin,0,5) }}
+                </x-table-cell>
 
-                </td>
 
-                <td class="text-center">
+                {{-- LUGAR --}}
 
-                    {{ $entrenamiento->lugar }}
+                <x-table-cell align="center">
 
-                </td>
+                    {{ $entrenamiento->lugar ?? '-' }}
 
-      <td class="text-center">
+                </x-table-cell>
 
-    <form
-        action="{{ route('entrenamientos.estado',$entrenamiento) }}"
-        method="POST">
 
-        @csrf
-        @method('PATCH')
+                {{-- ESTADO --}}
 
-        <select
-            name="estado"
-            onchange="this.form.submit()"
-            class="rounded-full px-4 py-2 text-sm font-semibold border">
+                <x-table-cell align="center">
 
-            <option value="Programado"
-                {{ $entrenamiento->estado=='Programado' ? 'selected' : '' }}>
-                🟡 Programado
-            </option>
+                    <form
+                        action="{{ route('entrenamientos.estado', $entrenamiento) }}"
+                        method="POST"
+                        class="inline"
+                    >
 
-            <option value="Realizado"
-                {{ $entrenamiento->estado=='Realizado' ? 'selected' : '' }}>
-                🟢 Realizado
-            </option>
+                        @csrf
+                        @method('PATCH')
 
-            <option value="Cancelado"
-                {{ $entrenamiento->estado=='Cancelado' ? 'selected' : '' }}>
-                🔴 Cancelado
-            </option>
+                        <select
+                            name="estado"
+                            onchange="this.form.submit()"
+                            class="rounded-full px-4 py-2 text-sm font-semibold border"
+                        >
 
-        </select>
+                            <option
+                                value="Programado"
+                                @selected($entrenamiento->estado == 'Programado')
+                            >
+                                🟡 Programado
+                            </option>
 
-    </form>
+                            <option
+                                value="Realizado"
+                                @selected($entrenamiento->estado == 'Realizado')
+                            >
+                                🟢 Realizado
+                            </option>
 
-</td>
+                            <option
+                                value="Cancelado"
+                                @selected($entrenamiento->estado == 'Cancelado')
+                            >
+                                🔴 Cancelado
+                            </option>
 
-               <td class="text-center">
+                        </select>
 
-    <div class="flex justify-center gap-2">
+                    </form>
 
-        <a href="{{ route('entrenamientos.show',$entrenamiento) }}"
-           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg">
+                </x-table-cell>
 
-            👁️
 
-        </a>
+                {{-- ACCIONES --}}
 
-        <a href="{{ route('entrenamientos.edit',$entrenamiento) }}"
-           class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg">
+                <x-table-cell align="center">
 
-            ✏️
+                    <div class="flex justify-center gap-2">
 
-        </a>
+                        {{-- VER --}}
 
-        <form
-            action="{{ route('entrenamientos.destroy',$entrenamiento) }}"
-            method="POST"
-            class="inline formulario-eliminar">
+                        <div>
 
-            @csrf
-            @method('DELETE')
+                            <a
+                                href="{{ route('entrenamientos.show', $entrenamiento) }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                title="Ver"
+                            >
+                                👁️
+                            </a>
 
-            <button
-                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg">
+                        </div>
 
-                🗑️
 
-            </button>
+                        {{-- EDITAR --}}
 
-        </form>
-        <a href="{{ route('asistencias.create', $entrenamiento) }}"
-   class="text-green-600 hover:text-green-800"
-   title="Tomar asistencia">
+                        <div>
 
-    📋
+                            <a
+                                href="{{ route('entrenamientos.edit', $entrenamiento) }}"
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                title="Editar"
+                            >
+                                ✏️
+                            </a>
 
-</a>
+                        </div>
 
-    </div>
 
-</td>
-            </tr>
+                        {{-- ELIMINAR --}}
+
+                        <div>
+
+                            <form
+                                action="{{ route('entrenamientos.destroy', $entrenamiento) }}"
+                                method="POST"
+                                class="formulario-eliminar"
+                            >
+
+                                @csrf
+                                @method('DELETE')
+
+                                <x-button
+                                    type="submit"
+                                    color="red"
+                                    icon
+                                    title="Eliminar"
+                                >
+                                    🗑️
+                                </x-button>
+
+                            </form>
+
+                        </div>
+
+
+                        {{-- ASISTENCIA --}}
+
+                        <div>
+
+                            <a
+                                href="{{ route('asistencias.create', $entrenamiento) }}"
+                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                title="Tomar asistencia"
+                            >
+                                📋
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </x-table-cell>
+
+            </x-table-row>
 
         @empty
 
             <tr>
 
-                <td colspan="7" class="text-center py-8 text-gray-500">
+                <td
+                    colspan="8"
+                    class="text-center py-10 text-gray-500"
+                >
 
                     No hay entrenamientos registrados.
 
@@ -201,10 +296,21 @@
 
         @endforelse
 
-        </tbody>
+    </tbody>
 
-    </table>
+</x-table>
 
-</div>
+
+{{-- PAGINACIÓN --}}
+
+@if(method_exists($entrenamientos, 'links'))
+
+    <div class="mt-6">
+
+        {{ $entrenamientos->links() }}
+
+    </div>
+
+@endif
 
 @endsection

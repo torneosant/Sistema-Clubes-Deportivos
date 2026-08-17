@@ -1,307 +1,394 @@
 @extends('layouts.app')
 
-@section('titulo')
-💰 Contabilidad
-@endsection
+@section('titulo', 'Contabilidad')
 
 @section('contenido')
 
-<div class="grid grid-cols-4 gap-6 mb-8">
 
-    <div class="bg-green-600 text-white rounded-xl p-6 shadow">
-        <h3 class="text-lg">Ingresos</h3>
-        <p class="text-3xl font-bold">
-           ${{ number_format($ingresos,0,',','.') }}    
-        </p>
+{{-- ENCABEZADO + CONTADORES --}}
+
+<x-page-header
+    title="💰 Contabilidad"
+    subtitle="Administra los ingresos, gastos y movimientos financieros del club."
+>
+
+    <div class="flex items-center gap-2">
+
+        <x-stat
+            label="Ingresos"
+            :value="'$'.number_format($ingresos, 0, ',', '.')"
+            icon="💰"
+            color="green"
+        />
+
+        <x-stat
+            label="Gastos"
+            :value="'$'.number_format($gastos, 0, ',', '.')"
+            icon="🔴"
+            color="red"
+        />
+
+        <x-stat
+            label="Saldo"
+            :value="'$'.number_format($saldo, 0, ',', '.')"
+            icon="💵"
+            color="blue"
+        />
+
+        <x-stat
+            label="Movimientos"
+            :value="$movimientos->count()"
+            icon="📊"
+            color="purple"
+        />
+
     </div>
 
-    <div class="bg-red-600 text-white rounded-xl p-6 shadow">
-        <h3 class="text-lg">Gastos</h3>
-        <p class="text-3xl font-bold">
-            ${{ number_format($gastos,0,',','.') }}
-        </p>
+</x-page-header>
+
+
+@if(session('success'))
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+
+        {{ session('success') }}
+
     </div>
 
-    <div class="bg-blue-600 text-white rounded-xl p-6 shadow">
-        <h3 class="text-lg">Saldo</h3>
-        <p class="text-3xl font-bold">
-           ${{ number_format($saldo,0,',','.') }}
-        </p>
-    </div>
+@endif
 
-    <div class="bg-yellow-500 text-white rounded-xl p-6 shadow">
-        <h3 class="text-lg">Movimientos</h3>
-        <p class="text-3xl font-bold">
-            {{ $movimientos->count() }}
-        </p>
-    </div>
 
-</div>
+{{-- ACCIONES --}}
 
+<x-actions>
 
+    <a href="{{ route('contabilidad.create') }}">
 
-<form method="GET" class="bg-white rounded-xl shadow p-4 mb-5">
+        <x-button color="green">
 
-<div class="grid grid-cols-5 gap-4">
+            ➕ Nuevo Movimiento
 
-<div>
-    
-<label>Desde</label>
+        </x-button>
 
-<input
-type="date"
-name="desde"
-value="{{ request('desde') }}"
-class="w-full border rounded-lg p-2">
-</div>
+    </a>
 
-<div>
-<label>Hasta</label>
+</x-actions>
 
-<input
-type="date"
-name="hasta"
-value="{{ request('hasta') }}"
-class="w-full border rounded-lg p-2">
-</div>
 
-<div>
+{{-- FILTROS --}}
 
-<label>Tipo</label>
+{{-- FILTROS --}}
 
-<select
-name="tipo"
-class="w-full border rounded-lg p-2">
+<x-filter
+    :action="route('contabilidad.index')"
+>
 
-<option value="">Todos</option>
+    <x-input
+        type="date"
+        name="desde"
+        value="{{ request('desde') }}"
+        label="Desde"
+    />
 
-<option value="Ingreso"
-{{ request('tipo')=='Ingreso' ? 'selected' : '' }}>
+    <x-input
+        type="date"
+        name="hasta"
+        value="{{ request('hasta') }}"
+        label="Hasta"
+    />
 
-Ingreso
+    <select
+        name="tipo"
+        class="w-full h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+    >
 
-</option>
+        <option value="">Todos</option>
 
-<option value="Egreso"
-{{ request('tipo')=='Egreso' ? 'selected' : '' }}>
+        <option
+            value="Ingreso"
+            @selected(request('tipo') === 'Ingreso')
+        >
+            Ingreso
+        </option>
 
-Egreso
+        <option
+            value="Egreso"
+            @selected(request('tipo') === 'Egreso')
+        >
+            Egreso
+        </option>
 
-</option>
+    </select>
 
-</select>
 
-</div>
+    <select
+        name="concepto"
+        class="w-full h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+    >
 
-<div>
+        <option value="">Todos</option>
 
-<label>Concepto</label>
+        @foreach($conceptos as $concepto)
 
-<select
-name="concepto"
-class="w-full border rounded-lg p-2">
+            <option
+                value="{{ $concepto->id }}"
+                @selected((string)request('concepto') === (string)$concepto->id)
+            >
+                {{ $concepto->nombre }}
+            </option>
 
-<option value="">Todos</option>
+        @endforeach
 
-@foreach($conceptos as $concepto)
+    </select>
 
-<option
-value="{{ $concepto->id }}"
-{{ request('concepto')==$concepto->id ? 'selected' : '' }}>
 
-{{ $concepto->nombre }}
+    <x-button
+        type="submit"
+        color="blue"
+    >
+        🔍 Filtrar
+    </x-button>
 
-</option>
 
-@endforeach
+    <a
+        href="{{ route('contabilidad.index') }}"
+        class="inline-flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+    >
+        Limpiar
+    </a>
 
-</select>
+</x-filter>
 
-</div>
 
-<div class="flex items-end gap-2">
+{{-- TABLA --}}
 
-<button
-class="bg-blue-600 text-white px-5 py-2 rounded-lg">
+<x-table>
 
-Filtrar
+    <x-table-header>
 
-</button>
+        <x-table-header-cell align="center">
+            Fecha
+        </x-table-header-cell>
 
-<a
-href="{{ route('contabilidad.index') }}"
-class="bg-gray-500 text-white px-5 py-2 rounded-lg">
+        <x-table-header-cell align="center">
+            Tipo
+        </x-table-header-cell>
 
-Limpiar
+        <x-table-header-cell>
+            Concepto
+        </x-table-header-cell>
 
-</a>
+        <x-table-header-cell>
+            Jugador
+        </x-table-header-cell>
 
-</div>
+        <x-table-header-cell>
+            Pagador
+        </x-table-header-cell>
 
-</div>
+        <x-table-header-cell align="center">
+            Valor
+        </x-table-header-cell>
 
-</form>
+        <x-table-header-cell>
+            Método
+        </x-table-header-cell>
 
-<div class="flex justify-end mb-6">
+        <x-table-header-cell>
+            Observaciones
+        </x-table-header-cell>
 
-    <a href="{{ route('contabilidad.create') }}"
-   class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg">
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-    ➕ Nuevo Movimiento
+    </x-table-header>
 
-</a>
 
-</div>
+    <tbody>
 
-<div class="bg-white rounded-xl shadow">
+        @forelse($movimientos as $movimiento)
 
-<table class="min-w-full table-auto">
+            <x-table-row>
 
-<thead class="bg-slate-800 text-white">
-<tr>
 
-<th class="px-3 py-3 text-center">Fecha</th>
-<th class="px-3 py-3 text-center">Tipo</th>
-<th class="px-3 py-3 text-center">Concepto</th>
-<th class="px-3 py-3 text-center">Jugador</th>
-<th class="px-3 py-3 text-center">Pagador</th>
-<th class="px-3 py-3 text-center">Valor</th>
-<th class="px-3 py-3 text-center">Método</th>
-<th class="px-3 py-3 text-center">Observaciones</th>
-<th class="px-3 py-3 text-center">Acciones</th>
-</tr>
-</thead>
+                {{-- FECHA --}}
 
-<tbody>
+                <x-table-cell align="center">
 
-@forelse($movimientos as $movimiento)
+                    {{ \Carbon\Carbon::parse($movimiento->fecha)->format('d/m/Y') }}
 
-<tr class="border-b hover:bg-gray-50">
+                </x-table-cell>
 
-   <td class="px-3 py-2">
-        {{ \Carbon\Carbon::parse($movimiento->fecha)->format('d/m/Y') }}
-    </td>
 
-    <td class="px-3 py-2">
-        @if($movimiento->tipo=='Ingreso')
-            <span class="bg-green-100 text-green-700 px-2 py-1 rounded">
-                Ingreso
-            </span>
-        @else
-            <span class="bg-red-100 text-red-700 px-2 py-1 rounded">
-                Egreso
-            </span>
-        @endif
-    </td>
+                {{-- TIPO --}}
 
-    <td class="px-3 py-2">
-        {{ $movimiento->concepto?->nombre }}
-    </td>
+                <x-table-cell align="center">
 
-    <td class="px-3 py-2">
-        {{ $movimiento->jugador?->apellidos }}
-        {{ $movimiento->jugador?->nombres }}
-    </td>
+                    @if($movimiento->tipo == 'Ingreso')
 
-    <td class="px-3 py-2">
-        {{ $movimiento->tercero }}
-    </td>
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
 
-    <td class="px-3 py-2 text-right font-semibold">
-        $ {{ number_format($movimiento->valor,0,',','.') }}
-    </td>
+                            Ingreso
 
-    <td class="px-3 py-2">
-        {{ $movimiento->metodo_pago }}
-    </td>
+                        </span>
 
-    <td class="px-3 py-2">
-        {{ $movimiento->observaciones }}
-    </td>
+                    @else
 
-    <td class="px-3 py-2 text-center whitespace-nowrap">
+                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-sm">
 
-        <a href="{{ route('contabilidad.edit',$movimiento) }}"
-           class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded">
+                            Egreso
 
-            ✏️
+                        </span>
 
-        </a>
+                    @endif
 
-        <form
-            action="{{ route('contabilidad.destroy',$movimiento) }}"
-            method="POST"
-            class="inline">
+                </x-table-cell>
 
-            @csrf
-            @method('DELETE')
 
-           <button
-type="button"
-onclick="eliminarMovimiento(this.form)"
-class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded">
+                {{-- CONCEPTO --}}
 
-🗑️
+                <x-table-cell>
 
-</button>
+                    {{ $movimiento->concepto?->nombre ?? '-' }}
 
-        </form>
+                </x-table-cell>
 
-    </td>
 
-</tr>
+                {{-- JUGADOR --}}
 
-@empty
+                <x-table-cell>
 
-<tr>
+                    @if($movimiento->jugador)
 
-<td colspan="9" class="text-center p-8">
+                        {{ $movimiento->jugador->apellidos }}
+                        {{ $movimiento->jugador->nombres }}
 
-No existen movimientos registrados.
+                    @else
 
-</td>
+                        -
 
-</tr>
+                    @endif
 
-@endforelse
-</tbody>
+                </x-table-cell>
 
-</table>
 
-</div>
+                {{-- PAGADOR --}}
 
-<script>
-function eliminarMovimiento(form){
+                <x-table-cell>
 
-    Swal.fire({
+                    {{ $movimiento->tercero ?? '-' }}
 
-        title: '¿Eliminar movimiento?',
+                </x-table-cell>
 
-        text: 'Esta acción no se puede deshacer.',
 
-        icon: 'warning',
+                {{-- VALOR --}}
 
-        showCancelButton: true,
+                <x-table-cell align="center">
 
-        confirmButtonColor: '#dc2626',
+                    <span class="font-semibold">
 
-        cancelButtonColor: '#6b7280',
+                        ${{ number_format($movimiento->valor, 0, ',', '.') }}
 
-        confirmButtonText: 'Sí, eliminar',
+                    </span>
 
-        cancelButtonText: 'Cancelar'
+                </x-table-cell>
 
-    }).then((result)=>{
 
-        if(result.isConfirmed){
+                {{-- MÉTODO --}}
 
-            form.submit();
+                <x-table-cell>
 
-        }
+                    {{ $movimiento->metodo_pago ?? '-' }}
 
-    });
+                </x-table-cell>
 
-}
-</script>
+
+                {{-- OBSERVACIONES --}}
+
+                <x-table-cell>
+
+                    {{ $movimiento->observaciones ?? '-' }}
+
+                </x-table-cell>
+
+
+                {{-- ACCIONES --}}
+
+                <x-table-cell align="center">
+
+                    <div class="flex justify-center items-center gap-2">
+
+
+                        {{-- EDITAR --}}
+
+                        <a href="{{ route('contabilidad.edit', $movimiento) }}">
+
+                            <x-button
+                                color="yellow"
+                                icon
+                                title="Editar movimiento"
+                            >
+
+                                ✏️
+
+                            </x-button>
+
+                        </a>
+
+
+                        {{-- ELIMINAR --}}
+
+                        <form
+                            action="{{ route('contabilidad.destroy', $movimiento) }}"
+                            method="POST"
+                            class="inline formulario-eliminar"
+                        >
+
+                            @csrf
+                            @method('DELETE')
+
+                            <x-button
+                                color="red"
+                                icon
+                                type="submit"
+                                title="Eliminar movimiento"
+                            >
+
+                                🗑️
+
+                            </x-button>
+
+                        </form>
+
+
+                    </div>
+
+                </x-table-cell>
+
+
+            </x-table-row>
+
+        @empty
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="px-4 py-10 text-center text-gray-500"
+                >
+
+                    No existen movimientos registrados.
+
+                </td>
+
+            </tr>
+
+        @endforelse
+
+    </tbody>
+
+</x-table>
+
 
 @endsection

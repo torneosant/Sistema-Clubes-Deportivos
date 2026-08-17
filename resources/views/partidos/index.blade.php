@@ -1,130 +1,235 @@
 @extends('layouts.app')
 
-@section('titulo')
-⚽ Partidos
-@endsection
+@section('titulo', 'Partidos')
 
 @section('contenido')
 
-<div class="flex justify-between items-center mb-6">
+<x-page-header
+    title="⚽ Partidos"
+    subtitle="Administración de partidos"
+/>
+
+
+{{-- ACCIONES --}}
+
+<x-actions>
 
     <div>
-        <h1 class="text-3xl font-bold text-slate-800">⚽ Partidos</h1>
-        <p class="text-slate-500">Administración de partidos</p>
+        <x-button
+            type="button"
+            color="green"
+            onclick="window.location='{{ route('partidos.create') }}'"
+        >
+            ➕ Nuevo Partido
+        </x-button>
     </div>
 
-    <a href="{{ route('partidos.create') }}"
-       class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg shadow">
-        ➕ Nuevo Partido
-    </a>
-
-</div>
-
-<div class="bg-white rounded-xl shadow">
-
-<table class="w-full">
-
-<thead class="bg-slate-800 text-white">
-<tr>
-<th class="px-4 py-3">Fecha</th>
-<th class="px-4 py-3">Hora</th>
-<th class="px-4 py-3">Equipo</th>
-<th class="px-4 py-3">Rival</th>
-<th class="px-4 py-3">Categoría</th>
-<th class="px-4 py-3">Competencia</th>
-<th class="px-4 py-3">Condición</th>
-<th class="px-4 py-3">Estado</th>
-<th class="px-4 py-3 text-center">Acciones</th>
-</tr>
-</thead>
-
-<tbody>
-
-@forelse($partidos as $partido)
-
-<tr class="border-b hover:bg-slate-50">
-
-<td>{{ \Carbon\Carbon::parse($partido->fecha)->format('d/m/Y') }}</td>
-
-<td>{{ \Carbon\Carbon::parse($partido->hora)->format('H:i') }}</td>
-
-<td>{{ $partido->equipo->nombre }}</td>
-
-<td>{{ $partido->rival }}</td>
-
-<td>{{ $partido->categoria->nombre }}</td>
-
-<td>{{ $partido->competencia }}</td>
-
-<td>{{ $partido->condicion }}</td>
-
-<td>{{ $partido->estado }}</td>
-
-<td class="text-center space-x-2">
-
-    <a href="{{ route('partidos.edit',$partido) }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded">
-        ✏️
-    </a>
-
-    @if($partido->estado != 'Jugado')
-
-    <a href="{{ route('partidos.resultado',$partido) }}"
-       class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
-        ⚽ Registrar Resultado
-    </a>
-
-@else
-
-    <a href="{{ route('partidos.resultado',$partido) }}"
-       class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-        ✏️ Editar Resultado
-    </a>
-
-<form action="{{ route('partidos.destroy', $partido) }}"
-      method="POST"
-      class="inline formulario-eliminar">
-
-    @csrf
-    @method('DELETE')
-
-    <button type="submit"
-            class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded">
-        🗑️
-    </button>
-
-</form>
+</x-actions>
 
 
+{{-- TABLA --}}
 
-    <a href="{{ route('partidos.estadisticas',$partido) }}"
-       class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">
-        📊 Estadísticas
-    </a>
+<x-table>
 
-@endif
+    <x-table-header>
 
-</td>
-</tr>
+        <x-table-header-cell align="center">
+            Fecha
+        </x-table-header-cell>
 
-@empty
+        <x-table-header-cell align="center">
+            Hora
+        </x-table-header-cell>
 
-<tr>
+        <x-table-header-cell align="center">
+            Equipo
+        </x-table-header-cell>
 
-<td colspan="9" class="text-center p-6 text-gray-500">
+        <x-table-header-cell align="center">
+            Rival
+        </x-table-header-cell>
 
-No hay partidos registrados.
+        <x-table-header-cell align="center">
+            Categoría
+        </x-table-header-cell>
 
-</td>
+        <x-table-header-cell align="center">
+            Competencia
+        </x-table-header-cell>
 
-</tr>
+        <x-table-header-cell align="center">
+            Condición
+        </x-table-header-cell>
 
-@endforelse
+        <x-table-header-cell align="center">
+            Estado
+        </x-table-header-cell>
 
-</tbody>
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-</table>
+    </x-table-header>
 
-</div>
+
+    <tbody>
+
+        @forelse($partidos as $partido)
+
+            <x-table-row>
+
+                <x-table-cell align="center">
+                    {{ \Carbon\Carbon::parse($partido->fecha)->format('d/m/Y') }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ \Carbon\Carbon::parse($partido->hora)->format('H:i') }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->equipo->nombre ?? '-' }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->rival ?? '-' }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->categoria->nombre ?? '-' }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->competencia ?? '-' }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->condicion ?? '-' }}
+                </x-table-cell>
+
+                <x-table-cell align="center">
+                    {{ $partido->estado ?? '-' }}
+                </x-table-cell>
+
+
+                {{-- ACCIONES --}}
+
+                <x-table-cell align="center">
+
+                    <div class="flex justify-center items-center gap-2">
+
+                        {{-- EDITAR PARTIDO --}}
+
+                        <div>
+
+                            <a
+                                href="{{ route('partidos.edit', $partido) }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                title="Editar partido"
+                            >
+                                ✏️
+                            </a>
+
+                        </div>
+
+
+                        @if($partido->estado != 'Jugado')
+
+                            {{-- REGISTRAR RESULTADO --}}
+
+                            <div>
+
+                                <a
+                                    href="{{ route('partidos.resultado', $partido) }}"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                    title="Registrar resultado"
+                                >
+                                    ⚽
+                                </a>
+
+                            </div>
+
+                        @else
+
+                            {{-- EDITAR RESULTADO --}}
+
+                            <div>
+
+                                <a
+                                    href="{{ route('partidos.resultado', $partido) }}"
+                                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                    title="Editar resultado"
+                                >
+                                    ✏️
+                                </a>
+
+                            </div>
+
+
+                            {{-- ELIMINAR --}}
+
+                            <div>
+
+                                <form
+                                    action="{{ route('partidos.destroy', $partido) }}"
+                                    method="POST"
+                                    class="formulario-eliminar"
+                                >
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        type="submit"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                        title="Eliminar partido"
+                                    >
+                                        🗑️
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+
+                            {{-- ESTADÍSTICAS --}}
+
+                            <div>
+
+                                <a
+                                    href="{{ route('partidos.estadisticas', $partido) }}"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg inline-flex items-center justify-center"
+                                    title="Estadísticas"
+                                >
+                                    📊
+                                </a>
+
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </x-table-cell>
+
+            </x-table-row>
+
+        @empty
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="text-center py-10 text-gray-500"
+                >
+                    No hay partidos registrados.
+                </td>
+
+            </tr>
+
+        @endforelse
+
+    </tbody>
+
+</x-table>
 
 @endsection
