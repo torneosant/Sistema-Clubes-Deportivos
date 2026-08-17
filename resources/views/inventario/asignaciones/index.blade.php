@@ -1,215 +1,309 @@
 @extends('layouts.app')
 
-@section('titulo','Asignaciones de Inventario')
+@section('titulo', 'Asignaciones de Inventario')
 
 @section('contenido')
 
+
+{{-- ENCABEZADO --}}
+
 <x-page-header
-title="📤 Asignaciones de Inventario"
-subtitle="Controla dónde se encuentra cada implemento."/>
+    title="📤 Asignaciones de Inventario"
+    subtitle="Controla dónde se encuentra cada implemento."
+>
 
-<div class="flex justify-end mb-5">
 
-    <a href="{{ route('asignaciones-inventario.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl">
+</x-page-header>
 
-        ➕ Nueva Asignación
+
+{{-- ACCIONES --}}
+
+<x-actions>
+
+    <a href="{{ route('asignaciones-inventario.create') }}">
+
+        <x-button color="blue">
+
+            ➕ Nueva Asignación
+
+        </x-button>
 
     </a>
 
-</div>
 
-<a href="{{ route('asignaciones-inventario.excel') }}"
-   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
+    <a href="{{ route('asignaciones-inventario.excel') }}">
 
-    📤 Excel
+        <x-button color="green">
 
-</a>
+            📤 Excel
 
-<x-card>
+        </x-button>
 
-<table class="w-full">
+    </a>
 
-    <thead>
+</x-actions>
 
-        <tr class="border-b">
 
-            <th class="text-left py-3">Artículo</th>
-            <th>Responsable</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th width="140">Acciones</th>
+{{-- TABLA --}}
 
-        </tr>
+<x-table>
 
-    </thead>
+    <x-table-header>
+
+        <x-table-header-cell>
+            Artículo
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Responsable
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Cantidad
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Fecha
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
+
+    </x-table-header>
+
 
     <tbody>
 
-   @forelse($asignaciones as $asignacion)
+    @forelse($asignaciones as $asignacion)
 
-<tr class="border-b hover:bg-gray-50">
-
-    <td>
-        {{ $asignacion->inventario->nombre }}
-    </td>
-
-    <td>
-
-        @if($asignacion->tipo_destino=='Entrenador')
-
-            👨‍🏫 {{ $asignacion->entrenador?->nombres }} {{ $asignacion->entrenador?->apellidos }}
-
-        @elseif($asignacion->tipo_destino=='Bodega')
-
-            📦 Bodega
-
-        @else
-
-            ✍ {{ $asignacion->destino_otro }}
-
-        @endif
-
-    </td>
-
-    <td>
-
-    @php
-        $pendiente = $asignacion->cantidad - $asignacion->cantidad_devuelta;
-    @endphp
-
-    @if($pendiente > 0)
-
-        {{ $pendiente }}
-
-    @else
-
-        <span class="text-green-600 font-semibold">
-            Devuelto
-        </span>
-
-    @endif
-
-</td>
-
-    <td>
-        {{ $asignacion->fecha }}
-    </td>
-
-    {{-- ACCIONES --}}
-    <td class="text-center">
-
-        <div class="flex items-center justify-center gap-2">
-
-<x-button
-    color="green"
-    onclick="window.location='{{ route('asignaciones-inventario.create') }}?inventario={{ $asignacion->inventario_id }}'">
-
-    ➕
-
-</x-button>
+        <x-table-row>
 
 
-            @if(($asignacion->cantidad - $asignacion->cantidad_devuelta) > 0)
+            {{-- ARTÍCULO --}}
 
-                <x-button
-                    color="green"
-                    icon
-                    onclick="devolver({{ $asignacion->id }})">
+            <x-table-cell>
 
-                    ↩️
+                <span class="font-semibold">
 
-                </x-button>
+                    {{ $asignacion->inventario->nombre }}
 
-            @endif
+                </span>
 
-            <form
-    id="devolver-{{ $asignacion->id }}"
-    action="{{ route('asignaciones-inventario.devolver',$asignacion) }}"
-    method="POST"
-    style="display:none;">
+            </x-table-cell>
 
-    @csrf
 
-    <input
-        type="hidden"
-        name="cantidad"
-        id="cantidad-{{ $asignacion->id }}">
+            {{-- RESPONSABLE --}}
 
-</form>
+            <x-table-cell>
 
-            
+                @if($asignacion->tipo_destino == 'Entrenador')
 
-            <form
-                action="{{ route('asignaciones-inventario.destroy',$asignacion) }}"
-                method="POST"
-                class="inline">
+                    👨‍🏫
 
-                @csrf
-                @method('DELETE')
+                    {{ $asignacion->entrenador?->nombres }}
+                    {{ $asignacion->entrenador?->apellidos }}
 
-                <x-button
-                    color="red"
-                    icon
-                    onclick="confirmarEliminar(this)">
+                @elseif($asignacion->tipo_destino == 'Bodega')
 
-                    🗑️
+                    📦 Bodega
 
-                </x-button>
+                @else
 
-            </form>
+                    ✍ {{ $asignacion->destino_otro }}
 
-        </div>
+                @endif
 
-    </td>
+            </x-table-cell>
 
-</tr>
 
-@empty
+            {{-- CANTIDAD --}}
 
-<tr>
+            <x-table-cell align="center">
 
-    <td colspan="5" class="text-center py-6">
+                @php
+                    $pendiente = $asignacion->cantidad - $asignacion->cantidad_devuelta;
+                @endphp
 
-        No existen asignaciones registradas.
+                @if($pendiente > 0)
 
-    </td>
+                    <span class="font-semibold">
 
-</tr>
+                        {{ $pendiente }}
 
-@endforelse
+                    </span>
+
+                @else
+
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+
+                        Devuelto
+
+                    </span>
+
+                @endif
+
+            </x-table-cell>
+
+
+            {{-- FECHA --}}
+
+            <x-table-cell align="center">
+
+                {{ $asignacion->fecha }}
+
+            </x-table-cell>
+
+
+            {{-- ACCIONES --}}
+
+            <x-table-cell align="center">
+
+                <div class="flex justify-center items-center gap-2">
+
+
+                    {{-- NUEVA ASIGNACIÓN DEL MISMO ARTÍCULO --}}
+
+                    <a
+                        href="{{ route('asignaciones-inventario.create') }}?inventario={{ $asignacion->inventario_id }}"
+                    >
+
+                        <x-button
+                            color="green"
+                            icon
+                            title="Nueva asignación"
+                        >
+
+                            ➕
+
+                        </x-button>
+
+                    </a>
+
+
+                    {{-- DEVOLVER --}}
+
+                    @if(($asignacion->cantidad - $asignacion->cantidad_devuelta) > 0)
+
+                        <x-button
+                            type="button"
+                            color="green"
+                            icon
+                            title="Devolver"
+                            onclick="devolver({{ $asignacion->id }})"
+                        >
+
+                            ↩️
+
+                        </x-button>
+
+                    @endif
+
+
+                    {{-- FORMULARIO OCULTO PARA DEVOLUCIÓN --}}
+
+                    <form
+                        id="devolver-{{ $asignacion->id }}"
+                        action="{{ route('asignaciones-inventario.devolver', $asignacion) }}"
+                        method="POST"
+                        class="hidden"
+                    >
+
+                        @csrf
+
+                        <input
+                            type="hidden"
+                            name="cantidad"
+                            id="cantidad-{{ $asignacion->id }}"
+                        >
+
+                    </form>
+
+
+                    {{-- ELIMINAR --}}
+
+                    <form
+                        action="{{ route('asignaciones-inventario.destroy', $asignacion) }}"
+                        method="POST"
+                        class="inline"
+                    >
+
+                        @csrf
+                        @method('DELETE')
+
+                        <x-button
+                            type="button"
+                            color="red"
+                            icon
+                            title="Eliminar asignación"
+                            onclick="confirmarEliminar(this)"
+                        >
+
+                            🗑️
+
+                        </x-button>
+
+                    </form>
+
+
+                </div>
+
+            </x-table-cell>
+
+
+        </x-table-row>
+
+    @empty
+
+        <tr>
+
+            <td
+                colspan="5"
+                class="px-4 py-10 text-center text-gray-500"
+            >
+
+                No existen asignaciones registradas.
+
+            </td>
+
+        </tr>
+
+    @endforelse
 
     </tbody>
 
-</table>
+</x-table>
 
-</x-card>
+
+@push('scripts')
 
 <script>
 
-function devolver(id){
+function devolver(id) {
 
     Swal.fire({
 
-        title:'Cantidad a devolver',
+        title: 'Cantidad a devolver',
 
-        input:'number',
+        input: 'number',
 
-        inputAttributes:{
-            min:1
+        inputAttributes: {
+            min: 1
         },
 
-        showCancelButton:true,
+        showCancelButton: true,
 
-        confirmButtonText:'Devolver',
+        confirmButtonText: 'Devolver',
 
-    }).then((result)=>{
+        cancelButtonText: 'Cancelar'
 
-        if(result.isConfirmed){
+    }).then((result) => {
 
-            document.getElementById('cantidad-'+id).value=result.value;
+        if (result.isConfirmed && result.value) {
 
-            document.getElementById('devolver-'+id).submit();
+            document.getElementById('cantidad-' + id).value = result.value;
+
+            document.getElementById('devolver-' + id).submit();
 
         }
 
@@ -218,5 +312,8 @@ function devolver(id){
 }
 
 </script>
+
+@endpush
+
 
 @endsection

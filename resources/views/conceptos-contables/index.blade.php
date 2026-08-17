@@ -1,149 +1,236 @@
 @extends('layouts.app')
 
-@section('titulo')
-📂 Conceptos Contables
-@endsection
+@section('titulo', 'Conceptos Contables')
 
 @section('contenido')
 
-<div class="flex justify-between items-center mb-6">
 
-    <div>
+{{-- ENCABEZADO --}}
 
-        <h1 class="text-3xl font-bold text-slate-800">
-            📂 Conceptos Contables
-        </h1>
+<x-page-header
+    title="📂 Conceptos Contables"
+    subtitle="Administra los conceptos de ingresos y gastos del club."
+>
 
-        <p class="text-slate-500">
-            Administración de conceptos de ingresos y gastos
-        </p>
+
+    <div class="flex items-center gap-2">
+
+        <x-stat
+            label="Total"
+            :value="$conceptos->count()"
+            icon="📂"
+            color="blue"
+        />
+
+        <x-stat
+            label="Ingresos"
+            :value="$conceptos->where('tipo', 'Ingreso')->count()"
+            icon="💰"
+            color="green"
+        />
+
+        <x-stat
+            label="Gastos"
+            :value="$conceptos->where('tipo', 'Egreso')->count()"
+            icon="💸"
+            color="red"
+        />
+
+        <x-stat
+            label="Activos"
+            :value="$conceptos->where('activo', true)->count()"
+            icon="🟢"
+            color="purple"
+        />
 
     </div>
 
-    <a href="{{ route('conceptos-contables.create') }}"
-       class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg shadow">
+</x-page-header>
 
-        ➕ Nuevo Concepto
+
+@if(session('success'))
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+
+        {{ session('success') }}
+
+    </div>
+
+@endif
+
+
+{{-- ACCIONES --}}
+
+<x-actions>
+
+    <a href="{{ route('conceptos-contables.create') }}">
+
+        <x-button color="green">
+
+            ➕ Nuevo Concepto
+
+        </x-button>
 
     </a>
 
-</div>
+</x-actions>
 
-<div class="bg-white rounded-xl shadow">
 
-<table class="w-full">
+{{-- TABLA --}}
 
-<thead class="bg-slate-800 text-white">
+<x-table>
 
-<tr>
+    <x-table-header>
 
-<th class="p-3">Nombre</th>
+        <x-table-header-cell>
+            Nombre
+        </x-table-header-cell>
 
-<th>Tipo</th>
+        <x-table-header-cell align="center">
+            Tipo
+        </x-table-header-cell>
 
-<th>Descripción</th>
+        <x-table-header-cell>
+            Descripción
+        </x-table-header-cell>
 
-<th>Estado</th>
+        <x-table-header-cell align="center">
+            Estado
+        </x-table-header-cell>
 
-<th class="text-center">Acciones</th>
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
 
-</tr>
+    </x-table-header>
 
-</thead>
 
-<tbody>
+    <tbody>
 
-@forelse($conceptos as $concepto)
+        @forelse($conceptos as $concepto)
 
-<tr class="border-b hover:bg-slate-50">
+            <x-table-row>
 
-<td class="p-3">
 
-{{ $concepto->nombre }}
+                {{-- NOMBRE --}}
 
-</td>
+                <x-table-cell>
 
-<td>
+                    <span class="font-semibold">
 
-@if($concepto->tipo=='Ingreso')
+                        {{ $concepto->nombre }}
 
-<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    </span>
 
-💰 Ingreso
+                </x-table-cell>
 
-</span>
 
-@else
+                {{-- TIPO --}}
 
-<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
+                <x-table-cell align="center">
 
-💸 Gasto
+                    @if($concepto->tipo == 'Ingreso')
 
-</span>
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
 
-@endif
+                            💰 Ingreso
 
-</td>
+                        </span>
 
-<td>
+                    @else
 
-{{ $concepto->descripcion }}
+                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
 
-</td>
+                            💸 Gasto
 
-<td>
+                        </span>
 
-@if($concepto->activo)
+                    @endif
 
-<span class="bg-green-500 text-white px-3 py-1 rounded">
+                </x-table-cell>
 
-Activo
 
-</span>
+                {{-- DESCRIPCIÓN --}}
 
-@else
+                <x-table-cell>
 
-<span class="bg-gray-500 text-white px-3 py-1 rounded">
+                    {{ $concepto->descripcion ?? '-' }}
 
-Inactivo
+                </x-table-cell>
 
-</span>
 
-@endif
+                {{-- ESTADO --}}
 
-</td>
+                <x-table-cell align="center">
 
-<td class="text-center">
+                    @if($concepto->activo)
 
-<a href="{{ route('conceptos-contables.edit',$concepto) }}"
-class="bg-blue-600 text-white px-2 py-1 rounded">
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
 
-✏️
+                            Activo
 
-</a>
+                        </span>
 
-</td>
+                    @else
 
-</tr>
+                        <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm">
 
-@empty
+                            Inactivo
 
-<tr>
+                        </span>
 
-<td colspan="5" class="text-center p-8 text-gray-500">
+                    @endif
 
-No existen conceptos registrados.
+                </x-table-cell>
 
-</td>
 
-</tr>
+                {{-- ACCIONES --}}
 
-@endforelse
+                <x-table-cell align="center">
 
-</tbody>
+                    <div class="flex justify-center items-center gap-2">
 
-</table>
+                        <a href="{{ route('conceptos-contables.edit', $concepto) }}">
 
-</div>
+                            <x-button
+                                color="yellow"
+                                icon
+                                title="Editar concepto"
+                            >
+
+                                ✏️
+
+                            </x-button>
+
+                        </a>
+
+                    </div>
+
+                </x-table-cell>
+
+
+            </x-table-row>
+
+        @empty
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="px-4 py-10 text-center text-gray-500"
+                >
+
+                    No existen conceptos registrados.
+
+                </td>
+
+            </tr>
+
+        @endforelse
+
+    </tbody>
+
+</x-table>
+
 
 @endsection

@@ -4,80 +4,175 @@
 
 @section('contenido')
 
+
+{{-- ENCABEZADO --}}
+
 <x-page-header
     title="📂 Tipos de Documento"
-    subtitle="Administre las categorías para el Centro de Documentación.">
+    subtitle="Administra las categorías para el Centro de Documentación."
+>
 
-    <a href="{{ route('tipos-documento.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl">
-        + Nuevo Tipo
-    </a>
+
+    <div class="flex items-center gap-2">
+
+        <x-stat
+            label="Total"
+            :value="$tipos->count()"
+            icon="📂"
+            color="blue"
+        />
+
+    </div>
 
 </x-page-header>
 
-<x-card>
 
-<table class="w-full">
+@if(session('success'))
 
-    <thead class="border-b">
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
 
-        <tr class="text-left">
+        {{ session('success') }}
 
-            <th class="py-3">Nombre</th>
-            <th>Descripción</th>
-            <th width="180">Acciones</th>
+    </div>
 
-        </tr>
+@endif
 
-    </thead>
+
+{{-- ACCIONES --}}
+
+<x-actions>
+
+    <a href="{{ route('tipos-documento.create') }}">
+
+        <x-button color="blue">
+
+            ➕ Nuevo Tipo
+
+        </x-button>
+
+    </a>
+
+</x-actions>
+
+
+{{-- TABLA --}}
+
+<x-table>
+
+    <x-table-header>
+
+        <x-table-header-cell>
+            Nombre
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Descripción
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
+
+    </x-table-header>
+
 
     <tbody>
 
     @forelse($tipos as $tipo)
 
-        <tr class="border-b hover:bg-gray-50">
+        <x-table-row>
 
-            <td class="py-3 font-medium">
-                {{ $tipo->nombre }}
-            </td>
 
-            <td>
-                {{ $tipo->descripcion }}
-            </td>
+            {{-- NOMBRE --}}
 
-            <td>
+            <x-table-cell>
 
-                <a href="{{ route('tipos-documento.edit',$tipo) }}"
-                   class="text-blue-600 mr-3">
-                    Editar
-                </a>
+                <span class="font-semibold">
 
-                <form action="{{ route('tipos-documento.destroy',$tipo) }}"
-                      method="POST"
-                      class="inline">
+                    {{ $tipo->nombre }}
 
-                    @csrf
-                    @method('DELETE')
+                </span>
 
-                  <button
-    type="button"
-    onclick="confirmarEliminar(this)"
-    class="text-red-600 hover:text-red-800 font-medium">
-    🗑 Eliminar
-</button>
+            </x-table-cell>
 
-                </form>
 
-            </td>
+            {{-- DESCRIPCIÓN --}}
 
-        </tr>
+            <x-table-cell>
+
+                {{ $tipo->descripcion ?? '-' }}
+
+            </x-table-cell>
+
+
+            {{-- ACCIONES --}}
+
+            <x-table-cell align="center">
+
+                <div class="flex justify-center items-center gap-2">
+
+
+                    {{-- EDITAR --}}
+
+                    <a href="{{ route('tipos-documento.edit', $tipo) }}">
+
+                        <x-button
+                            color="yellow"
+                            icon
+                            title="Editar tipo de documento"
+                        >
+
+                            ✏️
+
+                        </x-button>
+
+                    </a>
+
+
+                    {{-- ELIMINAR --}}
+
+                    <form
+                        action="{{ route('tipos-documento.destroy', $tipo) }}"
+                        method="POST"
+                        class="inline"
+                    >
+
+                        @csrf
+                        @method('DELETE')
+
+                        <x-button
+                            type="button"
+                            color="red"
+                            icon
+                            title="Eliminar tipo de documento"
+                            onclick="confirmarEliminar(this)"
+                        >
+
+                            🗑️
+
+                        </x-button>
+
+                    </form>
+
+
+                </div>
+
+            </x-table-cell>
+
+
+        </x-table-row>
 
     @empty
 
         <tr>
 
-            <td colspan="3" class="text-center py-6 text-gray-500">
+            <td
+                colspan="3"
+                class="px-4 py-10 text-center text-gray-500"
+            >
+
                 No existen registros.
+
             </td>
 
         </tr>
@@ -86,8 +181,7 @@
 
     </tbody>
 
-</table>
+</x-table>
 
-</x-card>
 
 @endsection

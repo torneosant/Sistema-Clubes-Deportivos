@@ -1,152 +1,255 @@
 @extends('layouts.app')
 
-@section('titulo','Inventario')
+@section('titulo', 'Inventario')
 
 @section('contenido')
 
+
+{{-- ENCABEZADO --}}
+
 <x-page-header
-title="📦 Inventario"
-subtitle="Administra el inventario del club."/>
+    title="📦 Inventario"
+    subtitle="Administra el inventario del club."
+/>
 
 
+{{-- ACCIONES --}}
 
+<x-actions>
 
-<div class="flex justify-between mb-5">
+    <a href="{{ route('inventario.excel') }}">
 
-    <div class="flex gap-2">
-
-        <a href="{{ route('inventario.excel') }}"
-           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
+        <x-button color="green">
 
             📤 Excel
 
-        </a>
-
-        <a href="#"
-           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl">
-
-            📄 PDF
-
-        </a>
-
-    </div>
-
-    <a href="{{ route('inventario.create') }}"
-       class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl">
-
-        ➕ Nuevo Artículo
+        </x-button>
 
     </a>
 
-</div>
 
-<x-card>
+    <a href="#">
 
-<table class="w-full">
+        <x-button color="red">
 
-    <thead>
+            📄 PDF
 
-        <tr class="border-b">
+        </x-button>
 
-            <th class="text-left py-3">Artículo</th>
-            <th>Tipo</th>
-            <th class="text-center">Stock</th>
-            <th>Estado</th>
-            <th>Ubicación</th>
-            <th width="220">Acciones</th>
+    </a>
 
-        </tr>
 
-    </thead>
+    <a href="{{ route('inventario.create') }}">
+
+        <x-button color="blue">
+
+            ➕ Nuevo Artículo
+
+        </x-button>
+
+    </a>
+
+</x-actions>
+
+
+{{-- TABLA --}}
+
+<x-table>
+
+    <x-table-header>
+
+        <x-table-header-cell>
+            Artículo
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Tipo
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Stock
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Estado
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Ubicación
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
+
+    </x-table-header>
+
 
     <tbody>
 
     @forelse($articulos as $articulo)
 
-        <tr class="border-b hover:bg-gray-50">
-
-            <td>{{ $articulo->nombre }}</td>
-
-            <td>{{ $articulo->tipoArticulo->nombre }}</td>
-
-<td class="text-center">
-
-    <div class="flex justify-center items-center gap-2">
-
-        <span class="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold">
-            📦 {{ $articulo->cantidad }}
-        </span>
-
-        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
-            🔴 {{ $articulo->asignado }}
-        </span>
-
-        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-            🟢 {{ $articulo->disponible }}
-        </span>
-
-    </div>
-
-    <div class="flex justify-center gap-6 text-xs text-gray-500 mt-1">
-        <span>Total</span>
-        <span>Asignados</span>
-        <span>Disponibles</span>
-    </div>
-
-</td>
+        <x-table-row>
 
 
-            <td>{{ $articulo->estado }}</td>
+            {{-- ARTÍCULO --}}
 
-            <td>{{ $articulo->ubicacion }}</td>
-<td>
+            <x-table-cell>
 
-<div class="flex items-center gap-2 whitespace-nowrap">
+                <span class="font-semibold">
 
-    <a href="{{ route('inventario.edit',$articulo) }}"
-       class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                    {{ $articulo->nombre }}
 
-        ✏
+                </span>
 
-    </a>
-
-    <x-button
-    color="gray"
-    onclick="window.location='{{ route('inventario.trazabilidad',$articulo) }}'">
-
-    👁
-
-</x-button>
+            </x-table-cell>
 
 
-    <form action="{{ route('inventario.destroy',$articulo) }}"
-          method="POST">
+            {{-- TIPO --}}
 
-        @csrf
-        @method('DELETE')
+            <x-table-cell>
 
-        <button
-            type="button"
-            onclick="confirmarEliminar(this)"
-            class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg">
+                {{ $articulo->tipoArticulo->nombre ?? '-' }}
 
-            🗑
+            </x-table-cell>
 
-        </button>
 
-    </form>
+            {{-- STOCK --}}
 
-</div>
+            <x-table-cell align="center">
 
-</td>
+                <div class="flex justify-center items-center gap-2">
 
-        </tr>
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold">
+
+                        📦 {{ $articulo->cantidad }}
+
+                    </span>
+
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+
+                        🔴 {{ $articulo->asignado }}
+
+                    </span>
+
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+
+                        🟢 {{ $articulo->disponible }}
+
+                    </span>
+
+                </div>
+
+                <div class="flex justify-center gap-6 text-xs text-gray-500 mt-1">
+
+                    <span>Total</span>
+
+                    <span>Asignados</span>
+
+                    <span>Disponibles</span>
+
+                </div>
+
+            </x-table-cell>
+
+
+            {{-- ESTADO --}}
+
+            <x-table-cell>
+
+                {{ $articulo->estado ?? '-' }}
+
+            </x-table-cell>
+
+
+            {{-- UBICACIÓN --}}
+
+            <x-table-cell>
+
+                {{ $articulo->ubicacion ?? '-' }}
+
+            </x-table-cell>
+
+
+            {{-- ACCIONES --}}
+
+            <x-table-cell align="center">
+
+                <div class="flex justify-center items-center gap-2">
+
+
+                    {{-- EDITAR --}}
+
+                    <a href="{{ route('inventario.edit', $articulo) }}">
+
+                        <x-button
+                            color="yellow"
+                            icon
+                            title="Editar artículo"
+                        >
+
+                            ✏️
+
+                        </x-button>
+
+                    </a>
+
+
+                    {{-- TRAZABILIDAD --}}
+
+                    <x-button
+                        color="gray"
+                        icon
+                        title="Ver trazabilidad"
+                        onclick="window.location='{{ route('inventario.trazabilidad', $articulo) }}'"
+                    >
+
+                        👁️
+
+                    </x-button>
+
+
+                    {{-- ELIMINAR --}}
+
+                    <form
+                        action="{{ route('inventario.destroy', $articulo) }}"
+                        method="POST"
+                        class="inline"
+                    >
+
+                        @csrf
+                        @method('DELETE')
+
+                        <x-button
+                            type="button"
+                            color="red"
+                            icon
+                            title="Eliminar artículo"
+                            onclick="confirmarEliminar(this)"
+                        >
+
+                            🗑️
+
+                        </x-button>
+
+                    </form>
+
+
+                </div>
+
+            </x-table-cell>
+
+
+        </x-table-row>
 
     @empty
 
         <tr>
 
-            <td colspan="6" class="text-center py-6">
+            <td
+                colspan="6"
+                class="px-4 py-10 text-center text-gray-500"
+            >
 
                 No existen artículos registrados.
 
@@ -158,8 +261,7 @@ subtitle="Administra el inventario del club."/>
 
     </tbody>
 
-</table>
+</x-table>
 
-</x-card>
 
 @endsection

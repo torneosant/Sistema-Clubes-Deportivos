@@ -117,7 +117,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-   <div x-data="{ openConta: true }">
+   <div x-data="{ openConta: false }">
 
 @if(auth()->user()->tienePermiso('contabilidad.ver'))
 
@@ -173,7 +173,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
      
-<div x-data="{ openConfig: true }">
+<div x-data="{ openConfig: false }">
 
 @if(auth()->user()->tienePermiso('configuracion.ver'))
 
@@ -251,7 +251,7 @@ class="block px-10 py-2 hover:bg-slate-800">
 
         <span>📦 Inventario</span>
 
-        <span x-text="open ? '−' : '+'"></span>
+        <span x-text="open ? '▼' : '▶'"></span>
 
     </button>
 

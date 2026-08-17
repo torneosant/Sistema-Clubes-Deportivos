@@ -1,157 +1,257 @@
 @extends('layouts.app')
 
-@section('titulo','Centro de Documentación')
+@section('titulo', 'Centro de Documentación')
 
 @section('contenido')
 
+{{-- ENCABEZADO --}}
+
 <x-page-header
 title="📚 Centro de Documentación"
-subtitle="Documentos oficiales del club">
+subtitle="Documentos oficiales del club"
 
-<a href="{{ route('documentos.create') }}"
-class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl">
+>
 
-+ Nuevo Documento
 
-</a>
+<div class="flex items-center gap-2">
 
-</x-page-header>
-
-<div class="mb-5">
-
-    <input
-        type="text"
-        id="buscarDocumento"
-        placeholder="🔍 Buscar documentos..."
-        class="w-full md:w-96 rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500">
+    <x-stat
+        label="Documentos"
+        :value="$documentos->count()"
+        icon="📚"
+        color="blue"
+    />
 
 </div>
 
-<x-card>
 
-<table class="w-full">
+</x-page-header>
 
-<thead>
+@if(session('success'))
 
-<tr class="border-b">
-<th>Título</th>
+<div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
 
-<th>Tipo</th>
+    {{ session('success') }}
 
-<th>Archivo</th>
-<th>Fecha</th>
+</div>
 
-<th width="220">Acciones</th>
+@endif
 
-</tr>
+{{-- ACCIONES --}}
 
-</thead>
+<x-actions>
+
+
+<a href="{{ route('documentos.create') }}">
+
+    <x-button color="blue">
+
+        ➕ Nuevo Documento
+
+    </x-button>
+
+</a>
+
+</x-actions>
+
+{{-- BÚSQUEDA --}}
+
+<x-filter
+:action="route('documentos.index')"
+
+>
+
+
+<x-input
+    name="buscar"
+    id="buscarDocumento"
+    placeholder="🔍 Buscar documentos..."
+/>
+
+</x-filter>
+
+{{-- TABLA --}}
+
+<x-table>
+
+<x-table-header>
+
+    <x-table-header-cell>
+        Título
+    </x-table-header-cell>
+
+    <x-table-header-cell>
+        Tipo
+    </x-table-header-cell>
+
+    <x-table-header-cell>
+        Archivo
+    </x-table-header-cell>
+
+    <x-table-header-cell>
+        Fecha
+    </x-table-header-cell>
+
+    <x-table-header-cell align="center">
+        Acciones
+    </x-table-header-cell>
+
+</x-table-header>
+
 
 <tbody>
 
 @forelse($documentos as $doc)
 
-<tr class="border-b hover:bg-gray-50">
+    <x-table-row>
 
-<td>{{ $doc->titulo }}</td>
 
-<td>{{ $doc->tipoDocumento->nombre }}</td>
+        {{-- TÍTULO --}}
 
-<td>
+        <x-table-cell>
 
-    <span class="inline-flex items-center gap-2">
+            <span class="font-semibold">
 
-        📄
+                {{ $doc->titulo }}
 
-        {{ basename($doc->archivo) }}
+            </span>
 
-    </span>
+        </x-table-cell>
 
-</td>
 
-<td>{{ $doc->fecha }}</td>
+        {{-- TIPO --}}
 
-<td>
+        <x-table-cell>
 
-<div class="flex items-center gap-2">
+            {{ $doc->tipoDocumento->nombre ?? '-' }}
 
-    <a href="{{ asset('storage/'.$doc->archivo) }}"
-       target="_blank"
-       class="inline-flex items-center px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition">
+        </x-table-cell>
 
-        👁
-    </a>
 
-    <a href="{{ asset('storage/'.$doc->archivo) }}"
-       download
-       class="inline-flex items-center px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition">
+        {{-- ARCHIVO --}}
 
-        ⬇
+        <x-table-cell>
 
-    </a>
+            <span class="inline-flex items-center gap-2">
 
-    <form action="{{ route('documentos.destroy',$doc) }}"
-          method="POST"
-          class="inline">
+                📄
 
-        @csrf
-        @method('DELETE')
+                {{ basename($doc->archivo) }}
 
-        <button
-            type="button"
-            onclick="confirmarEliminar(this)"
-            class="inline-flex items-center px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition">
+            </span>
 
-            🗑
+        </x-table-cell>
 
-        </button>
 
-    </form>
+        {{-- FECHA --}}
 
-</div>
+        <x-table-cell>
 
-</td>
-</tr>
+            {{ $doc->fecha }}
+
+        </x-table-cell>
+
+
+        {{-- ACCIONES --}}
+
+        <x-table-cell align="center">
+
+            <div class="flex justify-center items-center gap-2">
+
+
+                {{-- VER --}}
+
+                <a
+                    href="{{ asset('storage/'.$doc->archivo) }}"
+                    target="_blank"
+                >
+
+                    <x-button
+                        color="green"
+                        icon
+                        title="Ver documento"
+                    >
+
+                        👁️
+
+                    </x-button>
+
+                </a>
+
+
+                {{-- DESCARGAR --}}
+
+                <a
+                    href="{{ asset('storage/'.$doc->archivo) }}"
+                    download
+                >
+
+                    <x-button
+                        color="blue"
+                        icon
+                        title="Descargar documento"
+                    >
+
+                        ⬇️
+
+                    </x-button>
+
+                </a>
+
+
+                {{-- ELIMINAR --}}
+
+                <form
+                    action="{{ route('documentos.destroy', $doc) }}"
+                    method="POST"
+                    class="inline"
+                >
+
+                    @csrf
+                    @method('DELETE')
+
+                    <x-button
+                        type="button"
+                        color="red"
+                        icon
+                        title="Eliminar documento"
+                        onclick="confirmarEliminar(this)"
+                    >
+
+                        🗑️
+
+                    </x-button>
+
+                </form>
+
+
+            </div>
+
+        </x-table-cell>
+
+
+    </x-table-row>
 
 @empty
 
-<tr>
+    <tr>
 
-<td colspan="4" class="text-center py-6">
+        <td
+            colspan="5"
+            class="px-4 py-10 text-center text-gray-500"
+        >
 
-No existen documentos.
+            No existen documentos.
 
-</td>
+        </td>
 
-</tr>
+    </tr>
 
 @endforelse
 
 </tbody>
 
-</table>
 
-</x-card>
-@push('scripts')
-
-<script>
-
-document.getElementById('buscarDocumento').addEventListener('keyup',function(){
-
-let texto=this.value.toLowerCase();
-
-document.querySelectorAll("tbody tr").forEach(function(fila){
-
-fila.style.display=fila.innerText.toLowerCase().includes(texto)
-? ""
-: "none";
-
-});
-
-});
-
-</script>
-
-@endpush
+</x-table>
 
 @endsection
