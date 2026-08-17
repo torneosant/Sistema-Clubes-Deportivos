@@ -4,156 +4,139 @@
 
 @section('contenido')
 
-<div class="mb-8">
+<x-page-header
+    title="👥 Gestión de Jugadores"
+    subtitle="Administra todos los jugadores registrados en tu club."
+>
+    <div class="flex items-center gap-2">
 
-    <h1 class="text-3xl font-bold text-slate-800">
-        👥 Gestión de Jugadores
-    </h1>
+        <x-stat
+            label="Total"
+            :value="$totalJugadores"
+            icon="👥"
+            color="blue"
+        />
 
-    <p class="text-gray-500 mt-2">
-        Administra todos los jugadores registrados en tu club.
-    </p>
+        <x-stat
+            label="Activos"
+            :value="$totalActivos"
+            icon="🟢"
+            color="green"
+        />
 
-</div>
+        <x-stat
+            label="Inactivos"
+            :value="$totalJugadores - $totalActivos"
+            icon="🔴"
+            color="red"
+        />
+
+        <x-stat
+            label="Categorías"
+            :value="$totalCategorias"
+            icon="📂"
+            color="purple"
+        />
+
+    </div>
+</x-page-header>
+
 
 @if(session('success'))
-<div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
-    {{ session('success') }}
-</div>
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+        {{ session('success') }}
+    </div>
+
 @endif
 
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+{{-- BOTONES --}}
 
-    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-6 border border-gray-100">
-        <p class="text-gray-500 text-sm">
-            Total Jugadores
-        </p>
+<div class="flex flex-wrap items-center gap-2 mb-6">
 
-        <h2 class="text-4xl font-bold text-blue-600 mt-2">
-            {{ $totalJugadores }}
-        </h2>
+    <a href="{{ route('jugadores.create') }}">
 
-    </div>
+        <x-button color="blue">
+            ➕ Nuevo Jugador
+        </x-button>
 
+    </a>
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-600">
+    <a href="{{ route('jugadores.exportExcel') }}">
 
-        <p class="text-gray-500 text-sm">
-            Activos
-        </p>
+        <x-button color="green">
+            📊 Excel
+        </x-button>
 
-        <h2 class="text-4xl font-bold text-green-600 mt-2">
-            {{ $totalActivos }}
-        </h2>
+    </a>
 
-    </div>
+    <a href="{{ route('jugadores.pdf') }}">
 
+        <x-button color="red">
+            📄 PDF
+        </x-button>
 
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-red-500">
+    </a>
 
-        <p class="text-gray-500 text-sm">
-            Inactivos
-        </p>
+    <a
+        href="{{ route('jugadores.print') }}"
+        target="_blank"
+    >
 
-        <h2 class="text-4xl font-bold text-red-500 mt-2">
+        <x-button color="gray">
+            🖨️ Imprimir
+        </x-button>
 
-            {{ $totalJugadores - $totalActivos }}
-
-        </h2>
-
-    </div>
-
-
-    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-purple-600">
-
-        <p class="text-gray-500 text-sm">
-            Categorías
-        </p>
-
-        <h2 class="text-4xl font-bold text-purple-600 mt-2">
-
-            {{ $totalCategorias }}
-
-        </h2>
-
-    </div>
+    </a>
 
 </div>
 
 
-<div class="flex flex-wrap gap-3 mb-6">
+{{-- FILTROS --}}
 
-    <a href="{{ route('jugadores.create') }}"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
 
-        ➕ Nuevo Jugador
-
-    </a>
-
-
-    <a href="{{ route('jugadores.exportExcel') }}"
-        class="bg-  green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-
-        📊 Exportar Excel
-
-    </a>
-
-<a href="{{ route('jugadores.pdf') }}"
-   class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-
-    📄 Exportar PDF
-
-</a>
-
-<a href="{{ route('jugadores.print') }}"
-   target="_blank"
-   class="bg-gray-700 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-
-    🖨️ Imprimir
-
-</a>
-
-
-
-
-
-</div>
-<div class="bg-white rounded-xl shadow p-6 mb-8">
-
-    <form method="GET" action="{{ route('jugadores.index') }}">
+    <form
+        method="GET"
+        action="{{ route('jugadores.index') }}"
+    >
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
 
-            {{-- Buscar --}}
             <div class="md:col-span-2">
 
-                <input
-                    type="text"
+                <x-input
                     name="buscar"
-                    value="{{ $buscar }}"
+                    :value="$buscar"
                     placeholder="🔍 Buscar por nombre, documento o teléfono..."
-                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
+                />
 
             </div>
 
-            {{-- Categoría --}}
+
             <div>
+
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                    Categoría
+                </label>
 
                 <select
                     name="categoria"
-                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
 
-                    <option value="">Todas las categorías</option>
+                    <option value="">
+                        Todas las categorías
+                    </option>
 
                     @foreach($categorias as $cat)
 
                         <option
                             value="{{ $cat->id }}"
-                            {{ $categoria == $cat->id ? 'selected' : '' }}>
-
+                            @selected($categoria == $cat->id)
+                        >
                             {{ $cat->nombre }}
-
                         </option>
 
                     @endforeach
@@ -162,23 +145,29 @@
 
             </div>
 
-            {{-- Equipo --}}
+
             <div>
+
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                    Equipo
+                </label>
 
                 <select
                     name="equipo"
-                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
 
-                    <option value="">Todos los equipos</option>
+                    <option value="">
+                        Todos los equipos
+                    </option>
 
                     @foreach($equipos as $eq)
 
                         <option
                             value="{{ $eq->id }}"
-                            {{ $equipo == $eq->id ? 'selected' : '' }}>
-
+                            @selected($equipo == $eq->id)
+                        >
                             {{ $eq->nombre }}
-
                         </option>
 
                     @endforeach
@@ -187,16 +176,35 @@
 
             </div>
 
-            {{-- Estado --}}
+
             <div>
+
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                    Estado
+                </label>
 
                 <select
                     name="estado"
-                    class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3">
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
 
-                    <option value="">Todos</option>
-                    <option value="1" {{ $estado == '1' ? 'selected' : '' }}>Activos</option>
-                    <option value="0" {{ $estado == '0' ? 'selected' : '' }}>Inactivos</option>
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option
+                        value="1"
+                        @selected($estado == '1')
+                    >
+                        Activos
+                    </option>
+
+                    <option
+                        value="0"
+                        @selected($estado == '0')
+                    >
+                        Inactivos
+                    </option>
 
                 </select>
 
@@ -204,21 +212,22 @@
 
         </div>
 
-        <div class="flex gap-3 mt-5">
 
-            <button
-                type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+        <div class="flex gap-2 mt-4">
 
-                🔍 Buscar
+            <button type="submit">
+
+                <x-button color="blue">
+                    🔍 Buscar
+                </x-button>
 
             </button>
 
-            <a
-                href="{{ route('jugadores.index') }}"
-                class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg">
+            <a href="{{ route('jugadores.index') }}">
 
-                Limpiar
+                <x-button color="gray">
+                    Limpiar
+                </x-button>
 
             </a>
 
@@ -227,187 +236,243 @@
     </form>
 
 </div>
-<div class="bg-white rounded-xl shadow overflow-hidden">
 
-   <table class="min-w-full bg-white rounded-xl overflow-hidden shadow">
 
-        <thead class="bg-slate-800 text-white">
+{{-- TABLA --}}
 
-            <tr>
+<x-table>
 
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Foto</th>
-              <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Jugador</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Documento</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Edad</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Categoría</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Equipo</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Estado</th>
-                <th class="px-5 py-4 text-left font-semibold uppercase text-sm tracking-wide">Acciones</th>
+ <x-table-header>
 
-            </tr>
+        <x-table-header-cell>
+            Foto
+        </x-table-header-cell>
 
-        </thead>
+        <x-table-header-cell>
+            Jugador
+        </x-table-header-cell>
 
-        <tbody>
+        <x-table-header-cell align="center">
+            Documento
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Edad
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Categoría
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Equipo
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Estado
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
+
+   </x-table-header>
+
+
+    <tbody>
 
         @forelse($jugadores as $jugador)
 
-            <tr class="border-b hover:bg-slate-50 transition">
+            <x-table-row>
 
-                <td class="px-5 py-4">
+                {{-- FOTO --}}
+
+                <x-table-cell>
 
                     @if($jugador->foto)
 
                         <img
                             src="{{ asset('storage/'.$jugador->foto) }}"
-                            class="w-12 h-12 rounded-full object-cover">
+                            class="w-10 h-10 rounded-full object-cover"
+                            alt="Foto"
+                        >
 
                     @else
 
-                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">
-
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                             👤
-
                         </div>
 
                     @endif
 
-                </td>
+                </x-table-cell>
 
-              <td class="px-5 py-4">
 
-                    <div class="font-semibold">
+                {{-- JUGADOR --}}
 
+                <x-table-cell>
+
+                    <div class="font-semibold text-slate-800">
                         {{ $jugador->nombres }} {{ $jugador->apellidos }}
-
                     </div>
 
-                    <div class="text-sm text-gray-500">
-
+                    <div class="text-xs text-gray-500">
                         📞 {{ $jugador->telefono ?? 'Sin teléfono' }}
-
                     </div>
 
-                </td>
+                </x-table-cell>
 
-                <td class="text-center">
 
+                {{-- DOCUMENTO --}}
+
+                <x-table-cell align="center">
                     {{ $jugador->numero_documento }}
+                </x-table-cell>
 
-                </td>
 
-              <td class="px-5 py-4">
+                {{-- EDAD --}}
 
-                    {{ $jugador->fecha_nacimiento ? \Carbon\Carbon::parse($jugador->fecha_nacimiento)->age.' años' : '-' }}
+                <x-table-cell>
 
-                </td>
+                    {{ $jugador->fecha_nacimiento
+                        ? \Carbon\Carbon::parse($jugador->fecha_nacimiento)->age . ' años'
+                        : '-'
+                    }}
 
-                <td class="px-5 py-4">
+                </x-table-cell>
 
+
+                {{-- CATEGORÍA --}}
+
+                <x-table-cell>
                     {{ $jugador->categoria->nombre ?? '-' }}
+                </x-table-cell>
 
-                </td>
 
-            <td class="px-5 py-4">
+                {{-- EQUIPO --}}
 
+                <x-table-cell>
                     {{ $jugador->equipo->nombre ?? '-' }}
+                </x-table-cell>
 
-                </td>
 
-                <td class="px-5 py-4">
+                {{-- ESTADO --}}
 
-    <form action="{{ route('jugadores.estado', $jugador) }}"
-          method="POST"
-          class="inline">
+                <x-table-cell align="center">
 
-        @csrf
-        @method('PATCH')
+                    <form
+                        action="{{ route('jugadores.estado', $jugador) }}"
+                        method="POST"
+                        class="inline"
+                    >
 
-        @if($jugador->activo)
+                        @csrf
+                        @method('PATCH')
 
-            <button
-                type="submit"
-                class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-full text-sm font-semibold transition">
+                        @if($jugador->activo)
 
-                🟢 Activo
+                            <x-button
+                                color="green"
+                                type="submit"
+                            >
+                                🟢 Activo
+                            </x-button>
 
-            </button>
+                        @else
 
-        @else
+                            <x-button
+                                color="red"
+                                type="submit"
+                            >
+                                🔴 Inactivo
+                            </x-button>
 
-            <button
-                type="submit"
-                class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-full text-sm font-semibold transition">
+                        @endif
 
-                🔴 Inactivo
+                    </form>
 
-            </button>
+                </x-table-cell>
 
-        @endif
 
-    </form>
+                {{-- ACCIONES --}}
 
-</td>   
+                <x-table-cell align="center">
 
-                <td class="text-center">
-                                        <div class="flex justify-center gap-2">
+                    <div class="flex justify-center items-center gap-2">
 
-                        <a href="{{ route('jugadores.show', $jugador) }}"
-                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg"
-                           title="Ver">
-                            👁️
+                        <a href="{{ route('jugadores.show', $jugador) }}">
+
+                            <x-button
+                                color="blue"
+                                icon
+                                title="Ver jugador"
+                            >
+                                👁️
+                            </x-button>
+
                         </a>
 
-                        <a href="{{ route('jugadores.edit', $jugador) }}"
-                           class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg"
-                           title="Editar">
-                            ✏️
+
+                        <a href="{{ route('jugadores.edit', $jugador) }}">
+
+                            <x-button
+                                color="yellow"
+                                icon
+                                title="Editar jugador"
+                            >
+                                ✏️
+                            </x-button>
+
                         </a>
 
-                        <form action="{{ route('jugadores.destroy', $jugador) }}"
-                              method="POST"
-                              class="inline formulario-eliminar">
+
+                        <form
+                            action="{{ route('jugadores.destroy', $jugador) }}"
+                            method="POST"
+                            class="inline formulario-eliminar"
+                        >
 
                             @csrf
                             @method('DELETE')
 
-                            <button
+                            <x-button
+                                color="red"
+                                icon
                                 type="submit"
-                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg"
-                                title="Eliminar">
-
+                                title="Eliminar jugador"
+                            >
                                 🗑️
-
-                            </button>
+                            </x-button>
 
                         </form>
 
                     </div>
 
-                </td>
+                </x-table-cell>
 
-            </tr>
+            </x-table-row>
 
         @empty
 
             <tr>
 
-                <td colspan="8" class="text-center py-10 text-gray-500">
-
+                <td
+                    colspan="8"
+                    class="px-4 py-10 text-center text-gray-500"
+                >
                     No hay jugadores registrados.
-
                 </td>
 
             </tr>
 
         @endforelse
 
-        </tbody>
+    </tbody>
 
-    </table>
+</x-table>
 
-</div>
 
+{{-- PAGINACIÓN --}}
 
 <div class="mt-6">
 

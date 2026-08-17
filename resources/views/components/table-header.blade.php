@@ -1,9 +1,9 @@
-<thead class="bg-slate-100">
+<thead class="bg-slate-100 border-b border-gray-200">
 
-<tr>
+    <tr>
 
-    {{ $slot }}
+        {{ $slot }}
 
-</tr>
+    </tr>
 
-</thead>    
+</thead>
