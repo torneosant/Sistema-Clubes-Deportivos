@@ -14,11 +14,17 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withMiddleware(function (Middleware $middleware): void {
 
-        $middleware->alias([
-            'permiso' => \App\Http\Middleware\PermisoMiddleware::class,
-        ]);
+    $middleware->alias([
+        'permiso' => \App\Http\Middleware\PermisoMiddleware::class,
+    ]);
 
-    })
+    $middleware->web(
+        append: [
+            \App\Http\Middleware\EstablecerAnioClub::class,
+        ]
+    );
+
+})
 
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

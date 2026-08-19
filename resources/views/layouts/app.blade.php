@@ -323,6 +323,10 @@ class="block px-10 py-2 hover:bg-slate-800">
 
     <div class="flex items-center gap-4">
 
+    <div class="flex items-center gap-4">
+
+    <x-year-selector />
+
     <div x-data="{ openPerfil: false }" class="relative">
 
         <button
