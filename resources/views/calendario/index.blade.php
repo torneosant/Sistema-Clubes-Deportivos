@@ -49,6 +49,7 @@
 
 <script>
 window.eventosCalendario = @json($eventos);
+window.anioTrabajo = @json($anio ?? date('Y'));
 </script>
 
 @endsection

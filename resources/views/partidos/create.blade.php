@@ -69,10 +69,13 @@
 
                     <label class="font-semibold">Fecha</label>
 
-                    <input
-                        type="date"
-                        name="fecha"
-                        class="w-full border rounded-lg p-2">
+                   <input
+    type="date"
+    name="fecha"
+    value="{{ old('fecha') }}"
+    min="{{ $anioTrabajo }}-01-01"
+    max="{{ $anioTrabajo }}-12-31"
+    class="w-full border rounded-lg p-2">
 
                 </div>
 

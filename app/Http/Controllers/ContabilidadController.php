@@ -13,10 +13,19 @@ class ContabilidadController extends Controller
 {
     $clubId = auth()->user()->club_id;
 
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
     $query = Contabilidad::with([
         'concepto',
         'jugador'
-    ])->where('club_id', $clubId);
+    ])
+    ->where('club_id', $clubId)
+    ->whereYear('fecha', $anio);
 
     if ($request->filled('tipo')) {
         $query->where('tipo', $request->tipo);
@@ -40,10 +49,12 @@ class ContabilidadController extends Controller
         ->get();
 
     $ingresos = Contabilidad::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
         ->where('tipo', 'Ingreso')
         ->sum('valor');
 
     $gastos = Contabilidad::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
         ->where('tipo', 'Egreso')
         ->sum('valor');
 
@@ -61,11 +72,11 @@ class ContabilidadController extends Controller
             'ingresos',
             'gastos',
             'saldo',
-            'conceptos'
+            'conceptos',
+            'anio'
         )
     );
 }
-
    public function create()
 {
     $clubId = auth()->user()->club_id;

@@ -101,11 +101,13 @@
 
         <label class="font-semibold">Fecha *</label>
 
-        <input
-            type="date"
-            name="fecha"
-            value="{{ old('fecha', $entrenamiento->fecha ?? '') }}"
-            class="w-full border rounded-lg px-4 py-3">
+       <input
+    type="date"
+    name="fecha"
+    value="{{ old('fecha', $entrenamiento->fecha ?? '') }}"
+    min="{{ $anioTrabajo }}-01-01"
+    max="{{ $anioTrabajo }}-12-31"
+    class="w-full border rounded-lg px-4 py-3">
 
     </div>
 
@@ -267,11 +269,13 @@
             Repetir hasta
         </label>
 
-        <input
-            type="date"
-            name="fecha_fin"
-            value="{{ old('fecha_fin',$entrenamiento->fecha_fin ?? '') }}"
-            class="w-full border rounded-lg px-4 py-3 mt-2">
+      <input
+    type="date"
+    name="fecha_fin"
+    value="{{ old('fecha_fin',$entrenamiento->fecha_fin ?? '') }}"
+    min="{{ $anioTrabajo }}-01-01"
+    max="{{ $anioTrabajo }}-12-31"
+    class="w-full border rounded-lg px-4 py-3 mt-2">
 
     </div>
 

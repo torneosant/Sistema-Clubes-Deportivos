@@ -14,10 +14,19 @@ class EntrenamientoController extends Controller
      * Display a listing of the resource.
      */
 public function index()
+
 {
     $clubId = auth()->user()->club_id;
 
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
     $entrenamientos = Entrenamiento::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
         ->with([
             'equipo',
             'entrenador',
@@ -26,7 +35,10 @@ public function index()
         ->orderBy('fecha', 'desc')
         ->paginate(10);
 
-    return view('entrenamientos.index', compact('entrenamientos'));
+    return view(
+        'entrenamientos.index',
+        compact('entrenamientos')
+    );
 }
 
 public function create()

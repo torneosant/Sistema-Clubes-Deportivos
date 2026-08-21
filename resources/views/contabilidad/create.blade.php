@@ -23,10 +23,22 @@
     <div>
     <label class="font-semibold">Fecha</label>
 
-    <input
+    @php
+    $clubId = auth()->user()->club_id;
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
+    $fechaInicial = $anio . '-01-01';
+@endphp
+
+<input
     type="date"
     name="fecha"
-    value="{{ date('Y-m-d') }}"
+    value="{{ old('fecha', $fechaInicial) }}"
     class="w-full border rounded-lg p-2">
     </div>
 

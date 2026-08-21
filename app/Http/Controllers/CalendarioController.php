@@ -7,23 +7,34 @@ use App\Models\Partido;
 
 class CalendarioController extends Controller
 {
- public function index()
+public function index()
 {
     $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
 
     $eventos = [];
 
 
+    // ==========================
     // ENTRENAMIENTOS
+    // ==========================
+
     foreach (
-    Entrenamiento::where('club_id', $clubId)
-        ->with(['equipo', 'entrenador'])
-        ->get() as $e
-) {
+        Entrenamiento::where('club_id', $clubId)
+            ->whereYear('fecha', $anio)
+            ->with(['equipo', 'entrenador'])
+            ->get() as $e
+    ) {
 
         $eventos[] = [
 
-            'title' => '🏃 '.$e->equipo->nombre,
+            'title' => '🏃 ' . $e->equipo->nombre,
 
             'start' => $e->fecha,
 
@@ -46,19 +57,23 @@ class CalendarioController extends Controller
             ]
 
         ];
-
     }
 
+
+    // ==========================
     // PARTIDOS
+    // ==========================
+
     foreach (
-    Partido::where('club_id', $clubId)
-        ->with(['equipo', 'categoria'])
-        ->get() as $p
-) {
+        Partido::where('club_id', $clubId)
+            ->whereYear('fecha', $anio)
+            ->with(['equipo', 'categoria'])
+            ->get() as $p
+    ) {
 
         $eventos[] = [
 
-            'title' => '⚽ '.$p->equipo->nombre.' vs '.$p->rival,
+            'title' => '⚽ ' . $p->equipo->nombre . ' vs ' . $p->rival,
 
             'start' => $p->fecha,
 
@@ -89,22 +104,25 @@ class CalendarioController extends Controller
             ]
 
         ];
-
     }
 
-    $proximosEventos = collect($eventos)
-    ->sortBy('start')
-    ->take(10);
 
-    return view(
+    // ==========================
+    // PRÓXIMOS EVENTOS
+    // ==========================
+
+    $proximosEventos = collect($eventos)
+        ->sortBy('start')
+        ->take(10);
+
+
+   return view(
     'calendario.index',
     compact(
         'eventos',
-        'proximosEventos'
+        'proximosEventos',
+        'anio'
     )
 );
-}   
-
-        
-    }
-    
+}
+}

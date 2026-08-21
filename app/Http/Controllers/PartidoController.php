@@ -6,6 +6,7 @@ use App\Models\Partido;
 use Illuminate\Http\Request;
 use App\Models\Equipo;
 use App\Models\Categoria;
+use App\Models\Configuracion;
 
 
 class PartidoController extends Controller
@@ -17,7 +18,15 @@ public function index()
 {
     $clubId = auth()->user()->club_id;
 
+    $configuracion = Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
     $partidos = Partido::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
         ->with(['equipo', 'categoria'])
         ->orderByDesc('fecha')
         ->orderByDesc('hora')

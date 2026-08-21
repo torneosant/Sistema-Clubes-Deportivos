@@ -19,7 +19,12 @@ class EstablecerAnioClub
 
             $anioConfigurado = $configuracion?->anio ?? date('Y');
 
-            $anioTrabajo = session('anio_trabajo', $anioConfigurado);
+           $anioTrabajo = $request->query(
+    'anio',
+    session('anio_trabajo', $anioConfigurado)
+);
+
+session(['anio_trabajo' => $anioTrabajo]);
 
 $anios = collect(range(
     $anioConfigurado - 5,
