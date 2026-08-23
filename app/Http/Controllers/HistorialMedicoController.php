@@ -8,16 +8,25 @@ use Illuminate\Http\Request;
 
 class HistorialMedicoController extends Controller
 {
-    public function index(Request $request)
-    {
-        $clubId = auth()->user()->club_id;
+   public function index(Request $request)
+{
+    $clubId = auth()->user()->club_id;
 
-        $jugador = null;
+    $configuracion = \App\Models\Configuracion::find($clubId);
 
-        $query = HistorialMedico::where('club_id', $clubId)
-            ->with('jugador')
-            ->orderByDesc('fecha')
-            ->orderByDesc('created_at');
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
+
+    $jugador = null;
+
+    $query = HistorialMedico::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
+        ->with('jugador')
+        ->orderByDesc('fecha')
+        ->orderByDesc('created_at');
 
         /*
         |--------------------------------------------------------------------------

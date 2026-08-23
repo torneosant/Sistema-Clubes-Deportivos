@@ -45,8 +45,9 @@ subtitle="Registrar un nuevo documento del club." />
         <label class="font-medium">Fecha</label>
 
         <input type="date"
-               name="fecha"
-               class="w-full mt-2 border rounded-lg px-4 py-2">
+       name="fecha"
+       value="{{ old('fecha', $anio . '-01-01') }}"
+       class="w-full mt-2 border rounded-lg px-4 py-2">
 
     </div>
 

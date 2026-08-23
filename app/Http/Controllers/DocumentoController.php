@@ -9,23 +9,39 @@ use Illuminate\Validation\Rule;
 
 class DocumentoController extends Controller
 {
-    public function index()
-    {
-        
-        $clubId = auth()->user()->club_id;
-
-        $documentos = Documento::where('club_id', $clubId)
-            ->with('tipoDocumento')
-            ->orderByDesc('id')
-            ->get();
-
-        return view('documentos.index', compact('documentos'));
-    }
-
-
-   public function create()
+   public function index()
 {
     $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
+    $documentos = Documento::where('club_id', $clubId)
+        ->whereYear('fecha', $anio)
+        ->with('tipoDocumento')
+        ->orderByDesc('fecha')
+        ->orderByDesc('id')
+        ->get();
+
+    return view(
+        'documentos.index',
+        compact('documentos')
+    );
+}
+public function create()
+{
+    $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
 
     $tipos = TipoDocumento::where('club_id', $clubId)
         ->orderBy('nombre')
@@ -33,7 +49,7 @@ class DocumentoController extends Controller
 
     return view(
         'documentos.create',
-        compact('tipos')
+        compact('tipos', 'anio')
     );
 }
 

@@ -61,11 +61,25 @@
 
 <label class="font-semibold">Fecha</label>
 
+@php
+    $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
+    $fechaInicial = $anio . '-01-01';
+@endphp
+
 <input
-type="date"
-name="fecha"    
-class="w-full border rounded-lg p-2"
-required>
+    type="date"
+    name="fecha"
+    value="{{ old('fecha', $fechaInicial) }}"
+    class="w-full border rounded-lg p-2"
+    required>
 
 </div>
 
@@ -151,9 +165,10 @@ Fecha Alta
 </label>
 
 <input
-type="date"
-name="fecha_alta" 
-class="w-full border rounded-lg p-2">
+    type="date"
+    name="fecha_alta"
+    value="{{ old('fecha_alta', $fechaInicial) }}"
+    class="w-full border rounded-lg p-2">
 
 </div>
 
