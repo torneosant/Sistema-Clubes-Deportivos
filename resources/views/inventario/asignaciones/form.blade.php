@@ -155,10 +155,19 @@ style="display:none;">
 
             <label class="font-semibold">Fecha</label>
 
-          <input
+@php
+    $anioTrabajo = session('anio_trabajo', date('Y'));
+
+    $fechaPorDefecto = $asignacion->fecha
+        ?? date($anioTrabajo . '-m-d');
+@endphp
+
+
+
+     <input
     type="date"
     name="fecha"
-    value="{{ old('fecha', $asignacion->fecha ?? date('Y-m-d')) }}"
+    value="{{ old('fecha', $fechaPorDefecto) }}"
     class="w-full border rounded-xl p-3 mt-2"
     required>
 

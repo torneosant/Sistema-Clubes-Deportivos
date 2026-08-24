@@ -27,6 +27,7 @@ use App\Http\Controllers\DocumentoJugadorController;
 use App\Http\Controllers\NoticiaController;
 use App\Http\Controllers\RegistroClubController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\InscripcionController;
 
 
 
@@ -579,6 +580,11 @@ Route::put('/perfil/cambiar-contrasena', [PerfilController::class, 'updatePasswo
     ->middleware('auth')
     ->name('perfil.password.update');
 
+// Inscripciones
+Route::resource(
+    'inscripciones',
+    InscripcionController::class
+);
 
 
 });

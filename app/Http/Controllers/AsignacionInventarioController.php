@@ -12,53 +12,65 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class AsignacionInventarioController extends Controller
 {
-    public function index()
-    {
-        $clubId = auth()->user()->club_id;
+ public function index()
+{
+    $clubId = auth()->user()->club_id;
 
-        $asignaciones = AsignacionInventario::with([
-                'inventario',
-                'entrenador'
-            ])
-            ->whereHas('inventario', function ($query) use ($clubId) {
-                $query->where('club_id', $clubId);
-            })
-            ->latest()
-            ->get();
+    $configuracion = \App\Models\Configuracion::find($clubId);
 
-        return view(
-            'inventario.asignaciones.index',
-            compact('asignaciones')
-        );
-    }
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
 
+    $asignaciones = AsignacionInventario::with([
+            'inventario',
+            'entrenador'
+        ])
+        ->whereHas('inventario', function ($query) use ($clubId) {
+            $query->where('club_id', $clubId);
+        })
+        ->whereYear('fecha', $anio)
+        ->orderByDesc('fecha')
+        ->orderByDesc('id')
+        ->get();
 
-    public function create()
-    {
-        $clubId = auth()->user()->club_id;
+    return view(
+        'inventario.asignaciones.index',
+        compact('asignaciones')
+    );
+}
 
-        $articulos = Inventario::where('activo', 1)
-            ->where('club_id', $clubId)
-            ->orderBy('nombre')
-            ->get();
+   public function create()
+{
+    $clubId = auth()->user()->club_id;
 
-        $clubId = auth()->user()->club_id;
+    $configuracion = \App\Models\Configuracion::find($clubId);
 
-$entrenadores = Entrenador::where('club_id', $clubId)
-    ->orderBy('nombres')
-    ->get();
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
 
-        $inventarioSeleccionado = request('inventario');
+    $articulos = Inventario::where('activo', 1)
+        ->where('club_id', $clubId)
+        ->orderBy('nombre')
+        ->get();
 
-        return view('inventario.asignaciones.form', [
-            'articulos' => $articulos,
-            'entrenadores' => $entrenadores,
-            'inventarioSeleccionado' => $inventarioSeleccionado,
-            'modo' => 'crear'
-        ]);
-    }
+    $entrenadores = Entrenador::where('club_id', $clubId)
+        ->orderBy('nombres')
+        ->get();
 
+    $inventarioSeleccionado = request('inventario');
 
+    return view('inventario.asignaciones.form', [
+        'articulos' => $articulos,
+        'entrenadores' => $entrenadores,
+        'inventarioSeleccionado' => $inventarioSeleccionado,
+        'anio' => $anio,
+        'modo' => 'crear'
+    ]);
+}
     public function edit(
         AsignacionInventario $asignaciones_inventario
     ) {
