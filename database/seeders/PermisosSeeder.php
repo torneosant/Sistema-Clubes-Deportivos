@@ -40,6 +40,13 @@ class PermisosSeeder extends Seeder
 ['nombre'=>'Noticias - Crear','slug'=>'noticias.crear'],
 ['nombre'=>'Noticias - Editar','slug'=>'noticias.editar'],
 ['nombre'=>'Noticias - Eliminar','slug'=>'noticias.eliminar'],
+ ['nombre'=>'Inscripciones - Ver','slug'=>'inscripciones.ver'],
+['nombre'=>'Inscripciones - Crear','slug'=>'inscripciones.crear'],
+['nombre'=>'Inscripciones - Editar','slug'=>'inscripciones.editar'],
+['nombre'=>'Inscripciones - Eliminar','slug'=>'inscripciones.eliminar'],
+['nombre'=>'Inscripciones - Aprobar','slug'=>'inscripciones.aprobar'],
+['nombre'=>'Inscripciones - Denegar','slug'=>'inscripciones.denegar'],
+
          ];
 
         foreach ($permisos as $permiso) {

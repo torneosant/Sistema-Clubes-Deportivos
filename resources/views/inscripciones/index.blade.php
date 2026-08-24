@@ -1,250 +1,435 @@
 @extends('layouts.app')
 
-@section('titulo','Inscripciones')
+@section('titulo', 'Inscripciones')
 
 @section('contenido')
 
 <x-page-header
     title="📝 Inscripciones"
-    subtitle="Gestiona las solicitudes de inscripción al club."
-/>
+    subtitle="Gestiona las solicitudes de inscripción de nuevos jugadores."
+>
 
-{{-- CONTADORES --}}
+    <div class="flex items-center gap-2 flex-wrap">
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+        <x-stat
+            label="Total"
+            :value="$inscripciones->count()"
+            icon="📝"
+            color="blue"
+        />
 
-    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5">
-        <div class="text-sm text-yellow-700">
-            Pendientes
-        </div>
+        <x-stat
+            label="Pendientes"
+            :value="$pendientes"
+            icon="🟡"
+            color="yellow"
+        />
 
-        <div class="text-3xl font-bold text-yellow-700">
-            {{ $pendientes }}
-        </div>
+        <x-stat
+            label="Aceptadas"
+            :value="$aceptadas"
+            icon="🟢"
+            color="green"
+        />
+
+        <x-stat
+            label="Denegadas"
+            :value="$denegadas"
+            icon="🔴"
+            color="red"
+        />
+
     </div>
 
-    <div class="bg-green-50 border border-green-200 rounded-xl p-5">
-        <div class="text-sm text-green-700">
-            Aceptadas
-        </div>
+</x-page-header>
 
-        <div class="text-3xl font-bold text-green-700">
-            {{ $aceptadas }}
-        </div>
+
+{{-- MENSAJE DE ÉXITO --}}
+@if(session('success'))
+
+    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+        {{ session('success') }}
     </div>
 
-    <div class="bg-red-50 border border-red-200 rounded-xl p-5">
-        <div class="text-sm text-red-700">
-            Denegadas
-        </div>
-
-        <div class="text-3xl font-bold text-red-700">
-            {{ $denegadas }}
-        </div>
-    </div>
-
-</div>
+@endif
 
 
-<x-card>
+{{-- BOTONES --}}
+<x-actions>
 
-    <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
+    @if(auth()->user()->tienePermiso('inscripciones.crear'))
 
-        <form
-            method="GET"
-            class="flex flex-col md:flex-row gap-3 flex-1">
+        <a href="{{ route('inscripciones.create') }}">
 
-            <input
-                type="text"
-                name="buscar"
-                value="{{ request('buscar') }}"
-                placeholder="Buscar por nombre, documento o teléfono..."
-                class="border rounded-lg px-4 py-2 flex-1">
+            <x-button color="blue">
 
-            <select
-                name="estado"
-                class="border rounded-lg px-4 py-2">
+                ➕ Generar enlace de inscripción
 
-                <option value="">
-                    Todos los estados
-                </option>
-
-                <option
-                    value="Pendiente"
-                    @selected(request('estado') == 'Pendiente')>
-                    Pendientes
-                </option>
-
-                <option
-                    value="Aceptada"
-                    @selected(request('estado') == 'Aceptada')>
-                    Aceptadas
-                </option>
-
-                <option
-                    value="Denegada"
-                    @selected(request('estado') == 'Denegada')>
-                    Denegadas
-                </option>
-
-            </select>
-
-            <button
-                class="bg-gray-700 hover:bg-gray-800 text-white px-5 py-2 rounded-lg">
-
-                Buscar
-
-            </button>
-
-        </form>
-
-
-        <a
-            href="{{ route('inscripciones.create') }}"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-center">
-
-            ➕ Generar inscripción
+            </x-button>
 
         </a>
 
-    </div>
+    @endif
+
+</x-actions>
 
 
-    <div class="overflow-x-auto">
+{{-- FILTROS --}}
+<x-filter :action="route('inscripciones.index')">
 
-        <table class="w-full">
+    <x-input
+        name="buscar"
+        value="{{ request('buscar') }}"
+        placeholder="🔍 Buscar nombre, documento o teléfono..."
+    />
 
-            <thead>
+    <select
+        name="estado"
+        class="border rounded-xl px-4 py-2"
+    >
 
-                <tr class="border-b text-left">
+        <option value="">
+            Todos los estados
+        </option>
 
-                    <th class="p-3">
-                        Nombre
-                    </th>
+        <option
+            value="Pendiente"
+            @selected(request('estado') === 'Pendiente')
+        >
+            Pendientes
+        </option>
 
-                    <th class="p-3">
-                        Categoría
-                    </th>
+        <option
+            value="Aceptada"
+            @selected(request('estado') === 'Aceptada')
+        >
+            Aceptadas
+        </option>
 
-                    <th class="p-3">
-                        Fecha
-                    </th>
+        <option
+            value="Denegada"
+            @selected(request('estado') === 'Denegada')
+        >
+            Denegadas
+        </option>
 
-                    <th class="p-3">
-                        Estado
-                    </th>
+        <option
+            value="Disponible"
+            @selected(request('estado') === 'Disponible')
+        >
+            Disponibles
+        </option>
 
-                    <th class="p-3 text-right">
-                        Acción
-                    </th>
+    </select>
 
-                </tr>
+    <x-button
+        type="submit"
+        color="blue"
+    >
+        🔍 Buscar
+    </x-button>
 
-            </thead>
+    <a
+        href="{{ route('inscripciones.index') }}"
+        class="inline-flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+    >
+        Limpiar
+    </a>
 
-            <tbody>
+</x-filter>
 
-            @forelse($inscripciones as $inscripcion)
 
-                <tr class="border-b hover:bg-gray-50">
+{{-- TABLA --}}
+<x-table>
 
-                    <td class="p-3">
+    <x-table-header>
 
-                        <div class="font-semibold">
+        <x-table-header-cell>
+            Solicitud
+        </x-table-header-cell>
+
+        <x-table-header-cell>
+            Categoría
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Estado
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Fecha
+        </x-table-header-cell>
+
+        <x-table-header-cell align="center">
+            Acciones
+        </x-table-header-cell>
+
+    </x-table-header>
+
+
+    <tbody>
+
+        @forelse($inscripciones as $inscripcion)
+
+            <x-table-row>
+
+                {{-- SOLICITANTE --}}
+                <x-table-cell>
+
+                    <div class="font-semibold text-slate-800">
+
+                        👤
+
+                        @if($inscripcion->nombres)
 
                             {{ $inscripcion->nombres }}
                             {{ $inscripcion->apellidos }}
 
-                        </div>
-
-                        @if($inscripcion->documento)
-
-                            <div class="text-sm text-gray-500">
-
-                                CC: {{ $inscripcion->documento }}
-
-                            </div>
-
-                        @endif
-
-                    </td>
-
-
-                    <td class="p-3">
-
-                        {{ $inscripcion->categoria->nombre ?? 'General' }}
-
-                    </td>
-
-
-                    <td class="p-3">
-
-                        {{ $inscripcion->created_at->format('d/m/Y') }}
-
-                    </td>
-
-
-                    <td class="p-3">
-
-                        @if($inscripcion->estado == 'Pendiente')
-
-                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-                                🟡 Pendiente
-                            </span>
-
-                        @elseif($inscripcion->estado == 'Aceptada')
-
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                                🟢 Aceptada
-                            </span>
-
                         @else
 
-                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                                🔴 Denegada
-                            </span>
+                            Inscripción disponible
 
                         @endif
 
-                    </td>
+                    </div>
+
+                    @if($inscripcion->documento)
+
+                        <div class="text-sm text-gray-500">
+
+                            Documento:
+                            {{ $inscripcion->documento }}
+
+                        </div>
+
+                    @endif
+
+                    @if($inscripcion->telefono)
+
+                        <div class="text-sm text-gray-500">
+
+                            📱 {{ $inscripcion->telefono }}
+
+                        </div>
+
+                    @endif
+
+                </x-table-cell>
 
 
-                    <td class="p-3 text-right">
+                {{-- CATEGORÍA --}}
+                <x-table-cell>
 
-                        <a
-                            href="{{ route('inscripciones.show', $inscripcion) }}"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    <div class="font-medium">
 
-                            Ver
+                        {{ $inscripcion->categoria->nombre ?? 'Sin categoría' }}
 
-                        </a>
+                    </div>
 
-                    </td>
+                </x-table-cell>
 
-                </tr>
 
-            @empty
+                {{-- ESTADO --}}
+                <x-table-cell align="center">
 
-                <tr>
+                    @if($inscripcion->estado === 'Pendiente')
 
-                    <td
-                        colspan="5"
-                        class="p-8 text-center text-gray-500">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700">
 
-                        No hay solicitudes de inscripción.
+                            🟡 Pendiente
 
-                    </td>
+                        </span>
 
-                </tr>
+                    @elseif($inscripcion->estado === 'Aceptada')
 
-            @endforelse
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
 
-            </tbody>
+                            🟢 Aceptada
 
-        </table>
+                        </span>
 
-    </div>
+                    @elseif($inscripcion->estado === 'Denegada')
 
-</x-card>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-700">
+
+                            🔴 Denegada
+
+                        </span>
+
+                    @elseif($inscripcion->estado === 'Disponible')
+
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+
+                            🔵 Disponible
+
+                        </span>
+
+                    @else
+
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-700">
+
+                            {{ $inscripcion->estado }}
+
+                        </span>
+
+                    @endif
+
+                </x-table-cell>
+
+
+                {{-- FECHA --}}
+                <x-table-cell align="center">
+
+                    <div class="text-sm text-gray-600">
+
+                        {{ $inscripcion->created_at?->format('d/m/Y') }}
+
+                    </div>
+
+                </x-table-cell>
+
+
+                {{-- ACCIONES --}}
+                <x-table-cell align="center">
+
+                    <div class="flex justify-center items-center gap-2">
+
+                        {{-- VER --}}
+                        @if(auth()->user()->tienePermiso('inscripciones.ver'))
+
+                            <a
+                                href="{{ route('inscripciones.show', ['inscripcion' => $inscripcion->id]) }}"
+                            >
+
+                                <x-secondary-button
+                                    type="button"
+                                    title="Ver inscripción"
+                                >
+
+                                    👁️
+
+                                </x-secondary-button>
+
+                            </a>
+
+                        @endif
+
+
+                        {{-- APROBAR --}}
+                        @if(
+                            $inscripcion->estado === 'Pendiente' &&
+                            auth()->user()->tienePermiso('inscripciones.aprobar')
+                        )
+
+                            <form
+                                action="{{ route('inscripciones.aprobar', $inscripcion) }}"
+                                method="POST"
+                                class="inline"
+                            >
+
+                                @csrf
+                                @method('PATCH')
+
+                                <x-button
+                                    type="submit"
+                                    color="green"
+                                    icon
+                                    title="Aprobar inscripción"
+                                >
+
+                                    ✅
+
+                                </x-button>
+
+                            </form>
+
+                        @endif
+
+
+                        {{-- DENEGAR --}}
+                        @if(
+                            $inscripcion->estado === 'Pendiente' &&
+                            auth()->user()->tienePermiso('inscripciones.denegar')
+                        )
+
+                            <form
+                                action="{{ route('inscripciones.denegar', $inscripcion) }}"
+                                method="POST"
+                                class="inline formulario-eliminar"
+                            >
+
+                                @csrf
+                                @method('PATCH')
+
+                                <x-button
+                                    type="submit"
+                                    color="red"
+                                    icon
+                                    title="Denegar inscripción"
+                                >
+
+                                    ❌
+
+                                </x-button>
+
+                            </form>
+
+                        @endif
+
+
+                        {{-- ELIMINAR --}}
+                        @if(auth()->user()->tienePermiso('inscripciones.eliminar'))
+
+                            <form
+                                action="{{ route('inscripciones.destroy', $inscripcion) }}"
+                                method="POST"
+                                class="inline formulario-eliminar"
+                            >
+
+                                @csrf
+                                @method('DELETE')
+
+                                <x-button
+                                    type="submit"
+                                    color="red"
+                                    icon
+                                    title="Eliminar"
+                                >
+
+                                    🗑️
+
+                                </x-button>
+
+                            </form>
+
+                        @endif
+
+                    </div>
+
+                </x-table-cell>
+
+            </x-table-row>
+
+        @empty
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="text-center py-10 text-gray-500"
+                >
+
+                    📝 No hay inscripciones registradas.
+
+                </td>
+
+            </tr>
+
+        @endforelse
+
+    </tbody>
+
+</x-table>
+
 
 @endsection

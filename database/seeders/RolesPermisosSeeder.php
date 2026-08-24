@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Rol;
 use App\Models\Permiso;
+use Illuminate\Support\Str;
 
 class RolesPermisosSeeder extends Seeder
 {
@@ -14,7 +15,18 @@ class RolesPermisosSeeder extends Seeder
 
         foreach($roles as $rol){
 
-            switch($rol->nombre){
+           $nombreRol = $rol->nombre;
+
+if (Str::endsWith($nombreRol, 'Administrador')) {
+
+    $rol->permisos()->sync(
+        Permiso::pluck('id')->toArray()
+    );
+
+    continue;
+}
+
+switch($nombreRol){
 
                 case 'Administrador':
 

@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('token', 100)->unique();
 
             // Datos personales
-            $table->string('nombres');
-            $table->string('apellidos');
+           $table->string('nombres')->nullable();
+           $table->string('apellidos')->nullable();
             $table->string('documento', 50)->nullable();
             $table->date('fecha_nacimiento')->nullable();
 

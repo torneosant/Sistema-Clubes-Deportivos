@@ -28,6 +28,7 @@ use App\Http\Controllers\NoticiaController;
 use App\Http\Controllers\RegistroClubController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\InscripcionPublicaController;
 
 
 
@@ -581,11 +582,31 @@ Route::put('/perfil/cambiar-contrasena', [PerfilController::class, 'updatePasswo
     ->name('perfil.password.update');
 
 // Inscripciones
-Route::resource(
-    'inscripciones',
-    InscripcionController::class
-);
+Route::resource('inscripciones', InscripcionController::class)
+    ->parameters([
+        'inscripciones' => 'inscripcion'
+    ]);
 
+Route::post(
+    'inscripciones/{inscripcion}/aceptar',
+    [InscripcionController::class, 'aceptar']
+)->name('inscripciones.aceptar');
+
+Route::post(
+    'inscripciones/{inscripcion}/denegar',
+    [InscripcionController::class, 'denegar']
+)->name('inscripciones.denegar');
+
+// Inscripción pública
+Route::get(
+    '/inscripcion/{token}',
+    [InscripcionPublicaController::class, 'create']
+)->name('inscripcion.publica');
+
+Route::post(
+    '/inscripcion/{token}',
+    [InscripcionPublicaController::class, 'store']
+)->name('inscripcion.publica.store');
 
 });
 
