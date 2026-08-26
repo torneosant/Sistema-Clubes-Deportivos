@@ -46,6 +46,8 @@ class Jugador extends Model
         'acudiente',
         'telefono_acudiente',
         'parentesco',
+        'documento_acudiente',
+        'email_acudiente',
 
         'foto',
 

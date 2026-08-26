@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TipoDocumento;
+use App\Models\TipoDocumentoClub;
 use Illuminate\Http\Request;
 
 class TipoDocumentoController extends Controller
 {
+    /**
+     * Listado de tipos de documentos del club.
+     */
     public function index()
     {
         $clubId = auth()->user()->club_id;
 
-        $tipos = TipoDocumento::where('club_id', $clubId)
+        $tipos = TipoDocumentoClub::where('club_id', $clubId)
             ->orderBy('nombre')
             ->get();
 
@@ -22,35 +25,63 @@ class TipoDocumentoController extends Controller
     }
 
 
+    /**
+     * Formulario para crear tipo.
+     */
     public function create()
     {
         return view('tipos-documento.create');
     }
 
 
+    /**
+     * Crear tipo de documento del club.
+     */
     public function store(Request $request)
     {
         $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
+            'nombre' =>
+                'required|string|max:255',
+
+            'descripcion' =>
+                'nullable|string|max:1000',
         ]);
 
-        $datos['club_id'] = auth()->user()->club_id;
-        $datos['activo'] = $request->has('activo');
 
-        TipoDocumento::create($datos);
+        TipoDocumentoClub::create([
+
+            'club_id' =>
+                auth()->user()->club_id,
+
+            'nombre' =>
+                $datos['nombre'],
+
+            'descripcion' =>
+                $datos['descripcion'] ?? null,
+
+            'activo' =>
+                true,
+
+        ]);
+
 
         return redirect()
             ->route('tipos-documento.index')
-            ->with('success', 'Tipo de documento creado correctamente.');
+            ->with(
+                'success',
+                'Tipo de documento creado correctamente.'
+            );
     }
 
 
-    public function edit(TipoDocumento $tipoDocumento)
+    /**
+     * Editar tipo.
+     */
+    public function edit(TipoDocumentoClub $tipoDocumento)
     {
         abort_unless(
-            $tipoDocumento->club_id == auth()->user()->club_id,
+            (int) $tipoDocumento->club_id ===
+            (int) auth()->user()->club_id,
             403,
             'No tiene permiso para editar este tipo de documento.'
         );
@@ -62,44 +93,69 @@ class TipoDocumentoController extends Controller
     }
 
 
+    /**
+     * Actualizar tipo.
+     */
     public function update(
         Request $request,
-        TipoDocumento $tipoDocumento
+        TipoDocumentoClub $tipoDocumento
     ) {
+
         abort_unless(
-            $tipoDocumento->club_id == auth()->user()->club_id,
+            (int) $tipoDocumento->club_id ===
+            (int) auth()->user()->club_id,
             403,
             'No tiene permiso para editar este tipo de documento.'
         );
 
+
         $datos = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'activo' => 'nullable|boolean',
+            'nombre' =>
+                'required|string|max:255',
+
+            'descripcion' =>
+                'nullable|string|max:1000',
+
+            'activo' =>
+                'nullable|boolean',
         ]);
 
-        $datos['activo'] = $request->has('activo');
 
         $tipoDocumento->update($datos);
 
+
         return redirect()
             ->route('tipos-documento.index')
-            ->with('success', 'Tipo de documento actualizado correctamente.');
+            ->with(
+                'success',
+                'Tipo de documento actualizado correctamente.'
+            );
     }
 
 
-    public function destroy(TipoDocumento $tipoDocumento)
-    {
+    /**
+     * Eliminar tipo.
+     */
+    public function destroy(
+        TipoDocumentoClub $tipoDocumento
+    ) {
+
         abort_unless(
-            $tipoDocumento->club_id == auth()->user()->club_id,
+            (int) $tipoDocumento->club_id ===
+            (int) auth()->user()->club_id,
             403,
             'No tiene permiso para eliminar este tipo de documento.'
         );
 
+
         $tipoDocumento->delete();
+
 
         return redirect()
             ->route('tipos-documento.index')
-            ->with('success', 'Tipo de documento eliminado correctamente.');
+            ->with(
+                'success',
+                'Tipo de documento eliminado correctamente.'
+            );
     }
 }

@@ -1,22 +1,23 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
     public function up(): void
-{
-    Schema::table('documentos', function (Blueprint $table) {
+    {
+        Schema::table('documentos', function (Blueprint $table) {
 
-        $table->foreign('jugador_id')
-              ->references('id')
-              ->on('jugadores')
-              ->cascadeOnDelete();
+            $table->foreignId('jugador_id')
+                ->nullable()
+                ->after('id')
+                ->constrained('jugadores')
+                ->cascadeOnDelete();
 
-    });
-}
+        });
+    }
 
     public function down(): void
     {

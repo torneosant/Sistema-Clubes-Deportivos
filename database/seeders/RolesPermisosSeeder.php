@@ -13,34 +13,41 @@ class RolesPermisosSeeder extends Seeder
     {
         $roles = Rol::all();
 
-        foreach($roles as $rol){
+        foreach ($roles as $rol) {
 
-           $nombreRol = $rol->nombre;
+            $nombreRol = $rol->nombre;
 
-if (Str::endsWith($nombreRol, 'Administrador')) {
+            /*
+            |--------------------------------------------------------------------------
+            | Administradores
+            |--------------------------------------------------------------------------
+            | Tanto Administrador como Super Administrador
+            | reciben todos los permisos.
+            */
 
-    $rol->permisos()->sync(
-        Permiso::pluck('id')->toArray()
-    );
+            if (Str::endsWith($nombreRol, 'Administrador')) {
 
-    continue;
-}
+                $rol->permisos()->sync(
+                    Permiso::pluck('id')->toArray()
+                );
 
-switch($nombreRol){
+                continue;
+            }
 
-                case 'Administrador':
 
-                    $rol->permisos()->sync(
-                        Permiso::pluck('id')->toArray()
-                    );
+            /*
+            |--------------------------------------------------------------------------
+            | Demás roles
+            |--------------------------------------------------------------------------
+            */
 
-                break;
+            switch ($nombreRol) {
 
                 case 'Consulta':
 
                     $rol->permisos()->sync(
 
-                        Permiso::where('slug','like','%.ver')
+                        Permiso::where('slug', 'like', '%.ver')
                             ->pluck('id')
                             ->toArray()
 
@@ -48,13 +55,14 @@ switch($nombreRol){
 
                 break;
 
+
                 case 'Entrenador':
 
                     $rol->permisos()->sync(
 
-                        Permiso::where(function($q){
+                        Permiso::where(function ($q) {
 
-                            $q->whereIn('slug',[
+                            $q->whereIn('slug', [
 
                                 'jugadores.ver',
                                 'jugadores.crear',
@@ -83,43 +91,63 @@ switch($nombreRol){
                                 'calendario.ver',
 
                                 'noticias.ver',
-'noticias.crear',
-'noticias.editar',
-'noticias.eliminar',
+                                'noticias.crear',
+                                'noticias.editar',
+                                'noticias.eliminar',
 
                             ]);
 
-                        })->pluck('id')->toArray()
+                        })
+                        ->pluck('id')
+                        ->toArray()
 
                     );
 
                 break;
 
+
                 case 'Tesorero':
 
-    $rol->permisos()->sync(
+                    $rol->permisos()->sync(
 
-        Permiso::where(function ($q) {
+                        Permiso::where(function ($q) {
 
-            $q->where('slug', 'like', 'contabilidad.%')
-              ->orWhere('slug', 'like', 'conceptos_contables.%');
+                            $q->where('slug', 'like', 'contabilidad.%')
+                              ->orWhere(
+                                  'slug',
+                                  'like',
+                                  'conceptos_contables.%'
+                              );
 
-        })->pluck('id')->toArray()
+                        })
+                        ->pluck('id')
+                        ->toArray()
 
-    );
+                    );
 
-break;
+                break;
+
 
                 case 'Médico':
 
                     $rol->permisos()->sync(
 
-                        Permiso::where(function($q){
+                        Permiso::where(function ($q) {
 
-                            $q->where('slug','like','historial-medico.%')
-                              ->orWhere('slug','like','jugadores.ver');
+                            $q->where(
+                                'slug',
+                                'like',
+                                'historial-medico.%'
+                            )
+                            ->orWhere(
+                                'slug',
+                                'like',
+                                'jugadores.ver'
+                            );
 
-                        })->pluck('id')->toArray()
+                        })
+                        ->pluck('id')
+                        ->toArray()
 
                     );
 
@@ -129,7 +157,8 @@ break;
 
         }
 
-        $this->command->info('Roles configurados correctamente.');
-
+        $this->command->info(
+            'Roles configurados correctamente.'
+        );
     }
 }

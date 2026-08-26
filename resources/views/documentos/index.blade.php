@@ -123,7 +123,7 @@ subtitle="Documentos oficiales del club"
 
         <x-table-cell>
 
-            {{ $doc->tipoDocumento->nombre ?? '-' }}
+          {{ $doc->tipoDocumentoClub->nombre ?? '-' }}
 
         </x-table-cell>
 

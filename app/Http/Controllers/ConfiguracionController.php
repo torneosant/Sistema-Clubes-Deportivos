@@ -165,4 +165,115 @@ class ConfiguracionController extends Controller
                 'Configuración del sistema actualizada.'
             );
     }
+
+    // ===========================
+// INSCRIPCIONES
+// ===========================
+
+public function inscripciones()
+{
+    $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\ConfiguracionInscripcion::firstOrCreate(
+        ['club_id' => $clubId],
+        [
+            'enviar_correo' => true,
+            'adjuntar_documentos' => true,
+            'asunto_correo' => 'Inscripción aprobada',
+            'mensaje_correo' =>
+                'Tu inscripción ha sido aprobada. Bienvenido al club.',
+        ]
+    );
+
+    $documentos = \App\Models\DocumentoClub::where('club_id', $clubId)
+        ->where('activo', true)
+        ->orderBy('titulo')
+        ->get();
+
+    $documentosSeleccionados = $configuracion
+        ->documentos()
+        ->pluck('documentos_club.id')
+        ->toArray();
+
+    return view(
+        'configuracion.inscripciones',
+        compact(
+            'configuracion',
+            'documentos',
+            'documentosSeleccionados'
+        )
+    );
+}
+
+
+public function updateInscripciones(Request $request)
+{
+    $clubId = auth()->user()->club_id;
+
+    $configuracion = \App\Models\ConfiguracionInscripcion::firstOrCreate(
+        ['club_id' => $clubId],
+        [
+            'enviar_correo' => true,
+            'adjuntar_documentos' => true,
+            'asunto_correo' => 'Inscripción aprobada',
+        ]
+    );
+
+    $datos = $request->validate([
+
+        'enviar_correo' => 'nullable|boolean',
+
+        'adjuntar_documentos' => 'nullable|boolean',
+
+        'asunto_correo' => 'required|string|max:255',
+
+        'mensaje_correo' => 'nullable|string|max:5000',
+
+        'documentos' => 'nullable|array',
+
+        'documentos.*' =>
+            'integer|exists:documentos_club,id',
+    ]);
+
+
+    $configuracion->update([
+
+        'enviar_correo' =>
+            $request->boolean('enviar_correo'),
+
+        'adjuntar_documentos' =>
+            $request->boolean('adjuntar_documentos'),
+
+        'asunto_correo' =>
+            $datos['asunto_correo'],
+
+        'mensaje_correo' =>
+            $datos['mensaje_correo'] ?? null,
+
+    ]);
+
+
+    $documentosIds = collect(
+        $datos['documentos'] ?? []
+    );
+
+    $documentosValidos = \App\Models\DocumentoClub::where(
+        'club_id',
+        $clubId
+    )
+        ->whereIn('id', $documentosIds)
+        ->pluck('id')
+        ->toArray();
+
+
+    $configuracion
+        ->documentos()
+        ->sync($documentosValidos);
+
+
+    return back()->with(
+        'success',
+        'Configuración de inscripciones actualizada correctamente.'
+    );
+}
 }

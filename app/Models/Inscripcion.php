@@ -23,7 +23,7 @@ class Inscripcion extends Model
         'email',
         'direccion',
 
-        'posicion',
+    
         'club_anterior',
         'observaciones',
 
@@ -32,6 +32,18 @@ class Inscripcion extends Model
 
         'fecha_revision',
         'revisado_por',
+
+        'acudiente',
+        'documento_acudiente',
+        'telefono_acudiente',
+        'email_acudiente',
+        'parentesco',
+
+        'eps',
+'tipo_sangre',
+
+        'foto',
+        'documento_pdf',
     ];
 
     protected $casts = [

@@ -315,36 +315,32 @@
                         @endif
 
 
-                        {{-- APROBAR --}}
-                        @if(
-                            $inscripcion->estado === 'Pendiente' &&
-                            auth()->user()->tienePermiso('inscripciones.aprobar')
-                        )
+                        {{-- ACEPTAR --}}
+@if(
+    $inscripcion->estado === 'Pendiente' &&
+    auth()->user()->tienePermiso('inscripciones.aprobar')
+)
 
-                            <form
-                                action="{{ route('inscripciones.aprobar', $inscripcion) }}"
-                                method="POST"
-                                class="inline"
-                            >
+    <form
+        action="{{ route('inscripciones.aceptar', $inscripcion) }}"
+        method="POST"
+        class="inline"
+    >
 
-                                @csrf
-                                @method('PATCH')
+        @csrf
 
-                                <x-button
-                                    type="submit"
-                                    color="green"
-                                    icon
-                                    title="Aprobar inscripción"
-                                >
+        <x-button
+            type="submit"
+            color="green"
+            icon
+            title="Aceptar inscripción"
+        >
+            ✅
+        </x-button>
 
-                                    ✅
+    </form>
 
-                                </x-button>
-
-                            </form>
-
-                        @endif
-
+@endif
 
                         {{-- DENEGAR --}}
                         @if(

@@ -73,6 +73,31 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
+@if(auth()->user()->tienePermiso('inscripciones.ver'))
+
+<a href="{{ route('inscripciones.index') }}"
+   class="block px-5 py-3 hover:bg-slate-800">
+
+    📝 Inscripciones
+
+</a>
+
+@endif
+
+// compentencias
+@if(auth()->user()->tienePermiso('competencias.ver'))
+
+<a href="{{ route('competencias.index') }}"
+   class="block px-5 py-3 hover:bg-slate-800">
+
+    🏆 Competencias
+
+</a>
+
+@endif
+
+
+
             @if(auth()->user()->tienePermiso('entrenadores.ver'))
 
 <a href="{{ route('entrenadores.index') }}"
@@ -212,6 +237,13 @@ class="block px-5 py-3 hover:bg-slate-800">
     <a href="{{ route('roles.index') }}" class="block px-10 py-2 hover:bg-slate-800">
         🔐 Roles
     </a>
+
+    <a href="{{ route('configuracion.inscripciones') }}"
+   class="block px-5 py-3 hover:bg-slate-800">
+
+    📝 Inscripciones
+
+</a>
 
 </div>
 

@@ -29,6 +29,8 @@ use App\Http\Controllers\RegistroClubController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\InscripcionPublicaController;
+use App\Http\Controllers\CompetenciaController;
+
 
 
 
@@ -485,6 +487,24 @@ Route::patch(
 Route::resource('roles', RolController::class)
     ->names('roles')
     ->middleware('permiso:roles');
+
+    // ===========================
+// Configuración de Inscripciones
+// ===========================
+
+Route::get(
+    '/inscripciones',
+    [ConfiguracionController::class, 'inscripciones']
+)
+    ->middleware('permiso:configuracion.ver')
+    ->name('configuracion.inscripciones');
+
+Route::put(
+    '/inscripciones',
+    [ConfiguracionController::class, 'updateInscripciones']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('configuracion.updateInscripciones');
     
 }); 
 
@@ -494,6 +514,8 @@ Route::patch(
 )
     ->middleware('permiso:usuarios.editar')
     ->name('usuarios.estado');
+
+
 
 
 // ===========================
@@ -607,6 +629,18 @@ Route::post(
     '/inscripcion/{token}',
     [InscripcionPublicaController::class, 'store']
 )->name('inscripcion.publica.store');
+
+
+
+
+
+// ===========================
+// Competencias
+// ===========================
+
+Route::resource('competencias', CompetenciaController::class)
+    ->middleware('permiso:competencias.ver');
+
 
 });
 

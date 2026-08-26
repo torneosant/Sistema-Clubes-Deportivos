@@ -44,7 +44,7 @@ return new class extends Migration
             $table->text('direccion')->nullable();
 
             // Información adicional
-            $table->string('posicion', 100)->nullable();
+        
             $table->string('club_anterior')->nullable();
             $table->text('observaciones')->nullable();
 
@@ -63,7 +63,25 @@ return new class extends Migration
                 ->nullOnDelete();
 
             $table->timestamps();
-        });
+        
+           // Información médica básica
+$table->string('eps')->nullable();
+$table->string('tipo_sangre')->nullable();
+
+// Datos del acudiente
+$table->string('acudiente')->nullable();
+$table->string('documento_acudiente')->nullable();
+$table->string('telefono_acudiente')->nullable();
+$table->string('email_acudiente')->nullable();
+$table->string('parentesco')->nullable();
+
+// Archivos de inscripción
+$table->string('foto')->nullable();
+$table->string('documento_pdf')->nullable();
+        
+            });
+
+
     }
 
     public function down(): void

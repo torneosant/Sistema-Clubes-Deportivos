@@ -58,6 +58,8 @@ $table->foreignId('equipo_id')
             $table->text('observaciones_medicas')->nullable();
 
             // Acudiente
+            $table->string('documento_acudiente')->nullable();
+$table->string('email_acudiente')->nullable();
             $table->string('acudiente')->nullable();
             $table->string('telefono_acudiente')->nullable();
             $table->string('parentesco')->nullable();

@@ -245,11 +245,11 @@
         <div class="flex items-center justify-between">
 
             <a
-                href="{{ route('login') }}"
-                class="text-gray-600 hover:text-gray-900"
-            >
-                ← Ya tengo una cuenta
-            </a>
+    href="{{ route('inicio') }}"
+    class="text-gray-600 hover:text-gray-900"
+>
+    ← Volver
+</a>
 
             <button
                 type="submit"
