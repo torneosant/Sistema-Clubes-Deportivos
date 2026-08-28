@@ -27,11 +27,17 @@
 
 </div>
 
+
+{{-- =========================================================
+     INFORMACIÓN GENERAL
+========================================================= --}}
+
 <x-card>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <div>
+
             <p class="text-sm text-gray-500">
                 Nombre
             </p>
@@ -39,9 +45,12 @@
             <p class="font-semibold text-lg">
                 {{ $competencia->nombre }}
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Tipo
             </p>
@@ -65,9 +74,12 @@
                 @endswitch
 
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Categoría principal
             </p>
@@ -75,9 +87,12 @@
             <p class="font-semibold">
                 {{ $competencia->categoria?->nombre ?? 'Todas / No especificada' }}
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Estado
             </p>
@@ -87,27 +102,38 @@
                 @switch($competencia->estado)
 
                     @case('proximo')
-                        <span class="text-blue-600">Próximo</span>
+                        <span class="text-blue-600">
+                            Próximo
+                        </span>
                         @break
 
                     @case('en_curso')
-                        <span class="text-green-600">En curso</span>
+                        <span class="text-green-600">
+                            En curso
+                        </span>
                         @break
 
                     @case('finalizado')
-                        <span class="text-gray-600">Finalizado</span>
+                        <span class="text-gray-600">
+                            Finalizado
+                        </span>
                         @break
 
                     @case('cancelado')
-                        <span class="text-red-600">Cancelado</span>
+                        <span class="text-red-600">
+                            Cancelado
+                        </span>
                         @break
 
                 @endswitch
 
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Fecha de inicio
             </p>
@@ -115,9 +141,12 @@
             <p class="font-semibold">
                 {{ $competencia->fecha_inicio?->format('d/m/Y') ?? '—' }}
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Fecha final
             </p>
@@ -125,9 +154,12 @@
             <p class="font-semibold">
                 {{ $competencia->fecha_fin?->format('d/m/Y') ?? '—' }}
             </p>
+
         </div>
 
+
         <div>
+
             <p class="text-sm text-gray-500">
                 Lugar
             </p>
@@ -135,9 +167,11 @@
             <p class="font-semibold">
                 {{ $competencia->lugar ?: '—' }}
             </p>
+
         </div>
 
     </div>
+
 
     @if($competencia->descripcion)
 
@@ -158,9 +192,17 @@
 </x-card>
 
 
-{{-- Próximamente: participantes, partidos y estadísticas --}}
+
+{{-- =========================================================
+     MÓDULOS DE LA COMPETENCIA
+========================================================= --}}
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+
+
+    {{-- =====================================================
+         PARTICIPANTES
+    ====================================================== --}}
 
     <x-card>
 
@@ -174,14 +216,28 @@
                 Participantes
             </h3>
 
-            <p class="text-sm text-gray-500 mt-1">
-                Próximamente
+            <p class="text-sm text-gray-500 mt-1 mb-4">
+                Administra las jugadoras inscritas en esta competencia.
             </p>
+
+            <a
+                href="{{ route('competencias.participantes.index', $competencia) }}"
+                class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+
+                📋 Abrir planilla
+
+            </a>
 
         </div>
 
     </x-card>
 
+
+
+    {{-- =====================================================
+         PARTIDOS
+    ====================================================== --}}
 
     <x-card>
 
@@ -195,14 +251,28 @@
                 Partidos
             </h3>
 
-            <p class="text-sm text-gray-500 mt-1">
-                Próximamente
+            <p class="text-sm text-gray-500 mt-1 mb-4">
+                Consulta los partidos registrados en esta competencia.
             </p>
+
+            <a
+                href="{{ route('partidos.index') }}"
+                class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+
+                ⚽ Ver partidos
+
+            </a>
 
         </div>
 
     </x-card>
 
+
+
+    {{-- =====================================================
+         ESTADÍSTICAS
+    ====================================================== --}}
 
     <x-card>
 
@@ -216,14 +286,24 @@
                 Estadísticas
             </h3>
 
-            <p class="text-sm text-gray-500 mt-1">
-                Próximamente
+            <p class="text-sm text-gray-500 mt-1 mb-4">
+                Consulta el rendimiento del equipo en esta competencia.
             </p>
+
+            <a
+                href="{{ route('competencias.estadisticas', $competencia) }}"
+                class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+            >
+
+                📊 Ver estadísticas
+
+            </a>
 
         </div>
 
     </x-card>
 
 </div>
+
 
 @endsection

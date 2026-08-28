@@ -30,6 +30,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\InscripcionPublicaController;
 use App\Http\Controllers\CompetenciaController;
+use App\Http\Controllers\CompetenciaParticipanteController;
 
 
 
@@ -630,13 +631,66 @@ Route::post(
     [InscripcionPublicaController::class, 'store']
 )->name('inscripcion.publica.store');
 
+// =// ===========================
+// Participantes de competencia
+// ===========================
 
+Route::get(
+    'competencias/{competencia}/participantes',
+    [CompetenciaParticipanteController::class, 'index']
+)
+    ->middleware('permiso:competencias.ver')
+    ->name('competencias.participantes.index');
 
+Route::post(
+    'competencias/{competencia}/participantes',
+    [CompetenciaParticipanteController::class, 'store']
+)
+    ->middleware('permiso:competencias.editar')
+    ->name('competencias.participantes.store');
+
+Route::post(
+    'competencias/{competencia}/participantes/agregar',
+    [CompetenciaParticipanteController::class, 'agregar']
+)
+    ->middleware('permiso:competencias.editar')
+    ->name('competencias.participantes.agregar');
+
+// .zip
+Route::get(
+    'competencias/{competencia}/participantes/exportar-zip',
+    [CompetenciaParticipanteController::class, 'exportarZip']
+)->name('competencias.participantes.exportarZip');
+
+Route::delete(
+    'competencias/{competencia}/participantes/{jugador}',
+    [CompetenciaParticipanteController::class, 'eliminar']
+)
+    ->middleware('permiso:competencias.editar')
+    ->name('competencias.participantes.eliminar');
+
+Route::get(
+    'competencias/{competencia}/participantes/exportar',
+    [CompetenciaParticipanteController::class, 'exportar']
+)->name('competencias.participantes.exportar');
+
+Route::get(
+    'competencias/{competencia}/participantes/exportar-pdf',
+    [CompetenciaParticipanteController::class, 'exportarPdf']
+)->name('competencias.participantes.exportarPdf');
 
 
 // ===========================
 // Competencias
 // ===========================
+
+Route::get(
+    'competencias/{competencia}/estadisticas',
+    [CompetenciaController::class, 'estadisticas']
+)
+    ->middleware('permiso:competencias.ver')
+    ->name('competencias.estadisticas');
+
 
 Route::resource('competencias', CompetenciaController::class)
     ->middleware('permiso:competencias.ver');

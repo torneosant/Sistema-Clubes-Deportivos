@@ -23,6 +23,7 @@
             'goles_contra',
             'estado',
             'observaciones',
+            'competencia_id',
         ];
 
         public function club()
@@ -43,5 +44,10 @@
         public function estadisticasJugadoras()
 {
     return $this->hasMany(PartidoJugador::class);
+}
+
+public function competencia()
+{
+    return $this->belongsTo(Competencia::class);
 }
     }

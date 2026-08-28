@@ -58,29 +58,41 @@
     </td>
 
     <td class="py-3">
+
         @switch($competencia->tipo)
 
             @case('campeonato')
+
                 🏆 Campeonato
+
                 @break
 
             @case('festival')
+
                 🎪 Festival
+
                 @break
 
             @case('evento')
+
                 🎯 Evento
+
                 @break
 
         @endswitch
+
     </td>
 
     <td class="py-3">
+
         {{ $competencia->categoria?->nombre ?? 'Todas' }}
+
     </td>
 
     <td class="py-3">
+
         {{ $competencia->fecha_inicio?->format('d/m/Y') ?? '—' }}
+
     </td>
 
     <td class="py-3">
@@ -88,27 +100,35 @@
         @switch($competencia->estado)
 
             @case('proximo')
+
                 <span class="px-2 py-1 rounded bg-blue-100 text-blue-700">
                     Próximo
                 </span>
+
                 @break
 
             @case('en_curso')
+
                 <span class="px-2 py-1 rounded bg-green-100 text-green-700">
                     En curso
                 </span>
+
                 @break
 
             @case('finalizado')
+
                 <span class="px-2 py-1 rounded bg-gray-100 text-gray-700">
                     Finalizado
                 </span>
+
                 @break
 
             @case('cancelado')
+
                 <span class="px-2 py-1 rounded bg-red-100 text-red-700">
                     Cancelado
                 </span>
+
                 @break
 
         @endswitch
@@ -119,24 +139,40 @@
 
         <div class="flex justify-end gap-2">
 
+            {{-- VER --}}
+
             <a href="{{ route('competencias.show', $competencia) }}"
                class="px-3 py-1 bg-slate-100 rounded hover:bg-slate-200">
+
                 Ver
+
             </a>
+
+
+            {{-- EDITAR --}}
 
             <a href="{{ route('competencias.edit', $competencia) }}"
                class="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+
                 Editar
+
             </a>
+
+
+           
+
+            {{-- ELIMINAR --}}
 
             <form method="POST"
                   action="{{ route('competencias.destroy', $competencia) }}"
                   onsubmit="return confirm('¿Eliminar esta competencia?')">
 
                 @csrf
+
                 @method('DELETE')
 
                 <button
+                    type="submit"
                     class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
 
                     Eliminar
@@ -163,7 +199,9 @@
 
 <div class="text-center py-12 text-slate-500">
 
-    <div class="text-5xl mb-4">🏆</div>
+    <div class="text-5xl mb-4">
+        🏆
+    </div>
 
     <p class="text-lg font-medium">
         No hay competencias registradas.

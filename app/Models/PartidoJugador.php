@@ -11,27 +11,83 @@ class PartidoJugador extends Model
 
     protected $table = 'partido_jugadores';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Campos asignables
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
+
         'partido_id',
+
         'jugador_id',
-        'minutos',
-        'goles',
-        'asistencias',
-        'amarillas',
-        'rojas',
-        'figura',
-        'observaciones',
+
         'participacion',
+
+        'titular',
+
+        'minutos',
+
+        'goles',
+
+        'asistencias',
+
+        'amarillas',
+
+        'rojas',
+
+        'figura',
+
+        'observaciones',
+
     ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Casts
+    |--------------------------------------------------------------------------
+    */
+
+    protected $casts = [
+
+        'titular' => 'boolean',
+
+        'figura' => 'boolean',
+
+        'minutos' => 'integer',
+
+        'goles' => 'integer',
+
+        'asistencias' => 'integer',
+
+        'amarillas' => 'integer',
+
+        'rojas' => 'integer',
+
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function partido()
     {
-        return $this->belongsTo(Partido::class);
+        return $this->belongsTo(
+            Partido::class
+        );
     }
+
 
     public function jugador()
     {
-        return $this->belongsTo(Jugador::class);
+        return $this->belongsTo(
+            Jugador::class
+        );
     }
-    
 }

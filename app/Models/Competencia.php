@@ -19,12 +19,14 @@ class Competencia extends Model
         'lugar',
         'descripcion',
         'activo',
+        'puntos_adicionales',
     ];
 
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
         'activo' => 'boolean',
+        'puntos_adicionales' => 'integer',
     ];
 
     public function club()
@@ -37,16 +39,6 @@ class Competencia extends Model
         return $this->belongsTo(Categoria::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Participantes
-    |--------------------------------------------------------------------------
-    |
-    | Esta relación la completaremos cuando construyamos la inscripción
-    | de jugadores a la competencia.
-    |
-    */
-
     public function jugadores()
     {
         return $this->belongsToMany(
@@ -54,10 +46,17 @@ class Competencia extends Model
             'competencia_jugadores',
             'competencia_id',
             'jugador_id'
-        )->withPivot([
+        )
+        ->withPivot([
             'es_refuerzo',
             'categoria_origen_id',
             'observaciones',
-        ])->withTimestamps();
+        ])
+        ->withTimestamps();
     }
+
+    public function partidos()
+{
+    return $this->hasMany(Partido::class, 'competencia_id');
+}
 }

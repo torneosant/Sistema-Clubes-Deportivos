@@ -107,4 +107,20 @@ public function documentos()
     return $this->hasMany(Documento::class);
 }
 
+public function competencias()
+{
+    return $this->belongsToMany(
+        Competencia::class,
+        'competencia_jugadores',
+        'jugador_id',
+        'competencia_id'
+    )
+    ->withPivot([
+        'es_refuerzo',
+        'categoria_origen_id',
+        'observaciones',
+    ])
+    ->withTimestamps();
+}
+
 }

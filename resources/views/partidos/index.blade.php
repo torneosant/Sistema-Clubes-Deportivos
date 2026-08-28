@@ -99,7 +99,7 @@
                 </x-table-cell>
 
                 <x-table-cell align="center">
-                    {{ $partido->competencia ?? '-' }}
+                   {{ $partido->competencia ?: 'Amistoso' }}
                 </x-table-cell>
 
                 <x-table-cell align="center">
