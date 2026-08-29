@@ -123,4 +123,20 @@ public function competencias()
     ->withTimestamps();
 }
 
+public function cargos()
+{
+    return $this->hasMany(
+        CargoJugador::class,
+        'jugador_id'
+    );
+}
+
+public function pagos()
+{
+    return $this->hasMany(
+        Contabilidad::class,
+        'jugador_id'
+    )->where('tipo', 'Ingreso');
+}
+
 }

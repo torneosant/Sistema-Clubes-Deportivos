@@ -4,53 +4,20 @@
 
 @section('contenido')
 
-
-{{-- ENCABEZADO --}}
-
 <x-page-header
-    title="📂 Conceptos Contables"
-    subtitle="Administra los conceptos de ingresos y gastos del club."
->
+    title="📚 Conceptos contables"
+    subtitle="Configura los conceptos utilizados en ingresos, gastos y cargos de jugadores."
+/>
 
 
-    <div class="flex items-center gap-2">
-
-        <x-stat
-            label="Total"
-            :value="$conceptos->count()"
-            icon="📂"
-            color="blue"
-        />
-
-        <x-stat
-            label="Ingresos"
-            :value="$conceptos->where('tipo', 'Ingreso')->count()"
-            icon="💰"
-            color="green"
-        />
-
-        <x-stat
-            label="Gastos"
-            :value="$conceptos->where('tipo', 'Egreso')->count()"
-            icon="💸"
-            color="red"
-        />
-
-        <x-stat
-            label="Activos"
-            :value="$conceptos->where('activo', true)->count()"
-            icon="🟢"
-            color="purple"
-        />
-
-    </div>
-
-</x-page-header>
-
+{{-- =========================================================
+     MENSAJES
+========================================================= --}}
 
 @if(session('success'))
 
-    <div class="mb-6 rounded-lg bg-green-100 border border-green-300 text-green-700 px-4 py-3">
+    <div class="mb-5 rounded-xl bg-green-50 border border-green-200
+                text-green-700 px-4 py-3 text-sm">
 
         {{ session('success') }}
 
@@ -59,178 +26,370 @@
 @endif
 
 
-{{-- ACCIONES --}}
+@if($errors->any())
 
-<x-actions>
+    <div class="mb-5 rounded-xl bg-red-50 border border-red-200
+                text-red-700 px-4 py-3 text-sm">
 
-    <a href="{{ route('conceptos-contables.create') }}">
+        <ul class="list-disc ml-5">
 
-        <x-button color="green">
+            @foreach($errors->all() as $error)
 
-            ➕ Nuevo Concepto
+                <li>{{ $error }}</li>
 
-        </x-button>
+            @endforeach
+
+        </ul>
+
+    </div>
+
+@endif
+
+
+{{-- =========================================================
+     ACCIONES
+========================================================= --}}
+
+<div class="flex justify-end mb-5">
+
+    <a
+        href="{{ route('conceptos-contables.create') }}"
+        class="inline-flex items-center gap-2
+               bg-blue-600 hover:bg-blue-700
+               text-white px-4 py-2 rounded-lg
+               text-sm font-semibold
+               shadow-sm transition"
+    >
+
+        ➕ Nuevo concepto
 
     </a>
 
-</x-actions>
+</div>
 
 
-{{-- TABLA --}}
+{{-- =========================================================
+     TABLA
+========================================================= --}}
 
-<x-table>
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
 
-    <x-table-header>
+    <div class="bg-slate-800 text-white px-5 py-4">
 
-        <x-table-header-cell>
-            Nombre
-        </x-table-header-cell>
+        <div class="flex items-center justify-between">
 
-        <x-table-header-cell align="center">
-            Tipo
-        </x-table-header-cell>
+            <div>
 
-        <x-table-header-cell>
-            Descripción
-        </x-table-header-cell>
+                <h3 class="font-bold text-base">
+                    📚 Conceptos registrados
+                </h3>
 
-        <x-table-header-cell align="center">
-            Estado
-        </x-table-header-cell>
+                <p class="text-xs text-slate-300 mt-1">
+                    Catálogo de conceptos utilizados por el club.
+                </p>
 
-        <x-table-header-cell align="center">
-            Acciones
-        </x-table-header-cell>
+            </div>
 
-    </x-table-header>
+            <span class="text-xs bg-slate-700
+                         px-3 py-1 rounded-full">
 
+                {{ $conceptos->count() }}
 
-    <tbody>
+                {{ $conceptos->count() == 1
+                    ? 'concepto'
+                    : 'conceptos' }}
 
-        @forelse($conceptos as $concepto)
+            </span>
 
-            <x-table-row>
+        </div>
 
-
-                {{-- NOMBRE --}}
-
-                <x-table-cell>
-
-                    <span class="font-semibold">
-
-                        {{ $concepto->nombre }}
-
-                    </span>
-
-                </x-table-cell>
+    </div>
 
 
-                {{-- TIPO --}}
+    <div class="p-4">
 
-                <x-table-cell align="center">
+        <div class="overflow-x-auto border rounded-xl">
 
-                    @if($concepto->tipo == 'Ingreso')
+            <table class="min-w-full text-sm">
 
-                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                <thead class="bg-gray-100">
 
-                            💰 Ingreso
+                    <tr>
 
-                        </span>
+                        <th class="px-4 py-3 text-left">
+                            Concepto
+                        </th>
 
-                    @else
+                        <th class="px-4 py-3 text-center">
+                            Tipo
+                        </th>
 
-                        <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                        <th class="px-4 py-3 text-right">
+                            Valor predeterminado
+                        </th>
 
-                            💸 Gasto
+                        <th class="px-4 py-3 text-left">
+                            Descripción
+                        </th>
 
-                        </span>
+                        <th class="px-4 py-3 text-center">
+                            Estado
+                        </th>
 
-                    @endif
+                        <th class="px-4 py-3 text-center">
+                            Acciones
+                        </th>
 
-                </x-table-cell>
+                    </tr>
 
-
-                {{-- DESCRIPCIÓN --}}
-
-                <x-table-cell>
-
-                    {{ $concepto->descripcion ?? '-' }}
-
-                </x-table-cell>
-
-
-                {{-- ESTADO --}}
-
-                <x-table-cell align="center">
-
-                    @if($concepto->activo)
-
-                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-
-                            Activo
-
-                        </span>
-
-                    @else
-
-                        <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm">
-
-                            Inactivo
-
-                        </span>
-
-                    @endif
-
-                </x-table-cell>
+                </thead>
 
 
-                {{-- ACCIONES --}}
+                <tbody>
 
-                <x-table-cell align="center">
+                    @forelse($conceptos as $concepto)
 
-                    <div class="flex justify-center items-center gap-2">
+                        <tr class="border-t hover:bg-gray-50">
 
-                        <a href="{{ route('conceptos-contables.edit', $concepto) }}">
 
-                            <x-button
-                                color="yellow"
-                                icon
-                                title="Editar concepto"
+                            {{-- CONCEPTO --}}
+
+                            <td class="px-4 py-3">
+
+                                <div class="font-semibold text-gray-800">
+
+                                    {{ $concepto->nombre }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- TIPO --}}
+
+                            <td class="px-4 py-3 text-center">
+
+                                @if($concepto->tipo === 'Ingreso')
+
+                                    <span
+                                        class="inline-flex px-2 py-1
+                                               rounded-full
+                                               bg-green-100
+                                               text-green-700
+                                               text-xs font-semibold"
+                                    >
+
+                                        💰 Ingreso
+
+                                    </span>
+
+                                @else
+
+                                    <span
+                                        class="inline-flex px-2 py-1
+                                               rounded-full
+                                               bg-red-100
+                                               text-red-700
+                                               text-xs font-semibold"
+                                    >
+
+                                        💸 Egreso
+
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- VALOR --}}
+
+                            <td class="px-4 py-3 text-right">
+
+                                @if(
+                                    $concepto->valor_predeterminado !== null
+                                    && $concepto->valor_predeterminado > 0
+                                )
+
+                                    <span class="font-semibold text-slate-700">
+
+                                        ${{ number_format(
+                                            $concepto->valor_predeterminado,
+                                            0,
+                                            ',',
+                                            '.'
+                                        ) }}
+
+                                    </span>
+
+                                @else
+
+                                    <span class="text-gray-400">
+                                        —
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- DESCRIPCIÓN --}}
+
+                            <td class="px-4 py-3">
+
+                                <span class="text-gray-600">
+
+                                    {{ $concepto->descripcion ?: '—' }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- ESTADO --}}
+
+                            <td class="px-4 py-3 text-center">
+
+                                @if($concepto->activo)
+
+                                    <span
+                                        class="inline-flex px-2 py-1
+                                               rounded-full
+                                               bg-green-100
+                                               text-green-700
+                                               text-xs font-semibold"
+                                    >
+
+                                        ✓ Activo
+
+                                    </span>
+
+                                @else
+
+                                    <span
+                                        class="inline-flex px-2 py-1
+                                               rounded-full
+                                               bg-gray-100
+                                               text-gray-600
+                                               text-xs font-semibold"
+                                    >
+
+                                        Inactivo
+
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- ACCIONES --}}
+
+                            <td class="px-4 py-3">
+
+                                <div class="flex justify-center
+                                            items-center gap-2">
+
+                                    <a
+                                        href="{{ route(
+                                            'conceptos-contables.edit',
+                                            $concepto
+                                        ) }}"
+                                        class="inline-flex
+                                               items-center
+                                               justify-center
+                                               w-8 h-8
+                                               rounded-lg
+                                               bg-blue-50
+                                               text-blue-600
+                                               hover:bg-blue-100
+                                               transition"
+                                        title="Editar concepto"
+                                    >
+
+                                        ✏️
+
+                                    </a>
+
+
+                                    <form
+                                        action="{{ route(
+                                            'conceptos-contables.destroy',
+                                            $concepto
+                                        ) }}"
+                                        method="POST"
+                                        class="inline"
+                                        onsubmit="return confirm(
+                                            '¿Deseas eliminar este concepto?'
+                                        );"
+                                    >
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="inline-flex
+                                                   items-center
+                                                   justify-center
+                                                   w-8 h-8
+                                                   rounded-lg
+                                                   bg-red-50
+                                                   text-red-600
+                                                   hover:bg-red-100
+                                                   transition"
+                                            title="Eliminar concepto"
+                                        >
+
+                                            🗑️
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="px-4 py-10 text-center
+                                       text-gray-500"
                             >
 
-                                ✏️
+                                <div class="text-3xl mb-2">
+                                    📚
+                                </div>
 
-                            </x-button>
+                                <div class="font-semibold">
+                                    No hay conceptos registrados.
+                                </div>
 
-                        </a>
+                                <div class="text-xs mt-1">
+                                    Crea el primer concepto contable para comenzar.
+                                </div>
 
-                    </div>
+                            </td>
 
-                </x-table-cell>
+                        </tr>
 
+                    @endforelse
 
-            </x-table-row>
+                </tbody>
 
-        @empty
+            </table>
 
-            <tr>
+        </div>
 
-                <td
-                    colspan="5"
-                    class="px-4 py-10 text-center text-gray-500"
-                >
+    </div>
 
-                    No existen conceptos registrados.
-
-                </td>
-
-            </tr>
-
-        @endforelse
-
-    </tbody>
-
-</x-table>
-
+</div>
 
 @endsection

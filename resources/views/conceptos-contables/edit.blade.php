@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('titulo', 'Nuevo concepto contable')
+@section('titulo', 'Editar concepto contable')
 
 @section('contenido')
 
 <x-page-header
-    title="📚 Nuevo concepto contable"
-    subtitle="Crea un concepto que podrá utilizarse en ingresos, gastos y cargos de jugadores."
+    title="✏️ Editar concepto contable"
+    subtitle="Modifica la configuración del concepto seleccionado."
 />
 
 
@@ -38,25 +38,46 @@
 
     <form
         method="POST"
-        action="{{ route('conceptos-contables.store') }}"
+        action="{{ route(
+            'conceptos-contables.update',
+            $conceptoContable
+        ) }}"
     >
 
         @csrf
 
+        @method('PUT')
+
 
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+
 
             {{-- ENCABEZADO --}}
 
             <div class="bg-slate-800 text-white px-6 py-4">
 
-                <h2 class="font-bold text-lg">
-                    📚 Información del concepto
-                </h2>
+                <div class="flex items-center gap-3">
 
-                <p class="text-xs text-slate-300 mt-1">
-                    Define el nombre, tipo y valor que utilizará el club.
-                </p>
+                    <div class="w-9 h-9 rounded-lg bg-white/10
+                                flex items-center justify-center">
+
+                        ✏️
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="font-bold text-lg">
+                            {{ $conceptoContable->nombre }}
+                        </h2>
+
+                        <p class="text-xs text-slate-300 mt-1">
+                            Configuración del concepto contable.
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -79,22 +100,21 @@
 
                     </label>
 
+
                     <input
                         type="text"
                         name="nombre"
-                        value="{{ old('nombre') }}"
+                        value="{{ old(
+                            'nombre',
+                            $conceptoContable->nombre
+                        ) }}"
                         required
                         maxlength="255"
-                        placeholder="Ej. MENSUALIDAD"
                         class="w-full border border-gray-300
                                rounded-lg px-3 py-2.5
                                focus:ring-2 focus:ring-blue-500
                                focus:border-blue-500"
                     >
-
-                    <p class="text-xs text-gray-400 mt-1">
-                        Ejemplo: MENSUALIDAD, UNIFORME, INSCRIPCIÓN.
-                    </p>
 
                 </div>
 
@@ -123,30 +143,36 @@
                                focus:border-blue-500"
                     >
 
-                        <option value="">
-                            Seleccione un tipo
-                        </option>
-
                         <option
                             value="Ingreso"
-                            @selected(old('tipo') === 'Ingreso')
+                            @selected(
+                                old(
+                                    'tipo',
+                                    $conceptoContable->tipo
+                                ) === 'Ingreso'
+                            )
                         >
+
                             💰 Ingreso
+
                         </option>
+
 
                         <option
                             value="Egreso"
-                            @selected(old('tipo') === 'Egreso')
+                            @selected(
+                                old(
+                                    'tipo',
+                                    $conceptoContable->tipo
+                                ) === 'Egreso'
+                            )
                         >
+
                             💸 Egreso
+
                         </option>
 
                     </select>
-
-                    <p class="text-xs text-gray-400 mt-1">
-                        Los conceptos de ingreso pueden utilizarse
-                        para cargos a jugadores.
-                    </p>
 
                 </div>
 
@@ -179,7 +205,10 @@
                         <input
                             type="number"
                             name="valor_predeterminado"
-                            value="{{ old('valor_predeterminado') }}"
+                            value="{{ old(
+                                'valor_predeterminado',
+                                $conceptoContable->valor_predeterminado
+                            ) }}"
                             min="0"
                             step="1"
                             placeholder="20000"
@@ -194,8 +223,8 @@
 
                     <p class="text-xs text-gray-400 mt-1">
 
-                        Este valor aparecerá automáticamente
-                        al crear un cargo para un jugador.
+                        Este valor se utilizará como referencia
+                        al crear nuevos cargos.
 
                     </p>
 
@@ -219,32 +248,43 @@
                     <textarea
                         name="descripcion"
                         rows="3"
-                        placeholder="Descripción opcional del concepto..."
+                        placeholder="Descripción opcional..."
                         class="w-full border border-gray-300
                                rounded-lg px-3 py-2.5
                                focus:ring-2 focus:ring-blue-500
                                focus:border-blue-500"
-                    >{{ old('descripcion') }}</textarea>
+                    >{{ old(
+                        'descripcion',
+                        $conceptoContable->descripcion
+                    ) }}</textarea>
 
                 </div>
 
 
-                {{-- ACTIVO --}}
+                {{-- ESTADO --}}
 
                 <div class="rounded-xl bg-gray-50
                             border border-gray-200 p-4">
 
-                    <label class="flex items-center gap-3 cursor-pointer">
+                    <label
+                        class="flex items-center gap-3 cursor-pointer"
+                    >
 
                         <input
                             type="checkbox"
                             name="activo"
                             value="1"
-                            checked
+                            @checked(
+                                old(
+                                    'activo',
+                                    $conceptoContable->activo
+                                )
+                            )
                             class="w-4 h-4 text-blue-600
                                    border-gray-300 rounded
                                    focus:ring-blue-500"
                         >
+
 
                         <div>
 
@@ -256,7 +296,8 @@
 
                             <div class="text-xs text-gray-500">
 
-                                Podrá seleccionarse al crear nuevos registros.
+                                Los conceptos inactivos no aparecerán
+                                para nuevos registros.
 
                             </div>
 
@@ -269,29 +310,31 @@
             </div>
 
 
-            {{-- INFORMACIÓN --}}
+            {{-- INFORMACIÓN HISTÓRICA --}}
 
             <div class="mx-6 mb-6 rounded-xl
-                        bg-blue-50 border border-blue-200
+                        bg-amber-50 border border-amber-200
                         px-4 py-3">
 
                 <div class="flex gap-3">
 
                     <div class="text-lg">
-                        ℹ️
+                        ⚠️
                     </div>
 
                     <div>
 
-                        <div class="font-semibold text-blue-800 text-sm">
-                            Sobre el valor predeterminado
+                        <div class="font-semibold text-amber-800 text-sm">
+
+                            Importante
+
                         </div>
 
-                        <div class="text-xs text-blue-700 mt-1">
+                        <div class="text-xs text-amber-700 mt-1">
 
-                            El valor es una referencia para agilizar
-                            la creación de cargos. Podrá modificarse
-                            cuando se cree un cargo específico.
+                            Cambiar el valor predeterminado no modifica
+                            los cargos que ya fueron creados. El nuevo
+                            valor se utilizará únicamente para cargos futuros.
 
                         </div>
 
@@ -328,7 +371,7 @@
                            font-semibold transition"
                 >
 
-                    💾 Guardar concepto
+                    💾 Guardar cambios
 
                 </button>
 

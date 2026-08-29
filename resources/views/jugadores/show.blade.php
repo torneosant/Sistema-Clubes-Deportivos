@@ -496,177 +496,575 @@
 
             </div>
 
+{{-- =====================================================
+     CONTABILIDAD DEL JUGADOR
+     SOLO CONSULTA
+====================================================== --}}
+
+<div id="panel-contabilidad" class="panel-jugador hidden">
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+
+        {{-- ENCABEZADO --}}
+        <div class="bg-emerald-700 text-white px-5 py-3">
+
+            <h3 class="font-bold text-base">
+                💰 Estado financiero
+            </h3>
+
+            <p class="text-xs text-emerald-100 mt-1">
+                Consulta de cargos, pagos y saldos del jugador.
+            </p>
+
+        </div>
+
+
+        <div class="p-5">
 
             {{-- =================================================
-                 CONTABILIDAD
+                 RESUMEN FINANCIERO
             ================================================== --}}
 
-            <div id="panel-contabilidad" class="panel-jugador hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
-                @php
-                    $pagado = $totalPagado ?? 0;
-                    $pendiente = $totalDebe ?? ($deuda ?? 0);
-                @endphp
+                {{-- TOTAL CARGOS --}}
+                <div class="rounded-xl border border-blue-100 bg-blue-50 p-4">
 
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-
-                    <div class="bg-emerald-700 text-white px-5 py-3 font-bold">
-                        💰 Estado financiero
+                    <div class="text-xs text-blue-600">
+                        Total cargos
                     </div>
 
-
-                    {{-- RESUMEN --}}
-
-                    <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                        <div class="bg-green-50 border border-green-100 rounded-xl p-4">
-
-                            <div class="text-xs text-gray-500">
-                                Total pagado
-                            </div>
-
-                            <div class="text-2xl font-bold text-green-700 mt-1">
-                                $ {{ number_format($pagado,0,',','.') }}
-                            </div>
-
-                        </div>
-
-
-                        <div class="bg-red-50 border border-red-100 rounded-xl p-4">
-
-                            <div class="text-xs text-gray-500">
-                                Total pendiente
-                            </div>
-
-                            <div class="text-2xl font-bold text-red-600 mt-1">
-                                $ {{ number_format($pendiente,0,',','.') }}
-                            </div>
-
-                        </div>
-
-
-                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-
-                            <div class="text-xs text-gray-500">
-                                Estado
-                            </div>
-
-                            <div class="text-lg font-bold mt-2
-                                {{ $pendiente > 0 ? 'text-red-600' : 'text-green-700' }}">
-
-                                {{ $pendiente > 0 ? 'Pendiente de pago' : 'Al día' }}
-
-                            </div>
-
-                        </div>
-
+                    <div class="text-xl font-bold text-blue-700 mt-1">
+                        $
+                        {{ number_format($totalCargos ?? 0, 0, ',', '.') }}
                     </div>
 
+                </div>
 
-                    {{-- MOVIMIENTOS --}}
 
-                    <div class="px-5 pb-5">
+                {{-- TOTAL PAGADO --}}
+                <div class="rounded-xl border border-green-100 bg-green-50 p-4">
 
-                        <div class="border rounded-xl overflow-hidden">
+                    <div class="text-xs text-green-600">
+                        Total pagado
+                    </div>
 
-                            <div class="bg-gray-50 px-4 py-3 font-semibold">
-                                Movimientos del jugador
-                            </div>
+                    <div class="text-xl font-bold text-green-700 mt-1">
+                        $
+                        {{ number_format($totalPagadoCargos ?? 0, 0, ',', '.') }}
+                    </div>
 
-                            <div class="overflow-x-auto">
+                </div>
 
-                                <table class="w-full text-sm">
 
-                                    <thead class="bg-gray-100">
+                {{-- TOTAL PENDIENTE --}}
+                <div class="rounded-xl border border-red-100 bg-red-50 p-4">
 
-                                        <tr>
+                    <div class="text-xs text-red-600">
+                        Total pendiente
+                    </div>
 
-                                            <th class="p-3 text-left">
-                                                Fecha
-                                            </th>
+                    <div class="text-xl font-bold text-red-600 mt-1">
+                        $
+                        {{ number_format($totalPendiente ?? 0, 0, ',', '.') }}
+                    </div>
 
-                                            <th class="p-3 text-left">
-                                                Concepto
-                                            </th>
+                </div>
 
-                                            <th class="p-3 text-left">
-                                                Tipo
-                                            </th>
 
-                                            <th class="p-3 text-right">
-                                                Valor
-                                            </th>
+                {{-- TOTAL EXONERADO --}}
+                <div class="rounded-xl border border-purple-100 bg-purple-50 p-4">
 
-                                        </tr>
+                    <div class="text-xs text-purple-600">
+                        Total exonerado
+                    </div>
 
-                                    </thead>
-
-                                    <tbody>
-
-                                    @forelse($movimientos as $m)
-
-                                        <tr class="border-t">
-
-                                            <td class="p-3">
-                                                {{ \Carbon\Carbon::parse($m->fecha)->format('d/m/Y') }}
-                                            </td>
-
-                                            <td class="p-3">
-                                                {{ optional($m->concepto)->nombre ?? '-' }}
-                                            </td>
-
-                                            <td class="p-3">
-
-                                                @if($m->tipo === 'Ingreso')
-
-                                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                                                        Ingreso
-                                                    </span>
-
-                                                @else
-
-                                                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">
-                                                        {{ $m->tipo }}
-                                                    </span>
-
-                                                @endif
-
-                                            </td>
-
-                                            <td class="p-3 text-right font-semibold">
-                                                $ {{ number_format($m->valor,0,',','.') }}
-                                            </td>
-
-                                        </tr>
-
-                                    @empty
-
-                                        <tr>
-
-                                            <td colspan="4"
-                                                class="text-center p-8 text-gray-500">
-
-                                                No existen movimientos contables.
-
-                                            </td>
-
-                                        </tr>
-
-                                    @endforelse
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-
-                        </div>
-
+                    <div class="text-xl font-bold text-purple-700 mt-1">
+                        $
+                        {{ number_format($totalExonerado ?? 0, 0, ',', '.') }}
                     </div>
 
                 </div>
 
             </div>
+
+
+            {{-- =================================================
+                 ESTADO GENERAL
+            ================================================== --}}
+
+            <div class="mt-4">
+
+                @if(($totalPendiente ?? 0) > 0)
+
+                    <div class="rounded-xl border border-red-200 bg-red-50
+                                px-4 py-3">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="text-xl">
+                                🔴
+                            </div>
+
+                            <div>
+
+                                <div class="font-semibold text-red-700">
+                                    Tiene saldo pendiente
+                                </div>
+
+                                <div class="text-xs text-red-600">
+                                    Pendiente por pagar:
+                                    <strong>
+                                        $
+                                        {{ number_format($totalPendiente, 0, ',', '.') }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @else
+
+                    <div class="rounded-xl border border-green-200 bg-green-50
+                                px-4 py-3">
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="text-xl">
+                                ✅
+                            </div>
+
+                            <div>
+
+                                <div class="font-semibold text-green-700">
+                                    Cuenta al día
+                                </div>
+
+                                <div class="text-xs text-green-600">
+                                    No tiene saldos pendientes.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+
+            {{-- =================================================
+                 CARGOS
+            ================================================== --}}
+
+            <div class="mt-6">
+
+                <div class="mb-3">
+
+                    <h4 class="font-bold text-gray-800">
+                        📋 Cargos del jugador
+                    </h4>
+
+                    <p class="text-xs text-gray-500">
+                        Conceptos que han sido cobrados al jugador.
+                    </p>
+
+                </div>
+
+
+                @if(isset($cargos) && $cargos->count())
+
+                    <div class="overflow-x-auto border rounded-xl">
+
+                        <table class="min-w-full text-sm">
+
+                            <thead class="bg-gray-100">
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Fecha
+                                    </th>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Periodo
+                                    </th>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Concepto
+                                    </th>
+
+                                    <th class="px-4 py-3 text-right">
+                                        Valor
+                                    </th>
+
+                                    <th class="px-4 py-3 text-right">
+                                        Pagado
+                                    </th>
+
+                                    <th class="px-4 py-3 text-right">
+                                        Pendiente
+                                    </th>
+
+                                    <th class="px-4 py-3 text-center">
+                                        Estado
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach($cargos as $cargo)
+
+                                    @php
+
+                                        $pendiente = max(
+                                            0,
+                                            (float) $cargo->valor -
+                                            (float) $cargo->valor_pagado
+                                        );
+
+                                    @endphp
+
+                                    <tr class="border-t hover:bg-gray-50">
+
+                                        {{-- FECHA --}}
+                                        <td class="px-4 py-3 whitespace-nowrap">
+
+                                            {{ $cargo->fecha?->format('d/m/Y') ?? '—' }}
+
+                                        </td>
+
+
+                                        {{-- PERIODO --}}
+                                        <td class="px-4 py-3 font-medium">
+
+                                            {{ $cargo->periodo ?: '—' }}
+
+                                        </td>
+
+
+                                        {{-- CONCEPTO --}}
+                                        <td class="px-4 py-3">
+
+                                            {{ $cargo->concepto?->nombre ?? 'Sin concepto' }}
+
+                                        </td>
+
+
+                                        {{-- VALOR --}}
+                                        <td class="px-4 py-3 text-right font-semibold">
+
+                                            $
+                                            {{ number_format($cargo->valor, 0, ',', '.') }}
+
+                                        </td>
+
+
+                                        {{-- PAGADO --}}
+                                        <td class="px-4 py-3 text-right
+                                                   text-green-700 font-semibold">
+
+                                            $
+                                            {{ number_format($cargo->valor_pagado, 0, ',', '.') }}
+
+                                        </td>
+
+
+                                        {{-- PENDIENTE --}}
+                                        <td class="px-4 py-3 text-right font-semibold
+                                            {{ $pendiente > 0
+                                                ? 'text-red-600'
+                                                : 'text-green-600' }}">
+
+                                            $
+                                            {{ number_format($pendiente, 0, ',', '.') }}
+
+                                        </td>
+
+
+                                        {{-- ESTADO --}}
+                                        <td class="px-4 py-3 text-center">
+
+                                            @if($cargo->estado === 'Pagado')
+
+                                                <span class="inline-flex px-2 py-1
+                                                             rounded-full
+                                                             bg-green-100
+                                                             text-green-700
+                                                             text-xs
+                                                             font-semibold">
+
+                                                    ✅ Pagado
+
+                                                </span>
+
+                                            @elseif($cargo->estado === 'Exonerado')
+
+                                                <span class="inline-flex px-2 py-1
+                                                             rounded-full
+                                                             bg-purple-100
+                                                             text-purple-700
+                                                             text-xs
+                                                             font-semibold">
+
+                                                    🎁 Exonerado
+
+                                                </span>
+
+                                            @elseif($cargo->estado === 'Anulado')
+
+                                                <span class="inline-flex px-2 py-1
+                                                             rounded-full
+                                                             bg-gray-100
+                                                             text-gray-600
+                                                             text-xs
+                                                             font-semibold">
+
+                                                    🚫 Anulado
+
+                                                </span>
+
+                                            @elseif($cargo->valor_pagado > 0)
+
+                                                <span class="inline-flex px-2 py-1
+                                                             rounded-full
+                                                             bg-yellow-100
+                                                             text-yellow-700
+                                                             text-xs
+                                                             font-semibold">
+
+                                                    🟡 Parcial
+
+                                                </span>
+
+                                            @else
+
+                                                <span class="inline-flex px-2 py-1
+                                                             rounded-full
+                                                             bg-red-100
+                                                             text-red-700
+                                                             text-xs
+                                                             font-semibold">
+
+                                                    🔴 Pendiente
+
+                                                </span>
+
+                                            @endif
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                @else
+
+                    <div class="border rounded-xl bg-gray-50 p-6 text-center">
+
+                        <div class="text-3xl mb-2">
+                            📋
+                        </div>
+
+                        <p class="font-semibold text-gray-700">
+                            No hay cargos registrados
+                        </p>
+
+                        <p class="text-xs text-gray-500 mt-1">
+                            Los cargos se administran desde el módulo de Contabilidad.
+                        </p>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+
+            {{-- =================================================
+                 PAGOS REGISTRADOS
+            ================================================== --}}
+
+            <div class="mt-6">
+
+                <div class="mb-3">
+
+                    <h4 class="font-bold text-gray-800">
+                        💵 Pagos registrados
+                    </h4>
+
+                    <p class="text-xs text-gray-500">
+                        Historial de pagos realizados por el jugador.
+                    </p>
+
+                </div>
+
+
+                @php
+
+                    $pagosJugador = $movimientos
+                        ->where('tipo', 'Ingreso');
+
+                @endphp
+
+
+                @if($pagosJugador->count())
+
+                    <div class="overflow-x-auto border rounded-xl">
+
+                        <table class="min-w-full text-sm">
+
+                            <thead class="bg-gray-100">
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Fecha
+                                    </th>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Periodo
+                                    </th>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Concepto
+                                    </th>
+
+                                    <th class="px-4 py-3 text-left">
+                                        Método
+                                    </th>
+
+                                    <th class="px-4 py-3 text-right">
+                                        Valor
+                                    </th>
+
+                                    <th class="px-4 py-3 text-center">
+                                        Estado
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach($pagosJugador as $pago)
+
+                                    <tr class="border-t hover:bg-gray-50">
+
+                                        {{-- FECHA --}}
+                                        <td class="px-4 py-3 whitespace-nowrap">
+
+                                            {{ $pago->fecha?->format('d/m/Y') ?? '—' }}
+
+                                        </td>
+
+
+                                        {{-- PERIODO --}}
+                                        <td class="px-4 py-3">
+
+                                            {{ $pago->periodo ?: '—' }}
+
+                                        </td>
+
+
+                                        {{-- CONCEPTO --}}
+                                        <td class="px-4 py-3">
+
+                                            {{ $pago->concepto?->nombre ?? 'Sin concepto' }}
+
+                                        </td>
+
+
+                                        {{-- METODO --}}
+                                        <td class="px-4 py-3">
+
+                                            {{ $pago->metodo_pago ?: '—' }}
+
+                                        </td>
+
+
+                                        {{-- VALOR --}}
+                                        <td class="px-4 py-3 text-right
+                                                   font-semibold text-green-700">
+
+                                            $
+                                            {{ number_format($pago->valor, 0, ',', '.') }}
+
+                                        </td>
+
+
+                                        {{-- ESTADO --}}
+                                        <td class="px-4 py-3 text-center">
+
+                                            <span class="inline-flex px-2 py-1
+                                                         rounded-full
+                                                         bg-green-100
+                                                         text-green-700
+                                                         text-xs
+                                                         font-semibold">
+
+                                                {{ $pago->estado ?? 'Pagado' }}
+
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                @else
+
+                    <div class="border rounded-xl bg-gray-50 p-5 text-center">
+
+                        <p class="text-sm text-gray-500">
+                            No hay pagos registrados.
+                        </p>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+
+            {{-- NOTA --}}
+            <div class="mt-5 rounded-lg bg-blue-50 border border-blue-100
+                        px-4 py-3 text-xs text-blue-700">
+
+                ℹ️ Los cargos, pagos, exoneraciones y demás movimientos
+                se administran desde el módulo de <strong>Contabilidad</strong>.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
             {{-- =================================================

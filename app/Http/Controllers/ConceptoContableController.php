@@ -5,84 +5,260 @@ namespace App\Http\Controllers;
 use App\Models\ConceptoContable;
 use Illuminate\Http\Request;
 
-
 class ConceptoContableController extends Controller
-{   
+{
     /**
-     * Display a listing of the resource.
+     * Mostrar listado de conceptos contables.
      */
     public function index()
-{
-    $clubId = auth()->user()->club_id;
+    {
+        $clubId = auth()->user()->club_id;
 
-    $conceptos = ConceptoContable::where('club_id', $clubId)
-        ->orderBy('tipo')
-        ->orderBy('nombre')
-        ->get();
+        $conceptos = ConceptoContable::where('club_id', $clubId)
+            ->orderBy('tipo')
+            ->orderBy('nombre')
+            ->get();
 
-    return view(
-        'conceptos-contables.index',
-        compact('conceptos')
-    );
-}
+        return view(
+            'conceptos-contables.index',
+            compact('conceptos')
+        );
+    }
+
+
     /**
-     * Show the form for creating a new resource.
+     * Mostrar formulario para crear concepto.
      */
     public function create()
-{
-    return view('conceptos-contables.create');
-}
-
-    /**
-     * Store a newly created resource in storage.
-     */
-public function store(Request $request)
-{
-    $datos = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'tipo' => 'required|string|max:50',
-        'descripcion' => 'nullable|string',
-    ]);
-
-    $datos['club_id'] = auth()->user()->club_id;
-    $datos['activo'] = $request->has('activo');
-
-    ConceptoContable::create($datos);
-
-    return redirect()
-        ->route('conceptos-contables.index')
-        ->with('success', 'Concepto creado correctamente.');
-}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ConceptoContable $conceptoContable)
     {
-        //
+        return view('conceptos-contables.create');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ConceptoContable $conceptoContable)
-    {
-        //
-    }
 
     /**
-     * Update the specified resource in storage.
+     * Guardar nuevo concepto.
      */
-    public function update(Request $request, ConceptoContable $conceptoContable)
+    public function store(Request $request)
     {
-        //
+        $datos = $request->validate([
+            'nombre' => 'required|string|max:255',
+
+            'tipo' => [
+                'required',
+                'in:Ingreso,Egreso',
+            ],
+
+            'valor_predeterminado' =>
+                'nullable|numeric|min:0',
+
+            'descripcion' =>
+                'nullable|string',
+        ]);
+
+
+        $datos['club_id'] =
+            auth()->user()->club_id;
+
+        $datos['activo'] =
+            $request->has('activo');
+
+
+        ConceptoContable::create($datos);
+
+
+        return redirect()
+            ->route('conceptos-contables.index')
+            ->with(
+                'success',
+                'Concepto creado correctamente.'
+            );
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Mostrar concepto.
      */
-    public function destroy(ConceptoContable $conceptoContable)
+    public function show($conceptos_contable)
     {
-        //
+        $clubId = auth()->user()->club_id;
+
+        $conceptoContable = ConceptoContable::where(
+            'club_id',
+            $clubId
+        )
+        ->where(
+            'id',
+            $conceptos_contable
+        )
+        ->firstOrFail();
+
+
+        return view(
+            'conceptos-contables.show',
+            compact('conceptoContable')
+        );
+    }
+
+
+    /**
+     * Mostrar formulario para editar.
+     */
+    public function edit($conceptos_contable)
+    {
+        $clubId = auth()->user()->club_id;
+
+        $conceptoContable = ConceptoContable::where(
+            'club_id',
+            $clubId
+        )
+        ->where(
+            'id',
+            $conceptos_contable
+        )
+        ->firstOrFail();
+
+
+        return view(
+            'conceptos-contables.edit',
+            compact('conceptoContable')
+        );
+    }
+
+
+    /**
+     * Actualizar concepto.
+     */
+    public function update(
+        Request $request,
+        $conceptos_contable
+    ) {
+        $clubId = auth()->user()->club_id;
+
+        $conceptoContable = ConceptoContable::where(
+            'club_id',
+            $clubId
+        )
+        ->where(
+            'id',
+            $conceptos_contable
+        )
+        ->firstOrFail();
+
+
+        $datos = $request->validate([
+            'nombre' =>
+                'required|string|max:255',
+
+            'tipo' => [
+                'required',
+                'in:Ingreso,Egreso',
+            ],
+
+            'valor_predeterminado' =>
+                'nullable|numeric|min:0',
+
+            'descripcion' =>
+                'nullable|string',
+        ]);
+
+
+        $datos['activo'] =
+            $request->has('activo');
+
+
+        $conceptoContable->update($datos);
+
+
+        return redirect()
+            ->route('conceptos-contables.index')
+            ->with(
+                'success',
+                'Concepto actualizado correctamente.'
+            );
+    }
+
+
+    /**
+     * Eliminar o desactivar concepto.
+     */
+    public function destroy($conceptos_contable)
+    {
+        $clubId = auth()->user()->club_id;
+
+        $conceptoContable = ConceptoContable::where(
+            'club_id',
+            $clubId
+        )
+        ->where(
+            'id',
+            $conceptos_contable
+        )
+        ->firstOrFail();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verificar movimientos asociados
+        |--------------------------------------------------------------------------
+        */
+
+        $tieneMovimientos =
+            $conceptoContable
+                ->movimientos()
+                ->exists();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verificar cargos de jugadores
+        |--------------------------------------------------------------------------
+        */
+
+        $tieneCargos =
+            $conceptoContable
+                ->cargos()
+                ->exists();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si tiene historial, no eliminar
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $tieneMovimientos ||
+            $tieneCargos
+        ) {
+
+            $conceptoContable->update([
+                'activo' => false,
+            ]);
+
+
+            return redirect()
+                ->route('conceptos-contables.index')
+                ->with(
+                    'success',
+                    'El concepto tiene registros asociados y fue desactivado para conservar el historial.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si nunca se ha utilizado, eliminar
+        |--------------------------------------------------------------------------
+        */
+
+        $conceptoContable->delete();
+
+
+        return redirect()
+            ->route('conceptos-contables.index')
+            ->with(
+                'success',
+                'Concepto eliminado correctamente.'
+            );
     }
 }

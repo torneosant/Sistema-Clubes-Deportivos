@@ -31,6 +31,8 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\InscripcionPublicaController;
 use App\Http\Controllers\CompetenciaController;
 use App\Http\Controllers\CompetenciaParticipanteController;
+use App\Http\Controllers\CargoJugadorController;
+use App\Http\Controllers\CobroController;
 
 
 
@@ -141,6 +143,57 @@ Route::delete(
 ->name('jugadores.documentos.destroy');
 
 
+
+// =====================================================
+// CARGOS DEL JUGADOR
+// =====================================================
+
+Route::get(
+    'jugadores/{jugador}/cargos',
+    [CargoJugadorController::class, 'index']
+)
+    ->middleware('permiso:jugadores.ver')
+    ->name('jugadores.cargos.index');
+
+Route::get(
+    'jugadores/{jugador}/cargos/crear',
+    [CargoJugadorController::class, 'create']
+)
+    ->middleware('permiso:jugadores.editar')
+    ->name('jugadores.cargos.create');
+
+Route::post(
+    'jugadores/{jugador}/cargos',
+    [CargoJugadorController::class, 'store']
+)
+    ->middleware('permiso:jugadores.editar')
+    ->name('jugadores.cargos.store');
+
+
+// =====================================================
+// ACCIONES SOBRE CARGOS
+// =====================================================
+
+Route::post(
+    'cargos-jugadores/{cargo}/exonerar',
+    [CargoJugadorController::class, 'exonerar']
+)
+    ->middleware('permiso:jugadores.editar')
+    ->name('cargos-jugadores.exonerar');
+
+Route::post(
+    'cargos-jugadores/{cargo}/anular',
+    [CargoJugadorController::class, 'anular']
+)
+    ->middleware('permiso:jugadores.editar')
+    ->name('cargos-jugadores.anular');
+
+Route::delete(
+    'cargos-jugadores/{cargo}',
+    [CargoJugadorController::class, 'destroy']
+)
+    ->middleware('permiso:jugadores.editar')
+    ->name('cargos-jugadores.destroy');
 
         
     // Categorías
@@ -351,12 +404,36 @@ Route::resource('contabilidad', ContabilidadController::class)
     ->middleware('permiso:contabilidad');
 
 
+    Route::post(
+    '/contabilidad/cargos',
+    [ContabilidadController::class, 'guardarCargo']
+)->name('contabilidad.cargos.store');
+
 // ===========================
 // Conceptos Contables
 // ===========================
 
 Route::resource('conceptos-contables', ConceptoContableController::class)
     ->middleware('permiso:conceptos_contables');
+
+Route::resource(
+    'cobros',
+    CobroController::class
+)->except([
+    'show',
+    'destroy',
+]);
+
+Route::post(
+    'cobros/{cobro}/generar',
+    [CobroController::class, 'generar']
+)->name('cobros.generar');
+
+Route::post(
+    'cobros/{cobro}/toggle',
+    [CobroController::class, 'toggle']
+)->name('cobros.toggle');
+
 
 
 // ===========================
