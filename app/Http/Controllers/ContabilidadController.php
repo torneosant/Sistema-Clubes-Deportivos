@@ -8,6 +8,9 @@ use App\Models\Jugador;
 use App\Models\CargoJugador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\ContabilidadExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ContabilidadController extends Controller
 {
@@ -34,12 +37,12 @@ class ContabilidadController extends Controller
         | PERIODO DE PENDIENTES
         |--------------------------------------------------------------------------
         |
-        | Por defecto se utiliza el mes actual.
+        | Valores posibles:
         |
-        | Ejemplo:
-        | 2026-08
+        | 2026-08   = mes específico
+        | todos      = todos los meses del año
         |
-        | Si el usuario selecciona otro periodo, se utiliza ese.
+        | Por defecto: mes actual.
         |
         */
 
@@ -51,19 +54,19 @@ class ContabilidadController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VALIDAR FORMATO DEL PERIODO
+        | VALIDAR PERIODO
         |--------------------------------------------------------------------------
         */
 
         if (
+            $periodoPendientes !== 'todos' &&
             !preg_match(
                 '/^\d{4}-\d{2}$/',
                 $periodoPendientes
             )
         ) {
 
-            $periodoPendientes =
-                date('Y-m');
+            $periodoPendientes = date('Y-m');
 
         }
 
@@ -79,14 +82,14 @@ class ContabilidadController extends Controller
             'jugador',
             'cargo',
         ])
-        ->where(
-            'club_id',
-            $clubId
-        )
-        ->whereYear(
-            'fecha',
-            $anio
-        );
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->whereYear(
+                'fecha',
+                $anio
+            );
 
 
         /*
@@ -193,15 +196,15 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->whereYear(
-            'fecha',
-            $anio
-        )
-        ->where(
-            'tipo',
-            'Ingreso'
-        )
-        ->sum('valor');
+            ->whereYear(
+                'fecha',
+                $anio
+            )
+            ->where(
+                'tipo',
+                'Ingreso'
+            )
+            ->sum('valor');
 
 
         /*
@@ -214,15 +217,15 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->whereYear(
-            'fecha',
-            $anio
-        )
-        ->where(
-            'tipo',
-            'Egreso'
-        )
-        ->sum('valor');
+            ->whereYear(
+                'fecha',
+                $anio
+            )
+            ->where(
+                'tipo',
+                'Egreso'
+            )
+            ->sum('valor');
 
 
         /*
@@ -247,17 +250,17 @@ class ContabilidadController extends Controller
             'concepto',
             'pagos',
         ])
-        ->where(
-            'club_id',
-            $clubId
-        )
-        ->whereYear(
-            'fecha',
-            $anio
-        )
-        ->orderByDesc('fecha')
-        ->orderByDesc('id')
-        ->get();
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->whereYear(
+                'fecha',
+                $anio
+            )
+            ->orderByDesc('fecha')
+            ->orderByDesc('id')
+            ->get();
 
 
         /*
@@ -294,7 +297,7 @@ class ContabilidadController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PENDIENTES DEL PERIODO SELECCIONADO
+        | PENDIENTES
         |--------------------------------------------------------------------------
         */
 
@@ -302,22 +305,45 @@ class ContabilidadController extends Controller
             'jugador',
             'concepto',
         ])
-        ->where(
-            'club_id',
-            $clubId
-        )
-        ->where(
-            'periodo',
-            $periodoPendientes
-        )
-        ->whereNotIn(
-            'estado',
-            [
-                'Pagado',
-                'Exonerado',
-                'Anulado',
-            ]
-        );
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->whereYear(
+                'fecha',
+                $anio
+            )
+            ->whereNotIn(
+                'estado',
+                [
+                    'Pagado',
+                    'Exonerado',
+                    'Anulado',
+                ]
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRO DE PERIODO
+        |--------------------------------------------------------------------------
+        |
+        | Si es "todos":
+        | muestra todo el año.
+        |
+        | Si es 2026-08:
+        | muestra solamente agosto.
+        |
+        */
+
+        if ($periodoPendientes !== 'todos') {
+
+            $queryPendientes->where(
+                'periodo',
+                $periodoPendientes
+            );
+
+        }
 
 
         /*
@@ -358,29 +384,33 @@ class ContabilidadController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $cargosPendientes =
-            $queryPendientes
-                ->orderBy('jugador_id')
-                ->orderBy('fecha')
-                ->orderBy('id')
-                ->get()
-                ->filter(function ($cargo) {
+        $cargosPendientes = $queryPendientes
+            ->orderBy(
+                'periodo'
+            )
+            ->orderBy(
+                'jugador_id'
+            )
+            ->orderBy(
+                'fecha'
+            )
+            ->orderBy(
+                'id'
+            )
+            ->get()
+            ->filter(function ($cargo) {
 
-                    return (float) $cargo->valor >
-                           (float) $cargo->valor_pagado;
+                return (float) $cargo->valor >
+                    (float) $cargo->valor_pagado;
 
-                })
-                ->values();
+            })
+            ->values();
 
 
         /*
         |--------------------------------------------------------------------------
         | TOTAL PENDIENTE
         |--------------------------------------------------------------------------
-        |
-        | Este total corresponde ÚNICAMENTE al periodo
-        | seleccionado en Pendientes.
-        |
         */
 
         $totalPendiente =
@@ -395,6 +425,29 @@ class ContabilidadController extends Controller
 
                 }
             );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CANTIDAD DE PENDIENTES
+        |--------------------------------------------------------------------------
+        */
+
+        $cantidadPendientes =
+            $cargosPendientes->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JUGADORES CON DEUDA
+        |--------------------------------------------------------------------------
+        */
+
+        $jugadoresConPendiente =
+            $cargosPendientes
+                ->pluck('jugador_id')
+                ->unique()
+                ->count();
 
 
         /*
@@ -421,12 +474,12 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->orderBy('nombre')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->orderBy('nombre')
+            ->get();
 
 
         /*
@@ -439,14 +492,31 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->with('categoria')
-        ->orderBy('apellidos')
-        ->orderBy('nombres')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->with('categoria')
+            ->orderBy('apellidos')
+            ->orderBy('nombres')
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AÑOS DISPONIBLES
+        |--------------------------------------------------------------------------
+        */
+
+        $aniosDisponibles = collect([
+            $anio,
+            date('Y'),
+            date('Y') - 1,
+            date('Y') + 1,
+        ])
+            ->unique()
+            ->sort()
+            ->values();
 
 
         /*
@@ -470,8 +540,11 @@ class ContabilidadController extends Controller
                 'totalPagadoCargos',
                 'totalPendiente',
                 'totalExonerado',
+                'cantidadPendientes',
+                'jugadoresConPendiente',
                 'anio',
-                'periodoPendientes'
+                'periodoPendientes',
+                'aniosDisponibles'
             )
         );
     }
@@ -498,12 +571,12 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->orderBy('nombre')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->orderBy('nombre')
+            ->get();
 
 
         /*
@@ -516,14 +589,14 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->with('categoria')
-        ->orderBy('apellidos')
-        ->orderBy('nombres')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->with('categoria')
+            ->orderBy('apellidos')
+            ->orderBy('nombres')
+            ->get();
 
 
         /*
@@ -535,26 +608,26 @@ class ContabilidadController extends Controller
         $cargosPendientes = CargoJugador::with([
             'concepto',
         ])
-        ->where(
-            'club_id',
-            $clubId
-        )
-        ->whereNotIn(
-            'estado',
-            [
-                'Pagado',
-                'Exonerado',
-                'Anulado',
-            ]
-        )
-        ->get()
-        ->filter(function ($cargo) {
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->whereNotIn(
+                'estado',
+                [
+                    'Pagado',
+                    'Exonerado',
+                    'Anulado',
+                ]
+            )
+            ->get()
+            ->filter(function ($cargo) {
 
-            return (float) $cargo->valor >
-                   (float) $cargo->valor_pagado;
+                return (float) $cargo->valor >
+                    (float) $cargo->valor_pagado;
 
-        })
-        ->values();
+            })
+            ->values();
 
 
         /*
@@ -636,15 +709,15 @@ class ContabilidadController extends Controller
             'id',
             $datos['concepto_contable_id']
         )
-        ->where(
-            'club_id',
-            $clubId
-        )
-        ->where(
-            'activo',
-            1
-        )
-        ->first();
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->where(
+                'activo',
+                1
+            )
+            ->first();
 
 
         if (!$concepto) {
@@ -674,15 +747,15 @@ class ContabilidadController extends Controller
                 'id',
                 $datos['jugador_id']
             )
-            ->where(
-                'club_id',
-                $clubId
-            )
-            ->where(
-                'activo',
-                1
-            )
-            ->first();
+                ->where(
+                    'club_id',
+                    $clubId
+                )
+                ->where(
+                    'activo',
+                    1
+                )
+                ->first();
 
 
             if (!$jugador) {
@@ -714,15 +787,15 @@ class ContabilidadController extends Controller
                 'id',
                 $datos['cargo_jugador_id']
             )
-            ->where(
-                'club_id',
-                $clubId
-            )
-            ->where(
-                'jugador_id',
-                $datos['jugador_id']
-            )
-            ->first();
+                ->where(
+                    'club_id',
+                    $clubId
+                )
+                ->where(
+                    'jugador_id',
+                    $datos['jugador_id']
+                )
+                ->first();
 
 
             if (!$cargo) {
@@ -929,25 +1002,25 @@ class ContabilidadController extends Controller
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->orderBy('nombre')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->orderBy('nombre')
+            ->get();
 
 
         $jugadores = Jugador::where(
             'club_id',
             $clubId
         )
-        ->where(
-            'activo',
-            1
-        )
-        ->orderBy('apellidos')
-        ->orderBy('nombres')
-        ->get();
+            ->where(
+                'activo',
+                1
+            )
+            ->orderBy('apellidos')
+            ->orderBy('nombres')
+            ->get();
 
 
         return view(
@@ -1023,11 +1096,11 @@ class ContabilidadController extends Controller
                 'id',
                 $datos['concepto_contable_id']
             )
-            ->where(
-                'club_id',
-                $clubId
-            )
-            ->exists();
+                ->where(
+                    'club_id',
+                    $clubId
+                )
+                ->exists();
 
 
         if (!$conceptoValido) {
@@ -1055,11 +1128,11 @@ class ContabilidadController extends Controller
                     'id',
                     $datos['jugador_id']
                 )
-                ->where(
-                    'club_id',
-                    $clubId
-                )
-                ->exists();
+                    ->where(
+                        'club_id',
+                        $clubId
+                    )
+                    ->exists();
 
 
             if (!$jugadorValido) {
@@ -1100,25 +1173,486 @@ class ContabilidadController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(
-        Contabilidad $contabilidad
+    /*
+|--------------------------------------------------------------------------
+| ELIMINAR MOVIMIENTO
+|--------------------------------------------------------------------------
+*/
+
+public function destroy(
+    Contabilidad $contabilidad
+) {
+
+    $clubId = auth()->user()->club_id;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEGURIDAD
+    |--------------------------------------------------------------------------
+    */
+
+    abort_unless(
+        $contabilidad->club_id == $clubId,
+        403
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GUARDAR CARGO RELACIONADO
+    |--------------------------------------------------------------------------
+    */
+
+    $cargoId =
+        $contabilidad->cargo_jugador_id;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ELIMINAR MOVIMIENTO Y RECALCULAR CARGO
+    |--------------------------------------------------------------------------
+    */
+
+    DB::transaction(function () use (
+        $contabilidad,
+        $cargoId,
+        $clubId
     ) {
 
-        abort_unless(
-            $contabilidad->club_id ==
-            auth()->user()->club_id,
-            403
-        );
 
+        /*
+        |--------------------------------------------------------------------------
+        | ELIMINAR MOVIMIENTO
+        |--------------------------------------------------------------------------
+        */
 
         $contabilidad->delete();
 
 
-        return redirect()
-            ->route('contabilidad.index')
-            ->with(
-                'success',
-                'Movimiento eliminado.'
+        /*
+        |--------------------------------------------------------------------------
+        | SI EL MOVIMIENTO ESTABA RELACIONADO
+        | CON UN CARGO DE JUGADOR
+        |--------------------------------------------------------------------------
+        */
+
+        if ($cargoId) {
+
+            $cargo = CargoJugador::where(
+                'id',
+                $cargoId
+            )
+                ->where(
+                    'club_id',
+                    $clubId
+                )
+                ->first();
+
+
+            if ($cargo) {
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | RECALCULAR TODO LO PAGADO
+                |--------------------------------------------------------------------------
+                |
+                | No ponemos simplemente 0 porque podría haber
+                | otros pagos parciales registrados sobre el mismo cargo.
+                |
+                */
+
+                $totalPagado =
+                    Contabilidad::where(
+                        'club_id',
+                        $clubId
+                    )
+                    ->where(
+                        'cargo_jugador_id',
+                        $cargo->id
+                    )
+                    ->sum('valor');
+
+
+                $totalPagado =
+                    (float) $totalPagado;
+
+
+                $valorCargo =
+                    (float) $cargo->valor;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CALCULAR PENDIENTE
+                |--------------------------------------------------------------------------
+                */
+
+                $pendiente =
+                    max(
+                        0,
+                        $valorCargo -
+                        $totalPagado
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DETERMINAR ESTADO
+                |--------------------------------------------------------------------------
+                */
+
+                if ($totalPagado <= 0) {
+
+                    $estado = 'Pendiente';
+
+                } elseif ($pendiente > 0) {
+
+                    $estado = 'Parcial';
+
+                } else {
+
+                    $estado = 'Pagado';
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | ACTUALIZAR CARGO
+                |--------------------------------------------------------------------------
+                */
+
+                $cargo->update([
+
+                    'valor_pagado' =>
+                        $totalPagado,
+
+                    'estado' =>
+                        $estado,
+
+                ]);
+
+            }
+
+        }
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESPUESTA
+    |--------------------------------------------------------------------------
+    */
+
+    return redirect()
+        ->route('contabilidad.index')
+        ->with(
+            'success',
+            'Movimiento eliminado y estado del cargo actualizado correctamente.'
+        );
+}
+
+    public function exportExcel(Request $request)
+{
+    $clubId = auth()->user()->club_id;
+
+    return Excel::download(
+        new ContabilidadExport(
+            $clubId,
+            $request->all()
+        ),
+        'contabilidad.xlsx'
+    );
+}
+
+
+public function exportPdf(Request $request)
+{
+    $clubId = auth()->user()->club_id;
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONFIGURACIÓN DEL AÑO
+    |--------------------------------------------------------------------------
+    */
+
+    $configuracion = \App\Models\Configuracion::find($clubId);
+
+    $anio = session(
+        'anio_trabajo',
+        $configuracion?->anio ?? date('Y')
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PDF DE PENDIENTES
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->boolean('solo_pendientes')) {
+
+        $periodoPendientes = $request->get(
+            'periodo_pendiente',
+            date('Y-m')
+        );
+
+
+        $query = CargoJugador::with([
+            'jugador',
+            'concepto',
+        ])
+            ->where(
+                'club_id',
+                $clubId
+            )
+            ->whereYear(
+                'fecha',
+                $anio
+            )
+            ->whereNotIn(
+                'estado',
+                [
+                    'Pagado',
+                    'Exonerado',
+                    'Anulado',
+                ]
             );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODO
+        |--------------------------------------------------------------------------
+        */
+
+        if ($periodoPendientes !== 'todos') {
+
+            $query->where(
+                'periodo',
+                $periodoPendientes
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JUGADOR
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('jugador')) {
+
+            $query->where(
+                'jugador_id',
+                $request->jugador
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONCEPTO
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('concepto_pendiente')) {
+
+            $query->where(
+                'concepto_contable_id',
+                $request->concepto_pendiente
+            );
+
+        }
+
+
+        $cargosPendientes = $query
+            ->orderBy('periodo')
+            ->orderBy('jugador_id')
+            ->orderBy('fecha')
+            ->get()
+            ->filter(function ($cargo) {
+
+                return (float) $cargo->valor >
+                    (float) $cargo->valor_pagado;
+
+            })
+            ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL
+        |--------------------------------------------------------------------------
+        */
+
+        $totalPendiente = $cargosPendientes->sum(
+            function ($cargo) {
+
+                return max(
+                    0,
+                    (float) $cargo->valor -
+                    (float) $cargo->valor_pagado
+                );
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PDF SOLO PENDIENTES
+        |--------------------------------------------------------------------------
+        */
+
+        $pdf = Pdf::loadView(
+            'contabilidad.print-pendientes',
+            compact(
+                'cargosPendientes',
+                'totalPendiente',
+                'anio',
+                'periodoPendientes'
+            )
+        );
+
+
+        return $pdf->download(
+            'pendientes-de-pago.pdf'
+        );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PDF SOLO MOVIMIENTOS
+    |--------------------------------------------------------------------------
+    */
+
+    $query = Contabilidad::with([
+        'concepto',
+        'jugador',
+        'cargo',
+    ])
+        ->where(
+            'club_id',
+            $clubId
+        )
+        ->whereYear(
+            'fecha',
+            $anio
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTRO TIPO
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('tipo')) {
+
+        $query->where(
+            'tipo',
+            $request->tipo
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTRO CONCEPTO
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('concepto')) {
+
+        $query->where(
+            'concepto_contable_id',
+            $request->concepto
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTRO JUGADOR
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('jugador_movimiento')) {
+
+        $query->where(
+            'jugador_id',
+            $request->jugador_movimiento
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DESDE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('desde')) {
+
+        $query->whereDate(
+            'fecha',
+            '>=',
+            $request->desde
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HASTA
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->filled('hasta')) {
+
+        $query->whereDate(
+            'fecha',
+            '<=',
+            $request->hasta
+        );
+
+    }
+
+
+    $movimientos = $query
+        ->orderByDesc('fecha')
+        ->orderByDesc('id')
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PDF SOLO MOVIMIENTOS
+    |--------------------------------------------------------------------------
+    */
+
+    $pdf = Pdf::loadView(
+        'contabilidad.print-movimientos',
+        compact(
+            'movimientos',
+            'anio'
+        )
+    );
+
+
+    return $pdf->download(
+        'movimientos-contables.pdf'
+    );
+}
 }

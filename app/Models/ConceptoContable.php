@@ -14,19 +14,31 @@ class ConceptoContable extends Model
         'nombre',
         'tipo',
         'descripcion',
-        'valor_predeterminado',
         'activo',
+
+        // Configuración de cobro
+        'genera_cobro',
+        'tipo_cobro',
+        'valor_cobro',
+        'dia_cobro',
+        'fecha_maxima',
+        'fecha_inicio',
     ];
 
     protected $casts = [
-        'valor_predeterminado' => 'decimal:2',
         'activo' => 'boolean',
+        'genera_cobro' => 'boolean',
+        'valor_cobro' => 'decimal:2',
+        'fecha_maxima' => 'date',
+        'fecha_inicio' => 'date',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | MOVIMIENTOS CONTABLES
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Movimientos contables asociados.
-     */
     public function movimientos()
     {
         return $this->hasMany(
@@ -35,10 +47,12 @@ class ConceptoContable extends Model
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CARGOS DE JUGADORES
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Cargos realizados a jugadores.
-     */
     public function cargos()
     {
         return $this->hasMany(
@@ -46,4 +60,12 @@ class ConceptoContable extends Model
             'concepto_contable_id'
         );
     }
+public function becas()
+{
+    return $this->hasMany(
+        BecaJugador::class,
+        'concepto_contable_id'
+    );
+}
+
 }

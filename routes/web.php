@@ -434,6 +434,32 @@ Route::post(
     [CobroController::class, 'toggle']
 )->name('cobros.toggle');
 
+Route::post(
+    'conceptos-contables/{conceptos_contable}/becas',
+    [ConceptoContableController::class, 'guardarBeca']
+)->name('conceptos-contables.becas.guardar');
+
+Route::post(
+    'becas-jugadores/{beca}/desactivar',
+    [ConceptoContableController::class, 'eliminarBeca']
+)->name('becas-jugadores.desactivar');
+
+
+
+Route::get(
+    'contabilidad/exportar/excel',
+    [ContabilidadController::class, 'exportExcel']
+)->name('contabilidad.exportExcel');
+
+Route::get(
+    'contabilidad/exportar/pdf',
+    [ContabilidadController::class, 'exportPdf']
+)->name('contabilidad.pdf');
+
+Route::post(
+    'conceptos-contables/{conceptos_contable}/generar-cobros',
+    [ConceptoContableController::class, 'generarCobros']
+)->name('conceptos-contables.generar-cobros');
 
 
 // ===========================

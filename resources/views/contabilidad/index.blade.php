@@ -4,1085 +4,1241 @@
 
 @section('contenido')
 
+
 {{-- =========================================================
      ENCABEZADO
 ========================================================= --}}
 
 <x-page-header
     title="💰 Contabilidad"
-    subtitle="Administra los ingresos, gastos y cuentas pendientes del club."
-/>
+    subtitle="Control financiero y seguimiento de pagos del club."
+>
+
+    <div class="flex flex-wrap items-center gap-2">
+
+        <x-stat
+            label="Ingresos"
+            :value="'$ ' . number_format($ingresos, 0, ',', '.')"
+            icon="💰"
+            color="green"
+        />
+
+        <x-stat
+            label="Gastos"
+            :value="'$ ' . number_format($gastos, 0, ',', '.')"
+            icon="💸"
+            color="red"
+        />
+
+        <x-stat
+            label="Saldo"
+            :value="'$ ' . number_format($saldo, 0, ',', '.')"
+            icon="💵"
+            color="blue"
+        />
+
+        <x-stat
+            label="Pendiente"
+            :value="'$ ' . number_format($totalPendiente, 0, ',', '.')"
+            icon="⏳"
+            color="yellow"
+        />
+
+    </div>
+
+</x-page-header>
 
 
 {{-- =========================================================
-     MENSAJE DE ÉXITO
+     MENSAJE
 ========================================================= --}}
 
 @if(session('success'))
 
-    <div class="mb-5 rounded-xl bg-green-50 border border-green-200
-                text-green-700 px-4 py-3 text-sm">
-
-        {{ session('success') }}
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     ERRORES
-========================================================= --}}
-
-@if($errors->any())
-
-    <div class="mb-5 rounded-xl bg-red-50 border border-red-200
-                text-red-700 px-4 py-3 text-sm">
-
-        <div class="font-semibold mb-2">
-            Revisa la información:
-        </div>
-
-        <ul class="list-disc ml-5">
-
-            @foreach($errors->all() as $error)
-
-                <li>{{ $error }}</li>
-
-            @endforeach
-
-        </ul>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     RESUMEN FINANCIERO
-========================================================= --}}
-
-<div class="bg-white rounded-xl shadow-sm
-            border border-gray-200 mb-6">
-
-    <div class="px-5 py-3 border-b bg-gray-50">
-
-        <h3 class="text-sm font-semibold text-slate-700">
-            💰 Resumen financiero
-        </h3>
-
-    </div>
-
-
-    <div class="grid grid-cols-2 md:grid-cols-4
-                divide-x divide-gray-200">
-
-
-        {{-- INGRESOS --}}
-
-        <div class="px-5 py-4">
-
-            <div class="text-xs text-gray-500">
-                Ingresos
-            </div>
-
-            <div class="text-xl font-bold text-green-700 mt-1">
-
-                ${{ number_format(
-                    $ingresos ?? 0,
-                    0,
-                    ',',
-                    '.'
-                ) }}
-
-            </div>
-
-        </div>
-
-
-        {{-- GASTOS --}}
-
-        <div class="px-5 py-4">
-
-            <div class="text-xs text-gray-500">
-                Gastos
-            </div>
-
-            <div class="text-xl font-bold text-red-700 mt-1">
-
-                ${{ number_format(
-                    $gastos ?? 0,
-                    0,
-                    ',',
-                    '.'
-                ) }}
-
-            </div>
-
-        </div>
-
-
-        {{-- SALDO --}}
-
-        <div class="px-5 py-4">
-
-            <div class="text-xs text-gray-500">
-                Saldo
-            </div>
-
-            <div class="text-xl font-bold text-blue-700 mt-1">
-
-                ${{ number_format(
-                    $saldo ?? 0,
-                    0,
-                    ',',
-                    '.'
-                ) }}
-
-            </div>
-
-        </div>
-
-
-        {{-- PENDIENTE --}}
-
-        <div class="px-5 py-4">
-
-            <div class="text-xs text-gray-500">
-                Por cobrar
-            </div>
-
-            <div class="text-xl font-bold text-red-600 mt-1">
-
-                ${{ number_format(
-                    $totalPendiente ?? 0,
-                    0,
-                    ',',
-                    '.'
-                ) }}
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     ACCIÓN PRINCIPAL
-========================================================= --}}
-
-<div class="flex justify-end mb-5">
-
-    <a
-        href="{{ route('contabilidad.create') }}"
-        class="inline-flex items-center gap-2
-               bg-green-600 hover:bg-green-700
-               text-white px-5 py-2.5
-               rounded-lg text-sm font-semibold
-               shadow-sm transition"
+    <div
+        class="mb-6 rounded-lg
+               bg-green-100
+               border border-green-300
+               text-green-700
+               px-4 py-3"
     >
+        {{ session('success') }}
+    </div>
 
-        ➕ Nuevo movimiento
+@endif
+
+
+{{-- =========================================================
+     BOTONES PRINCIPALES
+========================================================= --}}
+
+<x-actions>
+
+    <a href="{{ route('contabilidad.create') }}">
+
+        <x-button color="blue">
+            ➕ Nuevo movimiento
+        </x-button>
 
     </a>
 
-</div>
+
+       <a href="{{ route('contabilidad.exportExcel', request()->query()) }}">
+        <x-button color="green">
+            📊 Excel
+        </x-button>
+    </a>
+
+    <a href="{{ route('contabilidad.pdf', request()->query()) }}">
+        <x-button color="red">
+            📄 PDF
+        </x-button>
+    </a>
+
+</x-actions>
 
 
 {{-- =========================================================
-     PENDIENTES DE PAGO
+     FILTROS MOVIMIENTOS
 ========================================================= --}}
 
-<div class="bg-white rounded-xl shadow-lg
-            overflow-hidden mb-6">
+<x-filter
+    :action="route('contabilidad.index')"
+>
 
+    {{-- TIPO --}}
 
-    {{-- CABECERA --}}
+    <div class="w-full md:w-[180px]">
 
-    <div class="bg-red-50 border-b border-red-100
-                px-5 py-4">
+        <select
+            name="tipo"
+            class="w-full h-10 rounded-lg
+                   border border-gray-300
+                   bg-white px-3
+                   text-sm text-slate-700
+                   focus:ring-2
+                   focus:ring-blue-500
+                   focus:border-blue-500
+                   transition"
+        >
 
-        <div class="flex items-center justify-between">
+            <option value="">
+                Todos los movimientos
+            </option>
 
-            <div>
-
-                <h3 class="font-bold text-red-800 text-base">
-
-                    🔴 Pendientes de pago
-
-                </h3>
-
-                <p class="text-xs text-red-600 mt-1">
-
-                    Obligaciones de jugadores que todavía
-                    tienen saldo pendiente.
-
-                </p>
-
-            </div>
-
-
-            <span
-                class="text-xs font-semibold
-                       bg-red-100 text-red-700
-                       px-3 py-1 rounded-full"
+            <option
+                value="Ingreso"
+                @selected(request('tipo') === 'Ingreso')
             >
+                💰 Ingresos
+            </option>
 
-                {{ $cargosPendientes->count() }}
+            <option
+                value="Egreso"
+                @selected(request('tipo') === 'Egreso')
+            >
+                💸 Gastos
+            </option>
 
-                {{ $cargosPendientes->count() == 1
-                    ? 'pendiente'
-                    : 'pendientes' }}
-
-            </span>
-
-        </div>
+        </select>
 
     </div>
 
 
-    <div class="p-4">
-
-        @if($cargosPendientes->count())
-
-
-            <div class="overflow-x-auto
-                        border rounded-xl">
-
-                <table class="min-w-full text-sm">
-
-                    <thead class="bg-gray-100">
-
-                        <tr>
-
-                            <th class="px-4 py-3 text-left">
-                                Jugador
-                            </th>
-
-                            <th class="px-4 py-3 text-left">
-                                Concepto
-                            </th>
-
-                            <th class="px-4 py-3 text-center">
-                                Periodo
-                            </th>
-
-                            <th class="px-4 py-3 text-right">
-                                Valor
-                            </th>
-
-                            <th class="px-4 py-3 text-right">
-                                Pagado
-                            </th>
-
-                            <th class="px-4 py-3 text-right">
-                                Pendiente
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @foreach($cargosPendientes as $cargo)
-
-                            @php
-
-                                $valorCargo =
-                                    (float) $cargo->valor;
-
-                                $valorPagado =
-                                    (float) $cargo->valor_pagado;
-
-                                $pendiente =
-                                    max(
-                                        0,
-                                        $valorCargo -
-                                        $valorPagado
-                                    );
-
-                            @endphp
-
-
-                            <tr
-                                class="border-t
-                                       hover:bg-red-50/40
-                                       transition"
-                            >
-
-
-                                {{-- JUGADOR --}}
-
-                                <td class="px-4 py-3">
-
-                                    @if($cargo->jugador)
-
-                                        <div
-                                            class="font-semibold
-                                                   text-gray-800"
-                                        >
-
-                                            {{ $cargo->jugador->apellidos }}
-                                            {{ $cargo->jugador->nombres }}
-
-                                        </div>
-
-                                    @else
-
-                                        <span class="text-gray-400">
-                                            Sin jugador
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- CONCEPTO --}}
-
-                                <td class="px-4 py-3">
-
-                                    <span
-                                        class="font-medium
-                                               text-gray-700"
-                                    >
-
-                                        {{ $cargo->concepto?->nombre
-                                            ?? 'Sin concepto' }}
-
-                                    </span>
-
-                                </td>
-
-
-                                {{-- PERIODO --}}
-
-                                <td
-                                    class="px-4 py-3
-                                           text-center
-                                           whitespace-nowrap"
-                                >
-
-                                    {{ $cargo->periodo ?? '—' }}
-
-                                </td>
-
-
-                                {{-- VALOR --}}
-
-                                <td
-                                    class="px-4 py-3
-                                           text-right
-                                           whitespace-nowrap"
-                                >
-
-                                    ${{ number_format(
-                                        $valorCargo,
-                                        0,
-                                        ',',
-                                        '.'
-                                    ) }}
-
-                                </td>
-
-
-                                {{-- PAGADO --}}
-
-                                <td
-                                    class="px-4 py-3
-                                           text-right
-                                           text-green-700
-                                           font-semibold
-                                           whitespace-nowrap"
-                                >
-
-                                    ${{ number_format(
-                                        $valorPagado,
-                                        0,
-                                        ',',
-                                        '.'
-                                    ) }}
-
-                                </td>
-
-
-                                {{-- PENDIENTE --}}
-
-                                <td
-                                    class="px-4 py-3
-                                           text-right
-                                           text-red-600
-                                           font-bold
-                                           whitespace-nowrap"
-                                >
-
-                                    ${{ number_format(
-                                        $pendiente,
-                                        0,
-                                        ',',
-                                        '.'
-                                    ) }}
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-        @else
-
-            {{-- SIN PENDIENTES --}}
-
-            <div
-                class="rounded-xl
-                       border border-green-200
-                       bg-green-50
-                       px-5 py-8
-                       text-center"
-            >
-
-                <div class="text-3xl mb-2">
-                    ✅
-                </div>
-
-                <div
-                    class="font-semibold
-                           text-green-800"
+    {{-- CONCEPTO --}}
+
+    <div class="w-full md:w-[220px]">
+
+        <select
+            name="concepto"
+            class="w-full h-10 rounded-lg
+                   border border-gray-300
+                   bg-white px-3
+                   text-sm text-slate-700
+                   focus:ring-2
+                   focus:ring-blue-500
+                   focus:border-blue-500
+                   transition"
+        >
+
+            <option value="">
+                Todos los conceptos
+            </option>
+
+            @foreach($conceptos as $concepto)
+
+                <option
+                    value="{{ $concepto->id }}"
+                    @selected(
+                        request('concepto') == $concepto->id
+                    )
                 >
+                    {{ $concepto->nombre }}
+                </option>
 
-                    No hay pagos pendientes
+            @endforeach
 
-                </div>
-
-                <div
-                    class="text-xs
-                           text-green-700 mt-1"
-                >
-
-                    Todas las obligaciones registradas
-                    están al día.
-
-                </div>
-
-            </div>
-
-        @endif
+        </select>
 
     </div>
 
-</div>
+
+    {{-- JUGADOR --}}
+
+    <div class="w-full md:w-[240px]">
+
+        <select
+            name="jugador_movimiento"
+            class="w-full h-10 rounded-lg
+                   border border-gray-300
+                   bg-white px-3
+                   text-sm text-slate-700
+                   focus:ring-2
+                   focus:ring-blue-500
+                   focus:border-blue-500
+                   transition"
+        >
+
+            <option value="">
+                Todos los jugadores
+            </option>
+
+            @foreach($jugadores as $jugador)
+
+                <option
+                    value="{{ $jugador->id }}"
+                    @selected(
+                        request('jugador_movimiento') == $jugador->id
+                    )
+                >
+
+                    {{ $jugador->apellidos }}
+                    {{ $jugador->nombres }}
+
+                </option>
+
+            @endforeach
+
+        </select>
+
+    </div>
+
+
+    {{-- DESDE --}}
+
+    <div class="w-full md:w-[170px]">
+
+        <input
+            type="date"
+            name="desde"
+            value="{{ request('desde') }}"
+            class="w-full h-10 rounded-lg
+                   border border-gray-300
+                   bg-white px-3
+                   text-sm text-slate-700
+                   focus:ring-2
+                   focus:ring-blue-500"
+        >
+
+    </div>
+
+
+    {{-- HASTA --}}
+
+    <div class="w-full md:w-[170px]">
+
+        <input
+            type="date"
+            name="hasta"
+            value="{{ request('hasta') }}"
+            class="w-full h-10 rounded-lg
+                   border border-gray-300
+                   bg-white px-3
+                   text-sm text-slate-700
+                   focus:ring-2
+                   focus:ring-blue-500"
+        >
+
+    </div>
+
+
+    <x-button
+        type="submit"
+        color="blue"
+    >
+        🔍 Filtrar
+    </x-button>
+
+
+    <a
+        href="{{ route('contabilidad.index') }}"
+        class="inline-flex
+               items-center
+               justify-center
+               bg-gray-600
+               hover:bg-gray-700
+               text-white
+               px-5 py-2
+               rounded-xl
+               font-semibold
+               transition-all
+               duration-300
+               shadow-sm
+               hover:shadow-md"
+    >
+        Limpiar
+    </a>
+
+</x-filter>
 
 
 {{-- =========================================================
      MOVIMIENTOS CONTABLES
 ========================================================= --}}
 
-<div class="bg-white rounded-xl shadow-lg
-            overflow-hidden">
+<x-card class="mb-8">
+
+    <div class="flex flex-col md:flex-row
+                md:items-center
+                md:justify-between
+                gap-3 mb-5">
+
+        <div>
+
+            <h2 class="text-lg font-bold text-slate-800">
+                📒 Movimientos contables
+            </h2>
+
+            <p class="text-xs text-gray-500 mt-1">
+                Registro de ingresos y gastos del club.
+            </p>
+
+        </div>
 
 
-    {{-- CABECERA --}}
+        <div class="text-sm text-gray-500">
 
-    <div class="bg-slate-800 text-white
-                px-5 py-4">
-
-        <div class="flex items-center justify-between">
-
-            <div>
-
-                <h3 class="font-bold text-base">
-
-                    💳 Movimientos contables
-
-                </h3>
-
-                <p class="text-xs text-slate-300 mt-1">
-
-                    Historial de ingresos y egresos
-                    registrados en el club.
-
-                </p>
-
-            </div>
-
-
-            <span
-                class="text-xs bg-slate-700
-                       px-3 py-1 rounded-full"
-            >
-
-                {{ $movimientos->count() }}
-
-                {{ $movimientos->count() == 1
-                    ? 'movimiento'
-                    : 'movimientos' }}
-
-            </span>
+            {{ $movimientos->count() }}
+            movimiento{{ $movimientos->count() == 1 ? '' : 's' }}
 
         </div>
 
     </div>
 
 
-    <div class="p-4">
+    <x-table>
+
+        <x-table-header>
+
+            <x-table-header-cell>
+                Fecha
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Tipo
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Concepto
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Jugador / Tercero
+            </x-table-header-cell>
+
+            <x-table-header-cell align="right">
+                Valor
+            </x-table-header-cell>
+
+            <x-table-header-cell align="center">
+                Método
+            </x-table-header-cell>
+
+            <x-table-header-cell align="center">
+                Acciones
+            </x-table-header-cell>
+
+        </x-table-header>
 
 
-        {{-- FILTROS --}}
+        <tbody>
 
-        <form
-            method="GET"
-            action="{{ route('contabilidad.index') }}"
-            class="mb-5"
+            @forelse($movimientos as $movimiento)
+
+                <x-table-row>
+
+                    {{-- FECHA --}}
+
+                    <x-table-cell>
+
+                        {{ $movimiento->fecha
+                            ? $movimiento->fecha->format('d/m/Y')
+                            : '-'
+                        }}
+
+                    </x-table-cell>
+
+
+                    {{-- TIPO --}}
+
+                    <x-table-cell>
+
+                        @if($movimiento->tipo === 'Ingreso')
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       rounded-full
+                                       bg-green-100
+                                       px-3 py-1
+                                       text-xs
+                                       font-semibold
+                                       text-green-700"
+                            >
+                                💰 Ingreso
+                            </span>
+
+                        @else
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       rounded-full
+                                       bg-red-100
+                                       px-3 py-1
+                                       text-xs
+                                       font-semibold
+                                       text-red-700"
+                            >
+                                💸 Gasto
+                            </span>
+
+                        @endif
+
+                    </x-table-cell>
+
+
+                    {{-- CONCEPTO --}}
+
+                    <x-table-cell>
+
+                        <div class="font-semibold text-slate-800">
+
+                            {{ $movimiento->concepto->nombre ?? '-' }}
+
+                        </div>
+
+                    </x-table-cell>
+
+
+                    {{-- JUGADOR / TERCERO --}}
+
+                    <x-table-cell>
+
+                        @if($movimiento->jugador)
+
+                            <div class="font-medium">
+
+                                {{ $movimiento->jugador->apellidos }}
+                                {{ $movimiento->jugador->nombres }}
+
+                            </div>
+
+                        @elseif($movimiento->tercero)
+
+                            {{ $movimiento->tercero }}
+
+                        @else
+
+                            -
+
+                        @endif
+
+                    </x-table-cell>
+
+
+                    {{-- VALOR --}}
+
+                    <x-table-cell align="right">
+
+                        <span class="font-bold">
+
+                            ${{ number_format(
+                                $movimiento->valor,
+                                0,
+                                ',',
+                                '.'
+                            ) }}
+
+                        </span>
+
+                    </x-table-cell>
+
+
+                    {{-- MÉTODO --}}
+
+                    <x-table-cell align="center">
+
+                        {{ $movimiento->metodo_pago ?? '-' }}
+
+                    </x-table-cell>
+
+
+                    {{-- ACCIONES --}}
+
+                    <x-table-cell align="center">
+
+                        <div
+                            class="flex
+                                   justify-center
+                                   items-center
+                                   gap-2"
+                        >
+
+                            <a
+                                href="{{ route(
+                                    'contabilidad.edit',
+                                    $movimiento
+                                ) }}"
+                                class="w-9 h-9
+                                       flex items-center
+                                       justify-center
+                                       rounded-lg
+                                       bg-yellow-500
+                                       hover:bg-yellow-600
+                                       text-white
+                                       shadow-sm"
+                                title="Editar"
+                            >
+                                ✏️
+                            </a>
+
+
+                           <form
+    action="{{ route(
+        'contabilidad.destroy',
+        $movimiento
+    ) }}"
+    method="POST"
+    class="inline formulario-eliminar"
+>
+
+    @csrf
+    @method('DELETE')
+
+    <x-button
+        type="submit"
+        color="red"
+        icon
+        title="Eliminar"
+    >
+        🗑️
+    </x-button>
+
+</form>
+
+                        </div>
+
+                    </x-table-cell>
+
+                </x-table-row>
+
+            @empty
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center
+                               py-10
+                               text-gray-500"
+                    >
+
+                        No hay movimientos contables
+                        para los filtros seleccionados.
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+        </tbody>
+
+    </x-table>
+
+</x-card>
+
+
+{{-- =========================================================
+     PENDIENTES DE PAGO
+========================================================= --}}
+
+<x-card class="mb-8">
+
+    <div class="flex flex-col md:flex-row
+                md:items-center
+                md:justify-between
+                gap-4 mb-5">
+
+
+        <div>
+
+            <h2 class="text-lg font-bold text-slate-800">
+                ⏳ Pendientes de pago
+            </h2>
+
+            <p class="text-xs text-gray-500 mt-1">
+                Consulta las obligaciones pendientes de los jugadores.
+            </p>
+
+        </div>
+
+
+        <div class="flex flex-wrap gap-2">
+
+            <div
+                class="rounded-xl
+                       bg-yellow-50
+                       border border-yellow-200
+                       px-4 py-2
+                       text-center"
+            >
+
+                <div
+                    class="text-xs
+                           text-yellow-700
+                           font-semibold"
+                >
+                    Obligaciones
+                </div>
+
+                <div
+                    class="text-lg
+                           font-bold
+                           text-yellow-800"
+                >
+                    {{ $cantidadPendientes }}
+                </div>
+
+            </div>
+
+
+            <div
+                class="rounded-xl
+                       bg-blue-50
+                       border border-blue-200
+                       px-4 py-2
+                       text-center"
+            >
+
+                <div
+                    class="text-xs
+                           text-blue-700
+                           font-semibold"
+                >
+                    Jugadores
+                </div>
+
+                <div
+                    class="text-lg
+                           font-bold
+                           text-blue-800"
+                >
+                    {{ $jugadoresConPendiente }}
+                </div>
+
+            </div>
+
+
+            <div
+                class="rounded-xl
+                       bg-red-50
+                       border border-red-200
+                       px-4 py-2
+                       text-center"
+            >
+
+                <div
+                    class="text-xs
+                           text-red-700
+                           font-semibold"
+                >
+                    Total
+                </div>
+
+                <div
+                    class="text-lg
+                           font-bold
+                           text-red-800"
+                >
+
+                    ${{ number_format(
+                        $totalPendiente,
+                        0,
+                        ',',
+                        '.'
+                    ) }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- =====================================================
+         FILTROS PENDIENTES
+    ====================================================== --}}
+
+    <x-filter
+        :action="route('contabilidad.index')"
+    >
+
+        {{-- JUGADOR --}}
+
+        <div class="w-full md:w-[250px]">
+
+            <select
+                name="jugador"
+                class="w-full h-10 rounded-lg
+                       border border-gray-300
+                       bg-white px-3
+                       text-sm text-slate-700
+                       focus:ring-2
+                       focus:ring-blue-500"
+            >
+
+                <option value="">
+                    Todos los jugadores
+                </option>
+
+                @foreach($jugadores as $jugador)
+
+                    <option
+                        value="{{ $jugador->id }}"
+                        @selected(
+                            request('jugador') == $jugador->id
+                        )
+                    >
+
+                        {{ $jugador->apellidos }}
+                        {{ $jugador->nombres }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+
+        {{-- CONCEPTO --}}
+
+        <div class="w-full md:w-[230px]">
+
+            <select
+                name="concepto_pendiente"
+                class="w-full h-10 rounded-lg
+                       border border-gray-300
+                       bg-white px-3
+                       text-sm text-slate-700
+                       focus:ring-2
+                       focus:ring-blue-500"
+            >
+
+                <option value="">
+                    Todos los conceptos
+                </option>
+
+                @foreach($conceptos as $concepto)
+
+                    <option
+                        value="{{ $concepto->id }}"
+                        @selected(
+                            request('concepto_pendiente')
+                            == $concepto->id
+                        )
+                    >
+
+                        {{ $concepto->nombre }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+
+        {{-- PERIODO --}}
+
+        <div class="w-full md:w-[240px]">
+
+            <select
+                name="periodo_pendiente"
+                class="w-full h-10 rounded-lg
+                       border border-gray-300
+                       bg-white px-3
+                       text-sm text-slate-700
+                       focus:ring-2
+                       focus:ring-blue-500"
+            >
+
+                <option
+                    value="todos"
+                    @selected(
+                        $periodoPendientes === 'todos'
+                    )
+                >
+                    📊 Todos los meses de {{ $anio }}
+                </option>
+
+
+                @php
+
+                    $meses = [
+                        '01' => 'Enero',
+                        '02' => 'Febrero',
+                        '03' => 'Marzo',
+                        '04' => 'Abril',
+                        '05' => 'Mayo',
+                        '06' => 'Junio',
+                        '07' => 'Julio',
+                        '08' => 'Agosto',
+                        '09' => 'Septiembre',
+                        '10' => 'Octubre',
+                        '11' => 'Noviembre',
+                        '12' => 'Diciembre',
+                    ];
+
+                @endphp
+
+
+                @foreach($meses as $numero => $nombre)
+
+                    @php
+
+                        $periodo =
+                            $anio . '-' . $numero;
+
+                    @endphp
+
+                    <option
+                        value="{{ $periodo }}"
+                        @selected(
+                            $periodoPendientes === $periodo
+                        )
+                    >
+
+                        {{ $nombre }} {{ $anio }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+
+        <x-button
+            type="submit"
+            color="blue"
+        >
+            🔍 Filtrar
+        </x-button>
+
+
+        <a
+            href="{{ route('contabilidad.index') }}"
+            class="inline-flex
+                   items-center
+                   justify-center
+                   bg-gray-600
+                   hover:bg-gray-700
+                   text-white
+                   px-5 py-2
+                   rounded-xl
+                   font-semibold
+                   transition-all
+                   duration-300
+                   shadow-sm
+                   hover:shadow-md"
+        >
+            Limpiar
+        </a>
+
+    </x-filter>
+
+
+    {{-- =====================================================
+         BOTONES EXPORTACIÓN PENDIENTES
+    ====================================================== --}}
+
+    <div
+        class="flex
+               justify-end
+               gap-2
+               mb-4"
+    >
+
+        <a
+            href="{{ route(
+                'contabilidad.exportExcel',
+                array_merge(
+                    request()->query(),
+                    [
+                        'solo_pendientes' => 1
+                    ]
+                )
+            ) }}"
+        >
+
+            <x-button color="green">
+                📊 Excel pendientes
+            </x-button>
+
+        </a>
+
+
+        <a
+            href="{{ route(
+                'contabilidad.pdf',
+                array_merge(
+                    request()->query(),
+                    [
+                        'solo_pendientes' => 1
+                    ]
+                )
+            ) }}"
+        >
+
+            <x-button color="red">
+                📄 PDF pendientes
+            </x-button>
+
+        </a>
+
+    </div>
+
+
+    {{-- =====================================================
+         TABLA PENDIENTES
+    ====================================================== --}}
+
+    <x-table>
+
+        <x-table-header>
+
+            <x-table-header-cell>
+                Jugador
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Concepto
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Periodo
+            </x-table-header-cell>
+
+            <x-table-header-cell>
+                Fecha
+            </x-table-header-cell>
+
+            <x-table-header-cell align="right">
+                Valor
+            </x-table-header-cell>
+
+            <x-table-header-cell align="right">
+                Pagado
+            </x-table-header-cell>
+
+            <x-table-header-cell align="right">
+                Pendiente
+            </x-table-header-cell>
+
+            <x-table-header-cell align="center">
+                Estado
+            </x-table-header-cell>
+
+        </x-table-header>
+
+
+        <tbody>
+
+            @forelse($cargosPendientes as $cargo)
+
+                @php
+
+                    $pendiente =
+                        max(
+                            0,
+                            (float) $cargo->valor -
+                            (float) $cargo->valor_pagado
+                        );
+
+                @endphp
+
+
+                <x-table-row>
+
+                    {{-- JUGADOR --}}
+
+                    <x-table-cell>
+
+                        <div class="font-semibold text-slate-800">
+
+                            {{ $cargo->jugador->apellidos ?? '' }}
+                            {{ $cargo->jugador->nombres ?? '' }}
+
+                        </div>
+
+                    </x-table-cell>
+
+
+                    {{-- CONCEPTO --}}
+
+                    <x-table-cell>
+
+                        {{ $cargo->concepto->nombre ?? '-' }}
+
+                    </x-table-cell>
+
+
+                    {{-- PERIODO --}}
+
+                    <x-table-cell>
+
+                        @if($cargo->periodo)
+
+                            @php
+
+                                try {
+
+                                    $fechaPeriodo =
+                                        \Carbon\Carbon::createFromFormat(
+                                            'Y-m',
+                                            $cargo->periodo
+                                        );
+
+                                    $nombrePeriodo =
+                                        ucfirst(
+                                            $fechaPeriodo->translatedFormat(
+                                                'F Y'
+                                            )
+                                        );
+
+                                } catch (\Throwable $e) {
+
+                                    $nombrePeriodo =
+                                        $cargo->periodo;
+
+                                }
+
+                            @endphp
+
+                            {{ $nombrePeriodo }}
+
+                        @else
+
+                            -
+
+                        @endif
+
+                    </x-table-cell>
+
+
+                    {{-- FECHA --}}
+
+                    <x-table-cell>
+
+                        {{ $cargo->fecha
+                            ? $cargo->fecha->format('d/m/Y')
+                            : '-'
+                        }}
+
+                    </x-table-cell>
+
+
+                    {{-- VALOR --}}
+
+                    <x-table-cell align="right">
+
+                        ${{ number_format(
+                            $cargo->valor,
+                            0,
+                            ',',
+                            '.'
+                        ) }}
+
+                    </x-table-cell>
+
+
+                    {{-- PAGADO --}}
+
+                    <x-table-cell align="right">
+
+                        ${{ number_format(
+                            $cargo->valor_pagado,
+                            0,
+                            ',',
+                            '.'
+                        ) }}
+
+                    </x-table-cell>
+
+
+                    {{-- PENDIENTE --}}
+
+                    <x-table-cell align="right">
+
+                        <span
+                            class="font-bold text-red-600"
+                        >
+
+                            ${{ number_format(
+                                $pendiente,
+                                0,
+                                ',',
+                                '.'
+                            ) }}
+
+                        </span>
+
+                    </x-table-cell>
+
+
+                    {{-- ESTADO --}}
+
+                    <x-table-cell align="center">
+
+                        @if($cargo->estado === 'Parcial')
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       rounded-full
+                                       bg-yellow-100
+                                       px-3 py-1
+                                       text-xs
+                                       font-semibold
+                                       text-yellow-700"
+                            >
+                                Parcial
+                            </span>
+
+                        @else
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       rounded-full
+                                       bg-red-100
+                                       px-3 py-1
+                                       text-xs
+                                       font-semibold
+                                       text-red-700"
+                            >
+                                Pendiente
+                            </span>
+
+                        @endif
+
+                    </x-table-cell>
+
+                </x-table-row>
+
+            @empty
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="text-center
+                               py-10
+                               text-gray-500"
+                    >
+
+                        <div class="text-3xl mb-2">
+                            🎉
+                        </div>
+
+                        <div class="font-semibold">
+                            No hay pendientes de pago
+                        </div>
+
+                        <div class="text-xs mt-1">
+                            No existen obligaciones pendientes
+                            para los filtros seleccionados.
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+        </tbody>
+
+    </x-table>
+
+
+    {{-- =====================================================
+         TOTAL
+    ====================================================== --}}
+
+    @if($cargosPendientes->count())
+
+        <div
+            class="mt-4
+                   flex
+                   justify-end"
         >
 
             <div
-                class="grid grid-cols-1
-                       md:grid-cols-2
-                       lg:grid-cols-5
-                       gap-3"
+                class="rounded-xl
+                       bg-red-50
+                       border border-red-200
+                       px-5 py-3"
             >
 
+                <span
+                    class="text-sm
+                           font-semibold
+                           text-red-700"
+                >
+                    Total pendiente:
+                </span>
 
-                {{-- DESDE --}}
+                <span
+                    class="ml-2
+                           text-lg
+                           font-bold
+                           text-red-800"
+                >
 
-                <div>
+                    ${{ number_format(
+                        $totalPendiente,
+                        0,
+                        ',',
+                        '.'
+                    ) }}
 
-                    <label
-                        class="block text-xs
-                               font-semibold
-                               text-gray-600 mb-1"
-                    >
-
-                        Desde
-
-                    </label>
-
-                    <input
-                        type="date"
-                        name="desde"
-                        value="{{ request('desde') }}"
-                        class="w-full border
-                               border-gray-300
-                               rounded-lg px-3 py-2
-                               text-sm"
-                    >
-
-                </div>
-
-
-                {{-- HASTA --}}
-
-                <div>
-
-                    <label
-                        class="block text-xs
-                               font-semibold
-                               text-gray-600 mb-1"
-                    >
-
-                        Hasta
-
-                    </label>
-
-                    <input
-                        type="date"
-                        name="hasta"
-                        value="{{ request('hasta') }}"
-                        class="w-full border
-                               border-gray-300
-                               rounded-lg px-3 py-2
-                               text-sm"
-                    >
-
-                </div>
-
-
-                {{-- TIPO --}}
-
-                <div>
-
-                    <label
-                        class="block text-xs
-                               font-semibold
-                               text-gray-600 mb-1"
-                    >
-
-                        Tipo
-
-                    </label>
-
-                    <select
-                        name="tipo"
-                        class="w-full border
-                               border-gray-300
-                               rounded-lg px-3 py-2
-                               text-sm bg-white"
-                    >
-
-                        <option value="">
-                            Todos
-                        </option>
-
-                        <option
-                            value="Ingreso"
-                            @selected(
-                                request('tipo') === 'Ingreso'
-                            )
-                        >
-                            Ingresos
-                        </option>
-
-                        <option
-                            value="Egreso"
-                            @selected(
-                                request('tipo') === 'Egreso'
-                            )
-                        >
-                            Gastos
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- CONCEPTO --}}
-
-                <div>
-
-                    <label
-                        class="block text-xs
-                               font-semibold
-                               text-gray-600 mb-1"
-                    >
-
-                        Concepto
-
-                    </label>
-
-                    <select
-                        name="concepto"
-                        class="w-full border
-                               border-gray-300
-                               rounded-lg px-3 py-2
-                               text-sm bg-white"
-                    >
-
-                        <option value="">
-                            Todos
-                        </option>
-
-
-                        @foreach($conceptos as $concepto)
-
-                            <option
-                                value="{{ $concepto->id }}"
-                                @selected(
-                                    (string)request('concepto')
-                                    ===
-                                    (string)$concepto->id
-                                )
-                            >
-
-                                {{ $concepto->nombre }}
-
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-
-                {{-- BOTONES --}}
-
-                <div class="flex items-end gap-2">
-
-                    <button
-                        type="submit"
-                        class="flex-1
-                               bg-blue-600
-                               hover:bg-blue-700
-                               text-white
-                               px-4 py-2
-                               rounded-lg
-                               text-sm
-                               font-semibold"
-                    >
-
-                        🔍 Filtrar
-
-                    </button>
-
-
-                    <a
-                        href="{{ route('contabilidad.index') }}"
-                        class="bg-gray-200
-                               hover:bg-gray-300
-                               text-gray-700
-                               px-4 py-2
-                               rounded-lg
-                               text-sm
-                               font-semibold"
-                    >
-
-                        Limpiar
-
-                    </a>
-
-                </div>
+                </span>
 
             </div>
 
-        </form>
-
-
-        {{-- TABLA --}}
-
-        <div
-            class="overflow-x-auto
-                   border rounded-xl"
-        >
-
-            <table class="min-w-full text-sm">
-
-                <thead class="bg-gray-100">
-
-                    <tr>
-
-                        <th class="px-4 py-3 text-center">
-                            Fecha
-                        </th>
-
-                        <th class="px-4 py-3 text-center">
-                            Tipo
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Concepto
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Jugador
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Pagador / Beneficiario
-                        </th>
-
-                        <th class="px-4 py-3 text-right">
-                            Valor
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Método
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Periodo
-                        </th>
-
-                        <th class="px-4 py-3 text-left">
-                            Observaciones
-                        </th>
-
-                        <th class="px-4 py-3 text-center">
-                            Acciones
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    @forelse($movimientos as $movimiento)
-
-                        <tr
-                            class="border-t
-                                   hover:bg-gray-50
-                                   transition"
-                        >
-
-
-                            {{-- FECHA --}}
-
-                            <td
-                                class="px-4 py-3
-                                       text-center
-                                       whitespace-nowrap"
-                            >
-
-                                {{ $movimiento->fecha?->format(
-                                    'd/m/Y'
-                                ) ?? '—' }}
-
-                            </td>
-
-
-                            {{-- TIPO --}}
-
-                            <td class="px-4 py-3 text-center">
-
-                                @if(
-                                    $movimiento->tipo === 'Ingreso'
-                                )
-
-                                    <span
-                                        class="inline-flex
-                                               px-2 py-1
-                                               rounded-full
-                                               bg-green-100
-                                               text-green-700
-                                               text-xs
-                                               font-semibold"
-                                    >
-
-                                        Ingreso
-
-                                    </span>
-
-                                @else
-
-                                    <span
-                                        class="inline-flex
-                                               px-2 py-1
-                                               rounded-full
-                                               bg-red-100
-                                               text-red-700
-                                               text-xs
-                                               font-semibold"
-                                    >
-
-                                        Egreso
-
-                                    </span>
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- CONCEPTO --}}
-
-                            <td class="px-4 py-3">
-
-                                {{ $movimiento->concepto?->nombre
-                                    ?? '—' }}
-
-                            </td>
-
-
-                            {{-- JUGADOR --}}
-
-                            <td class="px-4 py-3">
-
-                                @if($movimiento->jugador)
-
-                                    <span class="font-medium">
-
-                                        {{ $movimiento->jugador->apellidos }}
-                                        {{ $movimiento->jugador->nombres }}
-
-                                    </span>
-
-                                @else
-
-                                    —
-
-                                @endif
-
-                            </td>
-
-
-                            {{-- TERCERO --}}
-
-                            <td class="px-4 py-3">
-
-                                {{ $movimiento->tercero ?? '—' }}
-
-                            </td>
-
-
-                            {{-- VALOR --}}
-
-                            <td
-                                class="px-4 py-3
-                                       text-right
-                                       font-semibold
-                                       whitespace-nowrap
-                                       {{ $movimiento->tipo === 'Ingreso'
-                                            ? 'text-green-700'
-                                            : 'text-red-700' }}"
-                            >
-
-                                ${{ number_format(
-                                    $movimiento->valor,
-                                    0,
-                                    ',',
-                                    '.'
-                                ) }}
-
-                            </td>
-
-
-                            {{-- MÉTODO --}}
-
-                            <td class="px-4 py-3">
-
-                                {{ $movimiento->metodo_pago ?? '—' }}
-
-                            </td>
-
-
-                            {{-- PERIODO --}}
-
-                            <td class="px-4 py-3">
-
-                                {{ $movimiento->periodo ?? '—' }}
-
-                            </td>
-
-
-                            {{-- OBSERVACIONES --}}
-
-                            <td class="px-4 py-3">
-
-                                {{ $movimiento->observaciones ?? '—' }}
-
-                            </td>
-
-
-                            {{-- ACCIONES --}}
-
-                            <td class="px-4 py-3">
-
-                                <div
-                                    class="flex justify-center
-                                           items-center gap-2"
-                                >
-
-                                    {{-- EDITAR --}}
-
-                                    <a
-                                        href="{{ route(
-                                            'contabilidad.edit',
-                                            $movimiento
-                                        ) }}"
-                                        title="Editar movimiento"
-                                        class="inline-flex
-                                               items-center
-                                               justify-center
-                                               w-8 h-8
-                                               rounded-lg
-                                               bg-blue-50
-                                               text-blue-600
-                                               hover:bg-blue-100
-                                               transition"
-                                    >
-
-                                        ✏️
-
-                                    </a>
-
-
-                                    {{-- ELIMINAR --}}
-
-                                    <form
-                                        action="{{ route(
-                                            'contabilidad.destroy',
-                                            $movimiento
-                                        ) }}"
-                                        method="POST"
-                                        class="inline"
-                                        onsubmit="return confirm(
-                                            '¿Deseas eliminar este movimiento?'
-                                        );"
-                                    >
-
-                                        @csrf
-
-                                        @method('DELETE')
-
-
-                                        <button
-                                            type="submit"
-                                            title="Eliminar movimiento"
-                                            class="inline-flex
-                                                   items-center
-                                                   justify-center
-                                                   w-8 h-8
-                                                   rounded-lg
-                                                   bg-red-50
-                                                   text-red-600
-                                                   hover:bg-red-100
-                                                   transition"
-                                        >
-
-                                            🗑️
-
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td
-                                colspan="10"
-                                class="px-4 py-10
-                                       text-center
-                                       text-gray-500"
-                            >
-
-                                <div class="text-3xl mb-2">
-                                    💳
-                                </div>
-
-                                <div class="font-semibold">
-                                    No hay movimientos registrados.
-                                </div>
-
-                                <div class="text-xs mt-1">
-                                    Los ingresos y egresos del club
-                                    aparecerán aquí.
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
         </div>
 
-    </div>
+    @endif
 
-</div>
+</x-card>
+
 
 @endsection
