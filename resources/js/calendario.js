@@ -11,123 +11,250 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!calendarEl) return;
 
-    const anio = window.anioTrabajo || new Date().getFullYear();
 
-    const calendar = new Calendar(calendarEl, {
+    /*
+    |--------------------------------------------------------------------------
+    | AÑO DE TRABAJO
+    |--------------------------------------------------------------------------
+    */
 
-        plugins: [
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin
-        ],
+    const anioTrabajo =
+        Number(
+            window.anioTrabajo ||
+            new Date().getFullYear()
+        );
 
-        locale: esLocale,
 
-        initialView: 'dayGridMonth',
+    /*
+    |--------------------------------------------------------------------------
+    | FECHA INICIAL
+    |--------------------------------------------------------------------------
+    |
+    | Si el año de trabajo es el año actual:
+    | → abre en el mes actual.
+    |
+    | Si estamos trabajando otro año:
+    | → abre en enero de ese año.
+    |
+    */
 
-        initialDate: `${anio}-01-01`,
+    const hoy = new Date();
 
-        headerToolbar: {
+    let fechaInicial;
 
-            left: 'prev,next today',
 
-            center: 'title',
+    if (
+        anioTrabajo === hoy.getFullYear()
+    ) {
 
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        fechaInicial =
+            hoy.toISOString().split('T')[0];
 
-        },
+    } else {
 
-        buttonText: {
+        fechaInicial =
+            `${anioTrabajo}-01-01`;
 
-            today: 'Hoy',
+    }
 
-            month: 'Mes',
 
-            week: 'Semana',
+    /*
+    |--------------------------------------------------------------------------
+    | CALENDARIO
+    |--------------------------------------------------------------------------
+    */
 
-            day: 'Día'
+    const calendar = new Calendar(
+        calendarEl,
+        {
 
-        },
+            plugins: [
+                dayGridPlugin,
+                timeGridPlugin,
+                interactionPlugin
+            ],
 
-        height: 'auto',
 
-        events: window.eventosCalendario,
+            locale: esLocale,
 
-        eventClick(info) {
 
-            if (info.event.url) {
+            initialView:
+                'dayGridMonth',
 
-                window.location.href = info.event.url;
+
+            initialDate:
+                fechaInicial,
+
+
+            headerToolbar: {
+
+                left:
+                    'prev,next today',
+
+                center:
+                    'title',
+
+                right:
+                    'dayGridMonth,timeGridWeek,timeGridDay'
+
+            },
+
+
+            buttonText: {
+
+                today:
+                    'Hoy',
+
+                month:
+                    'Mes',
+
+                week:
+                    'Semana',
+
+                day:
+                    'Día'
+
+            },
+
+
+            height:
+                'auto',
+
+
+            events:
+                window.eventosCalendario,
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CLIC EN EVENTO
+            |--------------------------------------------------------------------------
+            */
+
+            eventClick(info) {
+
+                if (
+                    info.event.url
+                ) {
+
+                    window.location.href =
+                        info.event.url;
+
+                }
+
+            },
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | INFORMACIÓN DEL EVENTO
+            |--------------------------------------------------------------------------
+            */
+
+            eventDidMount(info) {
+
+                const datos =
+                    info.event.extendedProps;
+
+                let texto = '';
+
+
+                if (datos.tipo) {
+
+                    texto +=
+                        datos.tipo +
+                        '\n\n';
+
+                }
+
+
+                if (datos.equipo) {
+
+                    texto +=
+                        'Equipo: ' +
+                        datos.equipo +
+                        '\n';
+
+                }
+
+
+                if (datos.categoria) {
+
+                    texto +=
+                        'Categoría: ' +
+                        datos.categoria +
+                        '\n';
+
+                }
+
+
+                if (datos.entrenador) {
+
+                    texto +=
+                        'Entrenador: ' +
+                        datos.entrenador +
+                        '\n';
+
+                }
+
+
+                if (datos.rival) {
+
+                    texto +=
+                        'Rival: ' +
+                        datos.rival +
+                        '\n';
+
+                }
+
+
+                if (datos.competencia) {
+
+                    texto +=
+                        'Competencia: ' +
+                        datos.competencia +
+                        '\n';
+
+                }
+
+
+                if (datos.hora) {
+
+                    texto +=
+                        'Hora: ' +
+                        datos.hora +
+                        '\n';
+
+                }
+
+
+                if (datos.lugar) {
+
+                    texto +=
+                        'Lugar: ' +
+                        datos.lugar +
+                        '\n';
+
+                }
+
+
+                if (datos.estado) {
+
+                    texto +=
+                        'Estado: ' +
+                        datos.estado;
+
+                }
+
+
+                info.el.title =
+                    texto;
 
             }
-
-        },
-
-        eventDidMount(info) {
-
-            let datos = info.event.extendedProps;
-
-            let texto = '';
-
-            if (datos.tipo) {
-
-                texto += datos.tipo + '\n\n';
-
-            }
-
-            if (datos.equipo) {
-
-                texto += 'Equipo: ' + datos.equipo + '\n';
-
-            }
-
-            if (datos.categoria) {
-
-                texto += 'Categoría: ' + datos.categoria + '\n';
-
-            }
-
-            if (datos.entrenador) {
-
-                texto += 'Entrenador: ' + datos.entrenador + '\n';
-
-            }
-
-            if (datos.rival) {
-
-                texto += 'Rival: ' + datos.rival + '\n';
-
-            }
-
-            if (datos.competencia) {
-
-                texto += 'Competencia: ' + datos.competencia + '\n';
-
-            }
-
-            if (datos.hora) {
-
-                texto += 'Hora: ' + datos.hora + '\n';
-
-            }
-
-            if (datos.lugar) {
-
-                texto += 'Lugar: ' + datos.lugar + '\n';
-
-            }
-
-            if (datos.estado) {
-
-                texto += 'Estado: ' + datos.estado;
-
-            }
-
-            info.el.title = texto;
 
         }
+    );
 
-    });
 
     calendar.render();
 

@@ -84,7 +84,7 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 @endif
 
-// compentencias
+
 @if(auth()->user()->tienePermiso('competencias.ver'))
 
 <a href="{{ route('competencias.index') }}"
@@ -251,25 +251,75 @@ class="block px-5 py-3 hover:bg-slate-800">
 
 </div>
 
-@if(auth()->user()->tienePermiso('documentacion.ver'))
+{{-- ============================= --}}
+{{-- CENTRO DE DOCUMENTACIÓN --}}
+{{-- ============================= --}}
 
-<a href="{{ route('documentos.index') }}"
-class="block px-5 py-3 hover:bg-slate-800">
+@if(
+    auth()->user()->tienePermiso('documentacion.ver') ||
+    auth()->user()->tienePermiso('tipos_documento.ver')
+)
 
-📚 Centro de Documentación
+<div x-data="{ openDocumentacion: false }">
 
-</a>
+    <div class="flex items-center">
 
-@endif
+        {{-- Centro de documentación --}}
+        @if(auth()->user()->tienePermiso('documentacion.ver'))
 
-@if(auth()->user()->tienePermiso('tipos_documento.ver'))
+            <a
+                href="{{ route('documentos.index') }}"
+                class="flex-1 block px-5 py-3 hover:bg-slate-800"
+            >
+                📚 Centro de Documentación
+            </a>
 
-<a href="{{ route('tipos-documento.index') }}"
-class="block px-10 py-2 hover:bg-slate-800">
+        @endif
 
-📂 Tipos de documentos
 
-</a>
+        {{-- Botón para mostrar submenú --}}
+        @if(auth()->user()->tienePermiso('tipos_documento.ver'))
+
+            <button
+                type="button"
+                @click="openDocumentacion = !openDocumentacion"
+                class="px-4 py-3 hover:bg-slate-800"
+                title="Más opciones"
+            >
+
+                <span
+                    x-text="openDocumentacion ? '▼' : '▶'"
+                ></span>
+
+            </button>
+
+        @endif
+
+    </div>
+
+
+    {{-- Submenú --}}
+
+    @if(auth()->user()->tienePermiso('tipos_documento.ver'))
+
+        <div
+            x-show="openDocumentacion"
+            x-transition
+            class="bg-slate-950"
+        >
+
+            <a
+                href="{{ route('tipos-documento.index') }}"
+                class="block px-10 py-2 text-sm hover:bg-slate-800"
+            >
+                📂 Tipos de documentos
+            </a>
+
+        </div>
+
+    @endif
+
+</div>
 
 @endif
 

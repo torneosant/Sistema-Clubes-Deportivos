@@ -33,7 +33,7 @@ use App\Http\Controllers\CompetenciaController;
 use App\Http\Controllers\CompetenciaParticipanteController;
 use App\Http\Controllers\CargoJugadorController;
 use App\Http\Controllers\CobroController;
-
+use App\Http\Controllers\EventoController;
 
 
 
@@ -462,16 +462,54 @@ Route::post(
 )->name('conceptos-contables.generar-cobros');
 
 
-// ===========================
+// ============================
 // Calendario
-// ===========================
+// ============================
 
 Route::get(
     '/calendario',
-    [CalendarioController::class,'index']
+    [CalendarioController::class, 'index']
 )
     ->middleware('permiso:calendario.ver')
     ->name('calendario.index');
+
+
+Route::put(
+    '/calendario/configuracion',
+    [CalendarioController::class, 'updateConfiguracion']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('calendario.configuracion.update');
+
+
+Route::post(
+    '/calendario/eventos',
+    [EventoController::class, 'store']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('calendario.eventos.store');
+
+    Route::get(
+    '/calendario/eventos/{evento}/editar',
+    [EventoController::class, 'edit']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('calendario.eventos.edit');
+
+
+Route::delete(
+    '/calendario/eventos/{evento}',
+    [EventoController::class, 'destroy']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('calendario.eventos.destroy');
+
+    Route::put(
+    '/calendario/eventos/{evento}',
+    [EventoController::class, 'update']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('calendario.eventos.update');
 
 
     // ===========================
@@ -565,6 +603,27 @@ Route::prefix('configuracion')
     Route::put('/sistema', [ConfiguracionController::class,'updateSistema'])
         ->middleware('permiso:configuracion.editar')
         ->name('configuracion.updateSistema');
+
+
+        // ===========================
+// Calendario
+// ===========================
+
+Route::get(
+    '/calendario',
+    [ConfiguracionController::class, 'calendario']
+)
+    ->middleware('permiso:configuracion.ver')
+    ->name('configuracion.calendario');
+
+Route::put(
+    '/calendario',
+    [ConfiguracionController::class, 'updateCalendario']
+)
+    ->middleware('permiso:configuracion.editar')
+    ->name('configuracion.calendario.update');
+
+    
 
 
 

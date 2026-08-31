@@ -7,6 +7,23 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
 
     {{-- =========================================================
+         VOLVER
+    ========================================================== --}}
+
+    <x-actions class="mb-4">
+
+    <a href="{{ route('jugadores.index') }}">
+
+        <x-button color="gray">
+            ← Volver a jugadores
+        </x-button>
+
+    </a>
+
+</x-actions>
+
+
+    {{-- =========================================================
          CABECERA DEL JUGADOR
     ========================================================== --}}
 
@@ -288,6 +305,160 @@
                     </div>
 
                 </div>
+
+
+{{-- =================================================
+     ESTADO DE BECA
+================================================== --}}
+
+@if($becaVigente)
+
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+        <div class="bg-purple-700 text-white px-5 py-3 font-bold">
+            🎓 Estado de beca
+        </div>
+
+        <div class="p-5">
+
+            <div class="flex flex-col sm:flex-row sm:items-center
+                        justify-between gap-4">
+
+                <div>
+
+                    <div class="text-lg font-bold text-purple-700">
+                        Este jugador está becado
+                    </div>
+
+                    <div class="text-sm text-gray-600 mt-1">
+                        El beneficio se encuentra actualmente vigente.
+                    </div>
+
+                </div>
+
+                <div class="bg-purple-100 text-purple-700
+                            px-4 py-2 rounded-xl font-bold text-center">
+
+                    {{ number_format($becaVigente->porcentaje, 0) }}%
+                    de beca
+
+                </div>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+                        gap-4 mt-5">
+
+                {{-- CONCEPTO --}}
+
+                <div>
+
+                    <small class="text-gray-500">
+                        Tipo de beca
+                    </small>
+
+                    <div class="font-semibold text-gray-800">
+                        {{ $becaVigente->concepto?->nombre ?? 'Beca' }}
+                    </div>
+
+                </div>
+
+
+                {{-- PORCENTAJE --}}
+
+                <div>
+
+                    <small class="text-gray-500">
+                        Porcentaje
+                    </small>
+
+                    <div class="font-semibold text-gray-800">
+                        {{ number_format($becaVigente->porcentaje, 0) }}%
+                    </div>
+
+                </div>
+
+
+                {{-- VIGENCIA --}}
+
+                <div>
+
+                    <small class="text-gray-500">
+                        Vigencia
+                    </small>
+
+                    <div class="font-semibold text-gray-800">
+
+                        {{ $becaVigente->fecha_inicio?->format('d/m/Y') }}
+                        -
+                        {{ $becaVigente->fecha_fin?->format('d/m/Y') }}
+
+                    </div>
+
+                </div>
+
+
+                {{-- MOTIVO --}}
+
+                @if($becaVigente->motivo)
+
+                    <div class="sm:col-span-2 lg:col-span-3">
+
+                        <small class="text-gray-500">
+                            Motivo
+                        </small>
+
+                        <div class="bg-gray-50 rounded-lg p-3 mt-1">
+                            {{ $becaVigente->motivo }}
+                        </div>
+
+                    </div>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+
+@else
+
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+        <div class="bg-gray-600 text-white px-5 py-3 font-bold">
+            🎓 Estado de beca
+        </div>
+
+        <div class="p-5">
+
+            <div class="flex items-center gap-3">
+
+                <div class="text-2xl">
+                    ℹ️
+                </div>
+
+                <div>
+
+                    <div class="font-semibold text-gray-700">
+                        Sin beca vigente
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        Este jugador no tiene actualmente una beca activa.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
+
 
 
                 {{-- ACUDIENTE --}}

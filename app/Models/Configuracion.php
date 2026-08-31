@@ -30,6 +30,19 @@ class Configuracion extends Model
         'color_secundario',
         'zona_horaria',
         'idioma',
-        'moneda'
+        'moneda',
+
+        // Configuración del calendario
+        'calendario_partidos',
+        'calendario_entrenamientos',
+        'calendario_cumpleanos',
+        'calendario_eventos',
+    ];
+
+    protected $casts = [
+        'calendario_partidos' => 'boolean',
+        'calendario_entrenamientos' => 'boolean',
+        'calendario_cumpleanos' => 'boolean',
+        'calendario_eventos' => 'boolean',
     ];
 }

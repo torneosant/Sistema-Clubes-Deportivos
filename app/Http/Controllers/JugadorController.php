@@ -19,6 +19,7 @@ use App\Models\Club;
 use App\Models\Documento;
 use App\Models\TipoDocumento;
 use App\Models\CargoJugador;
+use App\Models\BecaJugador;
 
 class JugadorController extends Controller
 {
@@ -243,6 +244,21 @@ class JugadorController extends Controller
             ->get();
 
 
+            /*
+|--------------------------------------------------------------------------
+| BECA VIGENTE DEL JUGADOR
+|--------------------------------------------------------------------------
+*/
+
+$becaVigente = BecaJugador::with('concepto')
+    ->where('club_id', auth()->user()->club_id)
+    ->where('jugador_id', $jugador->id)
+    ->where('activo', true)
+    ->whereDate('fecha_inicio', '<=', now()->toDateString())
+    ->whereDate('fecha_fin', '>=', now()->toDateString())
+    ->orderByDesc('fecha_inicio')
+    ->first();
+
         /*
         |--------------------------------------------------------------------------
         | TOTALES DE CARGOS
@@ -398,7 +414,7 @@ class JugadorController extends Controller
         return view('jugadores.show', [
 
             'jugador' => $jugador,
-
+            'becaVigente' => $becaVigente,
             'historiales' =>
                 $jugador->historialesMedicos,
 

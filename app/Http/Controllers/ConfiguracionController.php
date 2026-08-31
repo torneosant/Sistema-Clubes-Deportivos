@@ -276,4 +276,45 @@ public function updateInscripciones(Request $request)
         'Configuración de inscripciones actualizada correctamente.'
     );
 }
+
+// ===========================
+// CALENDARIO
+// ===========================
+
+public function calendario()
+{
+    $configuracion = $this->config();
+
+    return view(
+        'configuracion.calendario',
+        compact('configuracion')
+    );
+}
+
+
+public function updateCalendario(Request $request)
+{
+    $configuracion = $this->config();
+
+    $configuracion->update([
+
+        'calendario_partidos' =>
+            $request->boolean('calendario_partidos'),
+
+        'calendario_entrenamientos' =>
+            $request->boolean('calendario_entrenamientos'),
+
+        'calendario_cumpleanos' =>
+            $request->boolean('calendario_cumpleanos'),
+
+        'calendario_eventos' =>
+            $request->boolean('calendario_eventos'),
+
+    ]);
+
+    return back()->with(
+        'success',
+        'Configuración del calendario actualizada correctamente.'
+    );
+}
 }
