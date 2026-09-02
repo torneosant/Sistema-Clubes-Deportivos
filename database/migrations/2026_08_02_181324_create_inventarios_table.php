@@ -12,6 +12,10 @@ return new class extends Migration
 
             $table->id();
 
+            $table->foreignId('club_id')
+                  ->constrained('clubs')
+                  ->cascadeOnDelete();
+
             $table->string('nombre');
 
             $table->string('codigo')->nullable();

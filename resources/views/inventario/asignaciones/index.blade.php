@@ -4,47 +4,40 @@
 
 @section('contenido')
 
-
+{{-- ========================================================= --}}
 {{-- ENCABEZADO --}}
+{{-- ========================================================= --}}
 
 <x-page-header
     title="📤 Asignaciones de Inventario"
     subtitle="Controla dónde se encuentra cada implemento."
->
+/>
 
 
-</x-page-header>
-
-
+{{-- ========================================================= --}}
 {{-- ACCIONES --}}
+{{-- ========================================================= --}}
 
 <x-actions>
 
     <a href="{{ route('asignaciones-inventario.create') }}">
-
         <x-button color="blue">
-
             ➕ Nueva Asignación
-
         </x-button>
-
     </a>
 
-
     <a href="{{ route('asignaciones-inventario.excel') }}">
-
         <x-button color="green">
-
             📤 Excel
-
         </x-button>
-
     </a>
 
 </x-actions>
 
 
+{{-- ========================================================= --}}
 {{-- TABLA --}}
+{{-- ========================================================= --}}
 
 <x-table>
 
@@ -79,28 +72,28 @@
 
         <x-table-row>
 
-
+            {{-- ================================================= --}}
             {{-- ARTÍCULO --}}
+            {{-- ================================================= --}}
 
             <x-table-cell>
 
                 <span class="font-semibold">
-
                     {{ $asignacion->inventario->nombre }}
-
                 </span>
 
             </x-table-cell>
 
 
+            {{-- ================================================= --}}
             {{-- RESPONSABLE --}}
+            {{-- ================================================= --}}
 
             <x-table-cell>
 
                 @if($asignacion->tipo_destino == 'Entrenador')
 
                     👨‍🏫
-
                     {{ $asignacion->entrenador?->nombres }}
                     {{ $asignacion->entrenador?->apellidos }}
 
@@ -117,28 +110,32 @@
             </x-table-cell>
 
 
+            {{-- ================================================= --}}
             {{-- CANTIDAD --}}
+            {{-- ================================================= --}}
 
             <x-table-cell align="center">
 
                 @php
-                    $pendiente = $asignacion->cantidad - $asignacion->cantidad_devuelta;
+                    $pendiente =
+                        $asignacion->cantidad
+                        - $asignacion->cantidad_devuelta;
                 @endphp
 
                 @if($pendiente > 0)
 
                     <span class="font-semibold">
-
                         {{ $pendiente }}
-
                     </span>
 
                 @else
 
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-
+                    <span
+                        class="bg-green-100 text-green-700
+                               px-3 py-1 rounded-full
+                               text-sm font-semibold"
+                    >
                         Devuelto
-
                     </span>
 
                 @endif
@@ -146,7 +143,9 @@
             </x-table-cell>
 
 
+            {{-- ================================================= --}}
             {{-- FECHA --}}
+            {{-- ================================================= --}}
 
             <x-table-cell align="center">
 
@@ -155,14 +154,17 @@
             </x-table-cell>
 
 
+            {{-- ================================================= --}}
             {{-- ACCIONES --}}
+            {{-- ================================================= --}}
 
             <x-table-cell align="center">
 
                 <div class="flex justify-center items-center gap-2">
 
-
+                    {{-- ================================================= --}}
                     {{-- NUEVA ASIGNACIÓN DEL MISMO ARTÍCULO --}}
+                    {{-- ================================================= --}}
 
                     <a
                         href="{{ route('asignaciones-inventario.create') }}?inventario={{ $asignacion->inventario_id }}"
@@ -173,38 +175,43 @@
                             icon
                             title="Nueva asignación"
                         >
-
                             ➕
-
                         </x-button>
 
                     </a>
 
 
+                    {{-- ================================================= --}}
                     {{-- DEVOLVER --}}
+                    {{-- ================================================= --}}
 
-                    @if(($asignacion->cantidad - $asignacion->cantidad_devuelta) > 0)
+                    @if(
+                        ($asignacion->cantidad - $asignacion->cantidad_devuelta) > 0
+                    )
 
                         <x-button
                             type="button"
-                            color="green"
+                            color="blue"
                             icon
                             title="Devolver"
                             onclick="devolver({{ $asignacion->id }})"
                         >
-
                             ↩️
-
                         </x-button>
 
                     @endif
 
 
+                    {{-- ================================================= --}}
                     {{-- FORMULARIO OCULTO PARA DEVOLUCIÓN --}}
+                    {{-- ================================================= --}}
 
                     <form
                         id="devolver-{{ $asignacion->id }}"
-                        action="{{ route('asignaciones-inventario.devolver', $asignacion) }}"
+                        action="{{ route(
+                            'asignaciones-inventario.devolver',
+                            $asignacion
+                        ) }}"
                         method="POST"
                         class="hidden"
                     >
@@ -220,15 +227,21 @@
                     </form>
 
 
+                    {{-- ================================================= --}}
                     {{-- ELIMINAR --}}
+                    {{-- ================================================= --}}
 
                     <form
-                        action="{{ route('asignaciones-inventario.destroy', $asignacion) }}"
+                        action="{{ route(
+                            'asignaciones-inventario.destroy',
+                            $asignacion
+                        ) }}"
                         method="POST"
                         class="inline"
                     >
 
                         @csrf
+
                         @method('DELETE')
 
                         <x-button
@@ -238,18 +251,14 @@
                             title="Eliminar asignación"
                             onclick="confirmarEliminar(this)"
                         >
-
                             🗑️
-
                         </x-button>
 
                     </form>
 
-
                 </div>
 
             </x-table-cell>
-
 
         </x-table-row>
 
@@ -261,9 +270,7 @@
                 colspan="5"
                 class="px-4 py-10 text-center text-gray-500"
             >
-
                 No existen asignaciones registradas.
-
             </td>
 
         </tr>
@@ -274,8 +281,14 @@
 
 </x-table>
 
+@endsection
 
-@push('scripts')
+
+{{-- ========================================================= --}}
+{{-- SCRIPTS --}}
+{{-- ========================================================= --}}
+
+@section('scripts')
 
 <script>
 
@@ -285,35 +298,53 @@ function devolver(id) {
 
         title: 'Cantidad a devolver',
 
+        text: 'Indique cuántas unidades está devolviendo el entrenador.',
+
         input: 'number',
 
         inputAttributes: {
-            min: 1
+            min: 1,
+            step: 1
         },
+
+        inputPlaceholder: 'Cantidad',
 
         showCancelButton: true,
 
         confirmButtonText: 'Devolver',
 
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
+
+        confirmButtonColor: '#16a34a',
+
+        cancelButtonColor: '#64748b',
+
+        inputValidator: (value) => {
+
+            if (!value || value < 1) {
+                return 'Debe indicar una cantidad válida.';
+            }
+
+        }
 
     }).then((result) => {
 
-        if (result.isConfirmed && result.value) {
-
-            document.getElementById('cantidad-' + id).value = result.value;
-
-            document.getElementById('devolver-' + id).submit();
-
+        if (!result.isConfirmed) {
+            return;
         }
+
+        document.getElementById(
+            'cantidad-' + id
+        ).value = result.value;
+
+        document.getElementById(
+            'devolver-' + id
+        ).submit();
 
     });
 
 }
 
 </script>
-
-@endpush
-
 
 @endsection

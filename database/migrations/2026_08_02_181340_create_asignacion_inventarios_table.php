@@ -27,7 +27,13 @@ return new class extends Migration
 
             $table->integer('cantidad');
 
+            $table->integer('cantidad_devuelta')
+                  ->default(0);
+
             $table->date('fecha');
+
+            $table->string('estado')
+                  ->default('Activa');
 
             $table->text('observaciones')->nullable();
 

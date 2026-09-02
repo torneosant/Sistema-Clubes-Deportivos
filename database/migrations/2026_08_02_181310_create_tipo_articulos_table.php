@@ -12,6 +12,11 @@ return new class extends Migration
 
             $table->id();
 
+            $table->foreignId('club_id')
+                  ->nullable()
+                  ->constrained('clubs')
+                  ->nullOnDelete();
+
             $table->string('nombre');
 
             $table->boolean('activo')->default(true);
